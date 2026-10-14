@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'casebook_engine.dart';
 
@@ -14,10 +16,26 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
   String notebookTab = 'Rooms';
   final Set<int> checked = {};
   final Map<String,int> notes = {};
-  DetectiveCase get game => DetectiveCasebook.cases[caseIndex];
-  void selectCase(int n) => setState(() {
-    caseIndex=n;hints=0;accusation=null;solved=false;message=null;
+  DetectiveCase? generated;
+  CaseDifficulty generatedDifficulty = CaseDifficulty.easy;
+  DetectiveCase get game => generated ?? DetectiveCasebook.cases[caseIndex];
+  void _reset() {
+    hints=0;accusation=null;solved=false;message=null;
     checked.clear();notes.clear();
+  }
+  void selectCase(int n) => setState(() {
+    caseIndex=n;generated=null;_reset();
+  });
+  void dailyCase() => setState(() {
+    final now=DateTime.now();
+    final seed=now.year*10000+now.month*100+now.day;
+    generated=DetectiveCasebook.generate(seed,difficulty:generatedDifficulty);
+    _reset();
+  });
+  void randomCase() => setState(() {
+    generated=DetectiveCasebook.generate(Random().nextInt(1000000),
+      difficulty:generatedDifficulty);
+    _reset();
   });
   void submit() {
     if(accusation==null)return;
@@ -106,14 +124,34 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
         constraints:const BoxConstraints(maxWidth:750),
         child:ListView(padding:const EdgeInsets.all(16),children:[
           const Text('Read the clues and solve each mystery using logic. '
-            'Every case has exactly one solution.'),
+            'Every case — including generated daily and random cases — is '
+            'checked by a solver to have exactly one solution. Hard cases '
+            'contain no direct statements of where anyone was.'),
           const SizedBox(height:12),
           DropdownButton<int>(
-            isExpanded:true,value:caseIndex,
-            items:[for(var i=0;i<DetectiveCasebook.cases.length;i++)
-              DropdownMenuItem(value:i,child:Text(
-                'Case ${i+1}: ${DetectiveCasebook.cases[i].title}'))],
-            onChanged:(v){if(v!=null)selectCase(v);}),
+            isExpanded:true,value:generated==null?caseIndex:-1,
+            items:[
+              if(generated!=null)DropdownMenuItem(value:-1,
+                child:Text(generated!.title,overflow:TextOverflow.ellipsis)),
+              for(var i=0;i<DetectiveCasebook.cases.length;i++)
+                DropdownMenuItem(value:i,child:Text(
+                  'Case ${i+1}: ${DetectiveCasebook.cases[i].title}'
+                  '${DetectiveCasebook.cases[i].difficulty==CaseDifficulty.hard?' (hard)':''}',
+                  overflow:TextOverflow.ellipsis))],
+            onChanged:(v){if(v!=null&&v>=0)selectCase(v);}),
+          Wrap(spacing:8,runSpacing:8,crossAxisAlignment:WrapCrossAlignment.center,children:[
+            SegmentedButton<CaseDifficulty>(
+              segments:const [
+                ButtonSegment(value:CaseDifficulty.easy,label:Text('Easy')),
+                ButtonSegment(value:CaseDifficulty.hard,label:Text('Hard')),
+              ],
+              selected:{generatedDifficulty},
+              onSelectionChanged:(v)=>setState(()=>generatedDifficulty=v.first)),
+            OutlinedButton.icon(onPressed:dailyCase,
+              icon:const Icon(Icons.today_outlined),label:const Text('Daily case')),
+            OutlinedButton.icon(onPressed:randomCase,
+              icon:const Icon(Icons.casino_outlined),label:const Text('New random case')),
+          ]),
           const SizedBox(height:10),
           Card(child:Padding(padding:const EdgeInsets.all(16),
             child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[

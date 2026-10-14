@@ -30,7 +30,14 @@ Games is based on sidhant947/Puzzle (GPL-3.0). Existing upstream notices remain.
 - Original file: lib/engine/pieces/mahjong_tile.dart
 - Location: lib/ui/features/games/mahjong_solitaire/engine/mahjong_tile.dart
 - License: MIT for source code; the original project licenses graphical assets separately. LICENSE retained at THIRD_PARTY_LICENSES/ED-Mahjong-MIT.txt.
-- No upstream art assets were copied. Games adds a compact 64-tile single-layer arrangement with guaranteed solution sequences, using standard Unicode Mahjong glyphs. Full layered Mahjong Solitaire remains planned.
+- No upstream art assets were copied; tiles are drawn with Material icons.
+- Layered layouts (Turtle/Default, Cat, Dragon, Crab, Eagle, Spider, Temple, Helios) come from
+  KDE KMahjongg (Author: KDE Games team; https://github.com/KDE/kmahjongg, project licence
+  GPL-2.0-or-later, redistributed in ED-Mahjong's assets). They are converted to compact tile
+  coordinates in lib/ui/features/games/mahjong_solitaire/engine/mahjong_layouts.dart and used
+  under GPL-3.0 as permitted by "or later". The layout files carry no separate per-file licence.
+- The layered engine (layered_board.dart) is new: deals and shuffles follow a simulated removal
+  order, so every board is solvable.
 
 ## Copied source — Chess
 - Source: https://github.com/z7workbench/minigames
