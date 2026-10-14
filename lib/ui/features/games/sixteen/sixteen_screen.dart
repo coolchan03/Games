@@ -68,6 +68,8 @@ class _SixteenScreenState extends State<SixteenScreen> {
           icon: Icon(icon, size: 20),
         );
     return GameScaffold(
+      gameId: 'sixteen',
+      completed: game.solved,
       title: 'Sixteen',
       onNewGame: () => setState(() => game = SixteenGame(n: n)),
       rules: 'Put the numbers back in order. Use the arrows around the edge '

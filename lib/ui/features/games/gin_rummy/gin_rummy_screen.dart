@@ -81,6 +81,8 @@ class _GinRummyScreenState extends State<GinRummyScreen> {
     final canKnock = myTurn && selected != null && game.canKnock(selected!);
     final ginAfter = selected != null && game.phase == GinPhase.discard && game.deadwoodWithout(0, selected!) == 0;
     return GameScaffold(
+      gameId: 'gin_rummy',
+      completed: game.matchOver && game.scores[0] > game.scores[1],
       title: 'Gin Rummy',
       onNewGame: _newMatch,
       rules: 'Two players, ten cards each. On your turn draw one card (from '

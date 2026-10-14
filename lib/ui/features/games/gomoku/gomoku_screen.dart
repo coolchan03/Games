@@ -36,6 +36,8 @@ class _GomokuScreenState extends State<GomokuScreen> {
             ? 'Draw — board full'
             : '${game.turn == 1 ? 'Black' : 'White'} to play';
     return GameScaffold(
+      gameId: 'gomoku',
+      completed: game.winner == 1 || (!vsComputer && game.over),
       title: 'Gomoku',
       onNewGame: _newGame,
       rules: 'Players take turns placing stones on the intersections. Black '

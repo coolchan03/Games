@@ -88,6 +88,8 @@ class _GoGameScreenState extends State<GoGameScreen> {
       status = '${board.turn == 1 ? 'Black' : 'White'} to play${board.passes == 1 ? ' (opponent passed)' : ''}';
     }
     return GameScaffold(
+      gameId: 'go_game',
+      completed: board.over && (!vsComputer || b > w),
       title: 'Go',
       onNewGame: _newGame,
       rules: 'Players take turns placing stones on the intersections; Black '

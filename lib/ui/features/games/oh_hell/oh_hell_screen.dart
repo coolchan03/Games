@@ -173,6 +173,8 @@ class _OhHellScreenState extends State<OhHellScreen> {
     }
 
     return GameScaffold(
+      gameId: 'oh_hell',
+      completed: match.currentRound.isOver() && match.isMatchOver() && match.winningPlayers().contains(0),
       title: 'Oh Hell',
       onNewGame: () => setState(_newMatch),
       rules: 'Thirteen hands, dealing 1 card each in the first hand up to 13 '

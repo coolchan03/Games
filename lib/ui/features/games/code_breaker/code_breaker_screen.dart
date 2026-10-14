@@ -120,6 +120,8 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
             ? 'Out of guesses — the code is shown below'
             : 'Guess ${game.guesses.length + 1} of ${mode.maxGuesses}';
     return GameScaffold(
+      gameId: 'code_breaker',
+      completed: game.won,
       title: 'Code Breaker',
       onNewGame: () => setState(_newGame),
       rules: 'Deduce the hidden code of coloured pegs. After each guess you '

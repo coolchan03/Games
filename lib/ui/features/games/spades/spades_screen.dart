@@ -162,6 +162,8 @@ class _SpadesScreenState extends State<SpadesScreen> {
     }
 
     return GameScaffold(
+      gameId: 'spades',
+      completed: match.currentRound.isOver() && match.isMatchOver() && match.winningTeam() == 0,
       title: 'Spades',
       onNewGame: () => setState(_newMatch),
       rules: 'Partnership game: you and North versus West and East. Spades '

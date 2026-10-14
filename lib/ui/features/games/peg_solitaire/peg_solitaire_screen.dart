@@ -36,6 +36,8 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
         : '${board.remaining} pegs left';
     final targets = selected == null ? <int>{} : board.targets(selected!).toSet();
     return GameScaffold(
+      gameId: 'peg_solitaire',
+      completed: board.remaining == 1,
       title: 'Peg Solitaire',
       onNewGame: () => setState(() {
         board = PegBoard(european: european);

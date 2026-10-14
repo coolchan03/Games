@@ -81,6 +81,8 @@ class _YachtDiceScreenState extends State<YachtDiceScreen> {
           '${p.rollsRemaining == 1 ? '' : 's'} left · or pick a score';
     }
     return GameScaffold(
+      gameId: 'yacht_dice',
+      completed: game.isOver && game.winners.any((p) => p.type == PlayerType.human),
       title: 'Yacht Dice',
       onNewGame: () => setState(_newGame),
       rules: 'Roll five dice up to three times per turn, holding any dice '

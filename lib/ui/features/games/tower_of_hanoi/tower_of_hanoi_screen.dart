@@ -92,6 +92,8 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
         ? 'Solved in ${game.moves} moves${game.moves == game.optimal ? ' — optimal!' : ' (best is ${game.optimal})'}'
         : 'Moves ${game.moves} · minimum ${game.optimal}';
     return GameScaffold(
+      gameId: 'tower_of_hanoi',
+      completed: game.solved,
       title: 'Tower of Hanoi',
       onNewGame: () => setState(() {
         game = HanoiGame(discs);

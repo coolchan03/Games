@@ -26,6 +26,8 @@ class _VideoPokerScreenState extends State<VideoPokerScreen> {
                 ? '${payoutName(game.hand)}! You win ${game.lastWin}'
                 : 'No win — deal again';
     return GameScaffold(
+      gameId: 'video_poker',
+      completed: game.drawn && game.lastWin > 0,
       title: 'Video Poker',
       onNewGame: () => setState(() {
         game = VideoPokerGame();

@@ -83,6 +83,8 @@ class _CrazyEightsScreenState extends State<CrazyEightsScreen> {
       status = 'Player ${game.turn + 1} is playing…';
     }
     return GameScaffold(
+      gameId: 'crazy_eights',
+      completed: game.winner == 0,
       title: 'Crazy Eights',
       onNewGame: _newMatch,
       rules: 'Match the top card of the discard pile by suit or rank. Eights '

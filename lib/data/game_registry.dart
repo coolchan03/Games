@@ -1,4 +1,12 @@
 import 'game_metadata.dart';
+import '../ui/features/games/sokoban/sokoban_metadata.dart';
+import '../ui/features/games/forty_thieves/forty_thieves_metadata.dart';
+import '../ui/features/games/aces_up/aces_up_metadata.dart';
+import '../ui/features/games/poker_squares/poker_squares_metadata.dart';
+import '../ui/features/games/chinese_checkers/chinese_checkers_metadata.dart';
+import '../ui/features/games/neutron/neutron_metadata.dart';
+import '../ui/features/games/alquerque/alquerque_metadata.dart';
+import '../ui/features/games/bagh_chal/bagh_chal_metadata.dart';
 import '../ui/features/games/dominoes/dominoes_metadata.dart';
 import '../ui/features/games/liars_dice/liars_dice_metadata.dart';
 import '../ui/features/games/go_game/go_game_metadata.dart';
@@ -540,6 +548,14 @@ List<GameMetadata> _buildGameList() {
     checkersMetadata,
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
+    sokobanMetadata,
+    fortyThievesMetadata,
+    acesUpMetadata,
+    pokerSquaresMetadata,
+    chineseCheckersMetadata,
+    neutronMetadata,
+    alquerqueMetadata,
+    baghChalMetadata,
     dominoesMetadata,
     liarsDiceMetadata,
     goGameMetadata,

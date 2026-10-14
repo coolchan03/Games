@@ -32,6 +32,8 @@ class _BlackjackState extends State<BlackjackScreen> {
     final dealerTotal = handTotal(g.dealer).$1;
     final hideHole = g.inRound;
     return GameScaffold(
+      gameId: 'blackjack',
+      completed: !g.inRound && g.summary.startsWith('You win'),
       title: 'Blackjack',
       onNewGame: () => setState(() => game = BlackjackGame()),
       rules: 'Virtual chips only — no real money. Get closer to 21 than the '

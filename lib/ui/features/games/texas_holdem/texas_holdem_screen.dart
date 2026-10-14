@@ -133,6 +133,8 @@ class _TexasHoldemScreenState extends State<TexasHoldemScreen> {
     final canRaise = myTurn && game.canRaise(0);
     final raiseValue = raiseTo.clamp(minR.toDouble(), maxR.toDouble());
     return GameScaffold(
+      gameId: 'texas_holdem',
+      completed: game.handOver && game.matchOver && game.players[0].chips > 0,
       title: "Texas Hold'em",
       onNewGame: () => setState(_newGame),
       rules: "No-limit Texas Hold'em for virtual chips only — no real money. "

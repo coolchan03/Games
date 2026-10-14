@@ -54,6 +54,8 @@ class _DotsAndBoxesScreenState extends State<DotsAndBoxesScreen> {
         ? (s[0] == s[1] ? 'Tie ${s[0]}–${s[1]}' : '${s[0] > s[1] ? names[0] : names[1]} win${s[0] > s[1] && vsComputer ? '' : 's'} ${max(s[0], s[1])}–${min(s[0], s[1])}')
         : '${names[game.turn - 1]} to draw a line · ${names[0]} ${s[0]} – ${s[1]} ${names[1]}';
     return GameScaffold(
+      gameId: 'dots_and_boxes',
+      completed: game.over && (!vsComputer || game.scores[0] > game.scores[1]),
       title: 'Dots and Boxes',
       onNewGame: _newGame,
       rules: 'Take turns drawing a line between two neighbouring dots. If '

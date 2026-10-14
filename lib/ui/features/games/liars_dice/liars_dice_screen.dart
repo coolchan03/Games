@@ -99,6 +99,8 @@ class _LiarsDiceScreenState extends State<LiarsDiceScreen> {
       status = '${game.name(game.turn)} is thinking…';
     }
     return GameScaffold(
+      gameId: 'liars_dice',
+      completed: game.winner == 0,
       title: "Liar's Dice",
       onNewGame: _newGame,
       rules: 'Everyone rolls their dice in secret. Players take turns bidding '

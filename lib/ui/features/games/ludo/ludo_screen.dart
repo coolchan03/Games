@@ -119,6 +119,8 @@ class _LudoScreenState extends State<LudoScreen> {
     if (game.message != null && !game.over) status = '${game.message}\n$status';
     final movable = {for (final m in game.legal) m.piece};
     return GameScaffold(
+      gameId: 'ludo',
+      completed: game.finishOrder.isNotEmpty && (!vsComputer || game.finishOrder.first == 3),
       title: 'Ludo',
       onNewGame: () => setState(_newGame),
       rules: 'Race your four pieces around the board and into the centre. '

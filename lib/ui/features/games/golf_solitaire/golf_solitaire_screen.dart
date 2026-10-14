@@ -22,6 +22,8 @@ class _GolfSolitaireScreenState extends State<GolfSolitaireScreen> {
             ? 'No moves left · ${game.remaining} cards remain (your score)'
             : '${game.remaining} cards left · ${game.stock.length} in stock';
     return GameScaffold(
+      gameId: 'golf_solitaire',
+      completed: game.won,
       title: 'Golf',
       onNewGame: () => setState(() => game = GolfGame()),
       rules: 'Clear the seven columns onto the waste pile. Tap the bottom card '

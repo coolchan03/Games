@@ -78,6 +78,8 @@ class _ShutTheBoxScreenState extends State<ShutTheBoxScreen> {
       status = 'Rolled ${game.roll} — shut tiles that add up to ${game.roll}';
     }
     return GameScaffold(
+      gameId: 'shut_the_box',
+      completed: game.shut,
       title: 'Shut the Box',
       onNewGame: () => setState(() => game = ShutTheBoxGame()),
       rules: 'Tiles 1–9 start open. Roll two dice, then shut any open tiles '

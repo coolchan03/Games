@@ -62,6 +62,8 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
   @override
   Widget build(BuildContext context) {
     return GameScaffold(
+      gameId: 'klondike',
+      completed: game.won,
       title: 'Klondike',
       onNewGame: _newGame,
       maxWidth: 720,

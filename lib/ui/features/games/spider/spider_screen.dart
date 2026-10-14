@@ -54,6 +54,8 @@ class _SpiderScreenState extends State<SpiderScreen> {
   @override
   Widget build(BuildContext context) {
     return GameScaffold(
+      gameId: 'spider',
+      completed: game.won,
       title: 'Spider',
       maxWidth: 820,
       onNewGame: () => setState(() {

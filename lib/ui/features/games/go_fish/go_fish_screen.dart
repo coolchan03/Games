@@ -67,6 +67,8 @@ class _GoFishScreenState extends State<GoFishScreen> {
     }
     String books(int p) => game.books[p].map((r) => r == Rank.ten ? '10' : r.asciiChar).join(' ');
     return GameScaffold(
+      gameId: 'go_fish',
+      completed: game.over && game.winners.contains(0),
       title: 'Go Fish',
       onNewGame: _newGame,
       rules: 'On your turn, pick a rank you hold and ask another player for '

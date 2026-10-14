@@ -92,6 +92,8 @@ class _SnakesAndLaddersScreenState extends State<SnakesAndLaddersScreen> {
         ? '${name(game.winner!)} reached 100!'
         : '${game.message.isEmpty ? '' : '${game.message}\n'}${name(game.turn)} to roll';
     return GameScaffold(
+      gameId: 'snakes_and_ladders',
+      completed: game.winner != null && (!vsComputer || game.winner == 0),
       title: 'Snakes and Ladders',
       onNewGame: _newGame,
       rules: 'Roll the die and move your token. Land at the foot of a ladder '

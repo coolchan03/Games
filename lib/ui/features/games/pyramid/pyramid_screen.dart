@@ -36,6 +36,8 @@ class _PyramidScreenState extends State<PyramidScreen> {
   Widget build(BuildContext context) {
     final left = game.pyramid.where((c) => c != null).length;
     return GameScaffold(
+      gameId: 'pyramid',
+      completed: game.won,
       title: 'Pyramid',
       onNewGame: () => setState(() {
         game = PyramidGame();

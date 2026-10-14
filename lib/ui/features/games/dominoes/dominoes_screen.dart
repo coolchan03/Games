@@ -152,6 +152,8 @@ class _DominoesScreenState extends State<DominoesScreen> {
       status = '${game.name(game.turn)} is playing…';
     }
     return GameScaffold(
+      gameId: 'dominoes',
+      completed: game.matchOver && game.scores[0] >= game.target,
       title: 'Dominoes',
       onNewGame: _newMatch,
       rules: 'Double-six draw dominoes. Play a tile that matches the number '

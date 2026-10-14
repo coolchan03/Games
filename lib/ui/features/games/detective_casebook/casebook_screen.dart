@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import '../common/game_kit.dart';
 import 'casebook_engine.dart';
 
 class DetectiveCasebookScreen extends StatefulWidget {
@@ -41,6 +42,7 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
     if(accusation==null)return;
     setState((){
       solved=game.accuse(game.suspects[accusation!]);
+      if(solved)reportCompletion(context,'detective_casebook');
       message=solved?'Case closed! Your conclusion fits every clue.'
         :'That accusation does not fit the evidence. Try another suspect.';
     });

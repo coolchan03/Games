@@ -1,4 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../../providers/user_providers.dart';
+
+/// Records a win/completion in the app's streak and XP system. Safe to call
+/// where no ProviderScope or storage is available (it then does nothing).
+void reportCompletion(BuildContext context, String gameId) {
+  try {
+    final container = ProviderScope.containerOf(context, listen: false);
+    container
+        .read(gameStreakNotifierProvider.notifier)
+        .completeGame(gameId)
+        .catchError((Object _) => false);
+  } catch (_) {
+    // No provider scope (e.g. widget tests): nothing to record.
+  }
+}
+
+/// Calls [reportCompletion] once each time [completed] turns true.
+class _CompletionReporter extends StatefulWidget {
+  const _CompletionReporter(
+      {required this.gameId, required this.completed, required this.child});
+  final String gameId;
+  final bool completed;
+  final Widget child;
+  @override
+  State<_CompletionReporter> createState() => _CompletionReporterState();
+}
+
+class _CompletionReporterState extends State<_CompletionReporter> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.completed) _report();
+  }
+
+  @override
+  void didUpdateWidget(_CompletionReporter old) {
+    super.didUpdateWidget(old);
+    if (widget.completed && !old.completed) _report();
+  }
+
+  void _report() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) reportCompletion(context, widget.gameId);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
 
 /// Shared layout for the board, card and dice games added to Games.
 ///
@@ -13,6 +64,8 @@ class GameScaffold extends StatelessWidget {
     required this.children,
     this.maxWidth = 640,
     this.scrollable = true,
+    this.gameId,
+    this.completed = false,
   });
 
   final String title;
@@ -21,6 +74,11 @@ class GameScaffold extends StatelessWidget {
   final List<Widget> children;
   final double maxWidth;
   final bool scrollable;
+
+  /// When set, a transition of [completed] to true is recorded as a solve
+  /// for streaks and XP.
+  final String? gameId;
+  final bool completed;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +90,7 @@ class GameScaffold extends StatelessWidget {
         children: children,
       ),
     );
-    return Scaffold(
+    final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(title),
         actions: [
@@ -58,6 +116,9 @@ class GameScaffold extends StatelessWidget {
         ),
       ),
     );
+    if (gameId == null) return scaffold;
+    return _CompletionReporter(
+        gameId: gameId!, completed: completed, child: scaffold);
   }
 }
 
@@ -91,7 +152,9 @@ class StatusBanner extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: highlight ? colors.primaryContainer : colors.surfaceContainerHighest,
+        color: highlight
+            ? colors.primaryContainer
+            : colors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Text(
@@ -236,7 +299,8 @@ class Disc extends StatelessWidget {
           shape: BoxShape.circle,
           color: color,
           boxShadow: const [
-            BoxShadow(blurRadius: 2, offset: Offset(0, 1), color: Colors.black26),
+            BoxShadow(
+                blurRadius: 2, offset: Offset(0, 1), color: Colors.black26),
           ],
         ),
         child: label == null

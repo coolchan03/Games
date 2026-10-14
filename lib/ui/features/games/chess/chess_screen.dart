@@ -164,6 +164,8 @@ class _ChessScreenState extends State<ChessScreen> {
       moveText.write('${sanMoves[i]} ');
     }
     return GameScaffold(
+      gameId: 'chess',
+      completed: over && (!vsComputer || game.winner == PieceColor.white),
       title: 'Chess',
       onNewGame: newGame,
       rules: 'Standard chess. Tap a piece to see its legal moves, then tap a '

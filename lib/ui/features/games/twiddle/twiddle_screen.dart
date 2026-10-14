@@ -60,6 +60,8 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
     final n = game.n, b = game.block;
     final anchors = n - b + 1;
     return GameScaffold(
+      gameId: 'twiddle',
+      completed: game.solved,
       title: 'Twiddle',
       onNewGame: () => setState(() => game = TwiddleGame(n: config.$1, block: config.$2)),
       rules: 'Put the numbers back in order, reading left to right and top '

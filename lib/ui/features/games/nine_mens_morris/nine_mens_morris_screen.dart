@@ -109,6 +109,8 @@ class _NineMensMorrisScreenState extends State<NineMensMorrisScreen> {
     final removable = pendingRemoval == null ? <int>{} : game.removable(game.turn).toSet();
     final targets = from == null ? <int>{} : {for (final s in game.steps()) if (s.$1 == from) s.$2};
     return GameScaffold(
+      gameId: 'nine_mens_morris',
+      completed: game.result == 1 || (!vsComputer && game.result != 0),
       title: "Nine Men's Morris",
       onNewGame: _newGame,
       rules: 'Each player has nine pieces. First take turns placing them on '

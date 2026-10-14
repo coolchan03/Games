@@ -25,7 +25,7 @@ class CompoundConnectEngine {
 
   List<String> getOptions(CompoundTask task) {
     final options = [task.suffix];
-    final otherSuffixes = _tasks.where((t) => t.suffix != task.suffix).map((t) => t.suffix).toList();
+    final otherSuffixes = _tasks.where((t) => t.suffix != task.suffix).map((t) => t.suffix).toSet().toList();
     otherSuffixes.shuffle();
     options.addAll(otherSuffixes.take(3));
     options.shuffle();

@@ -47,6 +47,8 @@ class _SameGameScreenState extends State<SameGameScreen> {
                 ? 'Tap again to remove ${preview.length} for ${SameGame.points(preview.length)} points'
                 : 'Score ${game.score} · ${game.remaining} tiles left';
     return GameScaffold(
+      gameId: 'same_game',
+      completed: game.cleared,
       title: 'Same Game',
       onNewGame: _newGame,
       rules: 'Tap a group of two or more touching tiles of the same colour '

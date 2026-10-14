@@ -101,6 +101,8 @@ class _BattleshipScreenState extends State<BattleshipScreen> {
             : log;
     final left = theirs.ships.where((s) => !theirs.sunk(s)).map((s) => s.name).join(', ');
     return GameScaffold(
+      gameId: 'battleship',
+      completed: theirs.defeated,
       title: 'Battleship',
       onNewGame: () => setState(_newGame),
       rules: 'Both fleets — Carrier (5), Battleship (4), Cruiser (3), '

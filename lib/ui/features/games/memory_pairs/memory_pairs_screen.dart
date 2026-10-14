@@ -150,6 +150,8 @@ class _MemoryPairsScreenState extends State<MemoryPairsScreen> {
     }
     final cols = pairs <= 8 ? 4 : 6;
     return GameScaffold(
+      gameId: 'memory_pairs',
+      completed: game.over && (mode != 1 || game.scores[0] > game.scores[1]),
       title: 'Memory',
       onNewGame: _newGame,
       rules: 'Flip two cards per turn. A matching pair is yours and you go '

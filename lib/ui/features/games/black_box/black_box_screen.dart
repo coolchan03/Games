@@ -64,6 +64,8 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
     }
 
     return GameScaffold(
+      gameId: 'black_box',
+      completed: game.revealed && game.correct,
       title: 'Black Box',
       onNewGame: () => setState(() => game = BlackBoxGame(balls: balls)),
       rules: 'Balls are hidden in the 8×8 box. Tap an edge port to fire a '

@@ -90,6 +90,8 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
   @override
   Widget build(BuildContext context) {
     return GameScaffold(
+      gameId: 'freecell',
+      completed: game.won,
       title: 'FreeCell',
       maxWidth: 760,
       onNewGame: () => setState(() => _deal(rng.nextInt(32000) + 1)),

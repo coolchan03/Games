@@ -48,6 +48,8 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
             ? 'No matching free pairs — shuffle to continue'
             : '${board.remaining} tiles · ${moves.length} possible match${moves.length == 1 ? '' : 'es'}';
     return GameScaffold(
+      gameId: 'mahjong_solitaire',
+      completed: board.won,
       title: 'Mahjong Solitaire',
       maxWidth: 900,
       onNewGame: _newGame,

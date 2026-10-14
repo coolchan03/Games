@@ -66,6 +66,8 @@ class _SignpostScreenState extends State<SignpostScreen> {
       }
     }
     return GameScaffold(
+      gameId: 'signpost',
+      completed: solved,
       title: 'Signpost',
       onNewGame: _newGame,
       rules: 'Link every square into one chain numbered 1 to ${p.n}. Each '

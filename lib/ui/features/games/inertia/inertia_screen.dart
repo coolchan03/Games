@@ -63,6 +63,8 @@ class _InertiaScreenState extends State<InertiaScreen> {
             ? 'All ${game.totalGems} gems collected in ${game.moves} moves!'
             : '${game.gems} of ${game.totalGems} gems left · ${game.moves} moves';
     return GameScaffold(
+      gameId: 'inertia',
+      completed: game.won,
       title: 'Inertia',
       onNewGame: () => setState(() => game = InertiaGame(w: size, h: size)),
       rules: 'Collect every gem. You slide in any of eight directions and '

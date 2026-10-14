@@ -181,6 +181,8 @@ class _HeartsScreenState extends State<HeartsScreen> {
     final leader = shownTrick != null ? shownLeader : r.currentTrick.leader;
     final hand = sortedForDisplay(r.players[0].hand);
     return GameScaffold(
+      gameId: 'hearts',
+      completed: match.currentRound.isOver() && match.isMatchOver() && match.winningPlayers().contains(0),
       title: 'Hearts',
       onNewGame: () => setState(_newMatch),
       rules: 'Four players, 13 tricks. Follow suit if you can. Each heart is '

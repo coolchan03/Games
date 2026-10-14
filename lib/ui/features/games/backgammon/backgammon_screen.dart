@@ -186,6 +186,8 @@ class _BackgammonScreenState extends State<BackgammonScreen> {
     final whiteOffTarget = _targets.contains(whiteHomeIndex);
     final blackOffTarget = _targets.contains(blackHomeIndex);
     return GameScaffold(
+      gameId: 'backgammon',
+      completed: match.winner != null && (!vsComputer || match.winner == Player.white),
       title: 'Backgammon',
       maxWidth: 760,
       onNewGame: () => setState(_newGame),

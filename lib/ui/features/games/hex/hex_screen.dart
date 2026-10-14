@@ -53,6 +53,8 @@ class _HexScreenState extends State<HexScreen> {
             ? 'Computer is thinking…'
             : '${game.turn == 1 ? 'Red (top ↔ bottom)' : 'Blue (left ↔ right)'} to play';
     return GameScaffold(
+      gameId: 'hex',
+      completed: game.winner == 1 || (!vsComputer && game.winner != 0),
       title: 'Hex',
       onNewGame: _newGame,
       rules: 'Take turns placing a stone on any empty hexagon. Red tries to '
