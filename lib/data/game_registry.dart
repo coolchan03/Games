@@ -1,6 +1,7 @@
 import 'game_metadata.dart';
 import '../ui/features/games/connect_four/connect_four_metadata.dart';
 import '../ui/features/games/blackjack/blackjack_metadata.dart';
+import '../ui/features/games/tic_tac_toe/tic_tac_toe_metadata.dart';
 
 import '../ui/features/games/shikaku/shikaku_metadata.dart';
 import '../ui/features/games/countdown_math/countdown_math_metadata.dart';
@@ -492,6 +493,7 @@ List<GameMetadata> _buildGameList() {
     wordSearchMetadata,
     connectFourMetadata,
     blackjackMetadata,
+    ticTacToeMetadata,
     game_2048Metadata,
     crownMetadata,
     minesweeperMetadata,
