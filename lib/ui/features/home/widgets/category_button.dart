@@ -12,6 +12,8 @@ const Map<String, CategoryStyle> kCategoryStyles = {
   'ALL': CategoryStyle(icon: Icons.apps_rounded, color: DesignSystem.primary),
   'ATTENTION': CategoryStyle(icon: Icons.bolt_rounded, color: DesignSystem.gameOrange),
   'LOGIC': CategoryStyle(icon: Icons.bubble_chart_rounded, color: DesignSystem.gameRose),
+  'BOARD': CategoryStyle(icon: Icons.grid_on_rounded, color: DesignSystem.gameBlue),
+  'CARD': CategoryStyle(icon: Icons.style_rounded, color: DesignSystem.gameGreen),
   'MATH': CategoryStyle(icon: Icons.tune_rounded, color: DesignSystem.gameAmber),
   'WORD': CategoryStyle(icon: Icons.abc_rounded, color: DesignSystem.gamePurple),
   'MEMORY': CategoryStyle(icon: Icons.filter_none_rounded, color: DesignSystem.gameBlue),

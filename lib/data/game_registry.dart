@@ -1,4 +1,5 @@
 import 'game_metadata.dart';
+import '../ui/features/games/connect_four/connect_four_metadata.dart';
 
 import '../ui/features/games/shikaku/shikaku_metadata.dart';
 import '../ui/features/games/countdown_math/countdown_math_metadata.dart';
@@ -488,6 +489,7 @@ List<GameMetadata> _buildGameList() {
     findWordMetadata,
     crosswordMetadata,
     wordSearchMetadata,
+    connectFourMetadata,
     game_2048Metadata,
     crownMetadata,
     minesweeperMetadata,
