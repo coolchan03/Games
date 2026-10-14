@@ -22,6 +22,7 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos
+      - run: flutter test test/games/chess_session_test.dart test/games/poker_test.dart test/games/card_deck_test.dart
       - run: flutter test test/games/classics_catalog_test.dart
       - run: flutter test
       - run: flutter build web --release --base-href /Games/

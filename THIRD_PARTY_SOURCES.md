@@ -43,3 +43,18 @@ Games is based on sidhant947/Puzzle (GPL-3.0). Existing upstream notices remain.
 
 No unlicensed crime-game repositories are copied. The original Detective Casebook
 content is created for Games and requires no web API or separate runtime.
+
+## Classics batch: licensed rules and evaluators (2026-10-14)
+
+- **Chess:** pinned pub package `chess` 0.8.1, David Kopec's chess.dart,
+  based on Jeff Hlywa's chess.js. Original MIT/BSD notices are retained in
+  `THIRD_PARTY_LICENSES/chess-dart-LICENSE.txt`. New UI, saves and bounded AI
+  are project code; this is not Stockfish.
+- **Poker:** `thlorenz/phe` at `6cfea3703b050fda8dfc8d934ceeb4d3df331d6d`.
+  MIT notice retained in `THIRD_PARTY_LICENSES/phe-MIT.txt`.
+  Five-card evaluator/hash adapted to Dart; `dp`, `flush`, and `noflush5`
+  tables retained. Six/seven-card evaluation enumerates five-card subsets.
+  Betting, private hands, side pots, draw rounds and saves are project code.
+  No JavaScript runtime, external casino service or real-money integration.
+- The `axross/poker` package was researched but NOT integrated: its legacy
+  dependency constraints and card representation were not a good fit.
