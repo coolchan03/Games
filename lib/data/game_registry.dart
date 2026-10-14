@@ -1,4 +1,7 @@
 import 'game_metadata.dart';
+import '../ui/features/games/gin_rummy/gin_rummy_metadata.dart';
+import '../ui/features/games/go_fish/go_fish_metadata.dart';
+import '../ui/features/games/crazy_eights/crazy_eights_metadata.dart';
 import '../ui/features/games/memory_pairs/memory_pairs_metadata.dart';
 import '../ui/features/games/tower_of_hanoi/tower_of_hanoi_metadata.dart';
 import '../ui/features/games/shut_the_box/shut_the_box_metadata.dart';
@@ -527,6 +530,9 @@ List<GameMetadata> _buildGameList() {
     checkersMetadata,
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
+    ginRummyMetadata,
+    goFishMetadata,
+    crazyEightsMetadata,
     memoryPairsMetadata,
     towerOfHanoiMetadata,
     shutTheBoxMetadata,

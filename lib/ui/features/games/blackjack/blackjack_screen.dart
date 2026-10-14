@@ -1,102 +1,107 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 
-/// Offline blackjack: virtual scores only, no real-money wagering.
+import '../common/card_view.dart';
+import '../common/game_kit.dart';
+import 'blackjack_engine.dart';
+
+/// Offline blackjack: virtual chips only, no real-money wagering.
 class BlackjackScreen extends StatefulWidget {
   const BlackjackScreen({super.key});
   @override
   State<BlackjackScreen> createState() => _BlackjackState();
 }
-class _BlackjackState extends State<BlackjackScreen> {
-  final random=Random();
-  final suits=const ['♠','♥','♦','♣'];
-  final faces=const ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-  List<String> player=[],dealer=[];
-  bool ended=false;
-  String result='';
-  int wins=0,losses=0,pushes=0;
 
-  _BlackjackState(){deal();}
-  String draw()=>'${faces[random.nextInt(faces.length)]}${suits[random.nextInt(suits.length)]}';
-  int value(List<String> hand) {
-    var total=0,aces=0;
-    for(final card in hand) {
-      final face=card.substring(0,card.length-1);
-      if(face=='A'){total+=11;aces++;}
-      else{final num=int.tryParse(face);total+=num??10;}
-    }
-    while(total>21&&aces>0){total-=10;aces--;}
-    return total;
-  }
-  void deal() {
-    player=[draw(),draw()];dealer=[draw(),draw()];
-    ended=false;result='';
-    if(value(player)==21||value(dealer)==21){settle(natural:true);}
-  }
-  void settle({bool natural=false}) {
-    if(!natural) {
-      while(value(dealer)<17)dealer.add(draw());
-    }
-    final p=value(player),d=value(dealer);
-    if(p>21){losses++;result='Bust — dealer wins';}
-    else if(d>21||p>d){wins++;result='You win!';}
-    else if(d>p){losses++;result='Dealer wins';}
-    else{pushes++;result='Push — draw';}
-    ended=true;
-  }
-  void hit() {
-    if(ended)return;
-    setState((){
-      player.add(draw());
-      if(value(player)>21)settle();
-      else if(value(player)==21)settle();
-    });
-  }
-  void stand() {if(!ended)setState(()=>settle());}
-  Widget cards(List<String> hand,{bool hide=false}) {
-    return Wrap(spacing:8,runSpacing:8,
-      children:[for(var i=0;i<hand.length;i++)
-        Container(width:65,height:96,alignment:Alignment.center,
-          decoration:BoxDecoration(
-            color:Theme.of(context).colorScheme.surfaceContainerHighest,
-            border:Border.all(color:Theme.of(context).colorScheme.outline),
-            borderRadius:BorderRadius.circular(8)),
-          child:Text(hide&&i==1?'?':hand[i],
-            style:Theme.of(context).textTheme.titleLarge))]);
-  }
+class _BlackjackState extends State<BlackjackScreen> {
+  BlackjackGame game = BlackjackGame();
+  bool showAdvice = false;
+
+  Widget _cards(List cards, {bool hideHole = false}) => Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 6,
+        runSpacing: 6,
+        children: [
+          for (var i = 0; i < cards.length; i++)
+            CardView(card: cards[i], faceDown: hideHole && i == 1, width: 58),
+        ],
+      );
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar:AppBar(title:const Text('Blackjack')),
-      body:SafeArea(child:Center(child:ConstrainedBox(
-        constraints:const BoxConstraints(maxWidth:600),
-        child:Padding(padding:const EdgeInsets.all(20),child:Column(
-          mainAxisAlignment:MainAxisAlignment.center,
-          crossAxisAlignment:CrossAxisAlignment.stretch,children:[
-          Text('Dealer ${ended?value(dealer):value([dealer.first])}',
-            style:Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height:8),cards(dealer,hide:!ended),
-          const SizedBox(height:30),
-          Text('You ${value(player)}',
-            style:Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height:8),cards(player),
-          const SizedBox(height:24),
-          Text(ended?result:'Hit or stand?',
-            textAlign:TextAlign.center,
-            style:Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height:20),
-          if(!ended)Row(children:[
-            Expanded(child:FilledButton(onPressed:hit,child:const Text('Hit'))),
-            const SizedBox(width:10),
-            Expanded(child:OutlinedButton(onPressed:stand,child:const Text('Stand')))
-          ])else FilledButton(onPressed:()=>setState(deal),
-            child:const Text('Deal again')),
-          const SizedBox(height:16),
-          Text('Wins $wins  ·  Losses $losses  ·  Pushes $pushes',
-            textAlign:TextAlign.center),
-          const SizedBox(height:8),
-          const Text('Offline • standard dealer stands on soft 17 • virtual scores only',
-            textAlign:TextAlign.center)
-        ]))))));
+    final theme = Theme.of(context);
+    final g = game;
+    final dealerTotal = handTotal(g.dealer).$1;
+    final hideHole = g.inRound;
+    return GameScaffold(
+      title: 'Blackjack',
+      onNewGame: () => setState(() => game = BlackjackGame()),
+      rules: 'Virtual chips only — no real money. Get closer to 21 than the '
+          'dealer without going over. Pictures count 10, aces 1 or 11. A '
+          'two-card 21 is blackjack and pays 3 to 2. The dealer draws to 16 '
+          'and stands on all 17s. Double: double your bet and take exactly '
+          'one more card. Split: a pair becomes two hands (split aces get '
+          'one card each). Six-deck shoe. The Advice switch shows basic '
+          'strategy for your current hand.',
+      children: [
+        StatusBanner(
+          g.inRound
+              ? 'Your hand: ${g.hand.total}${g.hand.soft ? ' (soft)' : ''}'
+                  '${g.hands.length > 1 ? ' · hand ${g.active + 1} of 2' : ''}'
+              : g.summary.isEmpty
+                  ? 'Place your bet and deal'
+                  : g.summary,
+          highlight: !g.inRound && g.summary.isNotEmpty,
+        ),
+        Text('Dealer${hideHole ? '' : ' · $dealerTotal'}', textAlign: TextAlign.center, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 6),
+        if (g.dealer.isNotEmpty) _cards(g.dealer, hideHole: hideHole),
+        const SizedBox(height: 16),
+        for (var h = 0; h < g.hands.length; h++) ...[
+          Text(
+            '${g.hands.length > 1 ? 'Hand ${h + 1} · ' : 'You · '}${g.hands[h].total} · bet ${g.hands[h].bet}'
+            '${g.hands[h].outcome.isEmpty ? '' : ' · ${g.hands[h].outcome}'}',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(
+                color: g.inRound && h == g.active && g.hands.length > 1 ? theme.colorScheme.primary : null),
+          ),
+          const SizedBox(height: 6),
+          _cards(g.hands[h].cards),
+          const SizedBox(height: 10),
+        ],
+        Text('Chips: ${g.chips}', textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
+        SwitchListTile(
+          title: const Text('Show basic-strategy advice'),
+          value: showAdvice,
+          onChanged: (v) => setState(() => showAdvice = v),
+        ),
+        if (showAdvice && g.inRound)
+          Text('Advice: ${g.advice()}', textAlign: TextAlign.center, style: theme.textTheme.titleMedium),
+        const SizedBox(height: 8),
+        if (g.inRound)
+          Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
+            FilledButton(onPressed: () => setState(g.hit), child: const Text('Hit')),
+            FilledButton.tonal(onPressed: () => setState(g.stand), child: const Text('Stand')),
+            OutlinedButton(onPressed: g.canDouble ? () => setState(g.doubleDown) : null, child: const Text('Double')),
+            OutlinedButton(onPressed: g.canSplit ? () => setState(g.split) : null, child: const Text('Split')),
+          ])
+        else ...[
+          SegmentedButton<int>(
+            segments: [for (final b in const [10, 25, 50, 100, 250]) ButtonSegment(value: b, label: Text('$b'))],
+            selected: {g.bet},
+            onSelectionChanged: (s) => setState(() => g.bet = s.first),
+          ),
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            onPressed: g.canDeal ? () => setState(g.deal) : null,
+            icon: const Icon(Icons.style),
+            label: Text('Deal (bet ${g.bet})'),
+          ),
+          if (g.chips < g.bet)
+            TextButton(
+              onPressed: () => setState(() => g.chips += 1000),
+              child: const Text('Out of chips — take 1000 more (free)'),
+            ),
+        ],
+      ],
+    );
   }
 }
