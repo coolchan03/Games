@@ -38,4 +38,4 @@ Word Search, Crossword, Cryptogram, Einstein Riddle, Sudoku, Nonogram, Minesweep
 - PySolFC: https://github.com/shlomif/PySolFC GPL-3.0
 
 ## Current implementation status
-Puzzle cloned as starting point. Connect Four module added, initially untested without Flutter SDK. Other imported games remain planned, NOT completed. Maintain an honest per-game checklist as work progresses.
+Puzzle foundation imported and additional modules registered: Connect Four, Tic-Tac-Toe, Blackjack, Checkers, Mancala, Reversi, Detective Casebook, flat Mahjong Solitaire. GitHub Actions Flutter analysis/tests/web build succeeded for commit 92363ab; Pages deployment remains blocked until Pages is enabled with GitHub Actions as source. See PROJECT_GOALS.md for acceptance gates and docs/GAME_SOURCE_MATRIX.md for detailed game-by-game status.

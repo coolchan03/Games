@@ -23,7 +23,9 @@ flutter build web --release --base-href /Games/
 
 GitHub Actions is configured to test and build web; after Pages is enabled with GitHub Actions as its source, deployment is intended for https://coolchan03.github.io/Games/.
 
-See [PROJECT_PLAN.md](PROJECT_PLAN.md) for the roadmap and [THIRD_PARTY_SOURCES.md](THIRD_PARTY_SOURCES.md) for copied FOSS code, attribution and licenses.
+See [PROJECT_GOALS.md](PROJECT_GOALS.md) for the complete product goals, [PROJECT_PLAN.md](PROJECT_PLAN.md) for development order, [docs/GAME_SOURCE_MATRIX.md](docs/GAME_SOURCE_MATRIX.md) for the source and game checklist, and [THIRD_PARTY_SOURCES.md](THIRD_PARTY_SOURCES.md) for attribution.
+
+**Browser deployment:** the Flutter web build passed CI; to publish the site, enable Pages at [Repository Settings → Pages](https://github.com/coolchan03/Games/settings/pages) and choose **GitHub Actions** as source. GitHub returned 404 until Pages is enabled.
 
 ## License
 GPL-3.0. Original Puzzle copyright and notices retained. Third-party game source and asset license details must be recorded before integration.
