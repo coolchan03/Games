@@ -21,10 +21,11 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
+      - run: python tool/format_classics.py
       - run: flutter analyze --no-fatal-infos
-      - run: flutter test test/games/chess_session_test.dart test/games/poker_test.dart test/games/card_deck_test.dart
+      - run: flutter test --reporter expanded --timeout 120s test/games/chess_session_test.dart test/games/poker_test.dart test/games/card_deck_test.dart test/games/mahjong_layered_test.dart test/games/detective_expansion_test.dart test/games/classics_persistence_test.dart test/games/classics_widgets_test.dart
       - run: flutter test test/games/classics_catalog_test.dart
-      - run: flutter test
+      - run: flutter test --reporter expanded --timeout 120s
       - name: Capture responsive classics screens
         run: flutter test --update-goldens --dart-define=CAPTURE=true test/games/classics_widgets_test.dart
       - name: Verify rule engines in Chrome
@@ -39,6 +40,7 @@ jobs:
           name: classics-verification
           path: |
             pubspec.lock
+            build/verified-classics-sources.zip
             build/classics-screenshots/
       - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/configure-pages@v5

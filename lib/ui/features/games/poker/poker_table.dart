@@ -156,8 +156,18 @@ class PokerTable {
       phase = PokerPhase.showdown; pending.clear(); return;
     }
     pending.removeWhere((i) => folded[i] || (phase != PokerPhase.draw && stacks[i] == 0));
-    if (phase != PokerPhase.draw && alive.where((i) => stacks[i] > 0).length < 2 &&
-        pending.every((i) => streetPaid[i] >= currentBet)) pending.clear();
+    if (phase != PokerPhase.draw) {
+      final funded = alive.where((i) => stacks[i] > 0).toList();
+      if (funded.length == 1) {
+        // No opponent can match a further bet. Short blinds need only be
+        // matched to their actual payment, not the nominal big blind.
+        currentBet = alive.where((i) => i != funded.single)
+          .map((i) => streetPaid[i]).fold<int>(0, max);
+      }
+      if (funded.length < 2 && pending.every((i) => streetPaid[i] >= currentBet)) {
+        pending.clear();
+      }
+    }
     if (pending.isNotEmpty) { current = _next(current, pending.contains); return; }
     _nextPhase();
   }
@@ -245,8 +255,18 @@ class PokerTable {
         throw const FormatException('Invalid player state');
       }
     }
-    if (variant == PokerVariant.draw && community.isNotEmpty) throw const FormatException('Draw has no board');
-    if (variant == PokerVariant.holdem && ![0, 3, 4, 5].contains(community.length)) throw const FormatException('Invalid board');
+    if (ended && pending.isNotEmpty) throw const FormatException('Completed hand has pending actions');
+    if (!ended && showCards) throw const FormatException('Private cards revealed in active hand');
+    if (variant == PokerVariant.draw) {
+      if (community.isNotEmpty || ![PokerPhase.preflop, PokerPhase.draw, PokerPhase.drawBet, PokerPhase.showdown].contains(phase)) {
+        throw const FormatException('Invalid draw phase');
+      }
+    } else {
+      final expected = {PokerPhase.preflop: 0, PokerPhase.flop: 3, PokerPhase.turn: 4, PokerPhase.river: 5};
+      if ((!ended && expected[phase] != community.length) ||
+          (ended && ![0, 3, 4, 5].contains(community.length)) ||
+          (showCards && community.length != 5)) throw const FormatException('Invalid board for betting phase');
+    }
   }
 }
 

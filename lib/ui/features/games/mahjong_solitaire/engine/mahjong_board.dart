@@ -21,9 +21,10 @@ class MahjongBoard {
   final String layoutId;
   final List<MahjongPair> history = [];
   final List<MahjongTile> removedFirst = [], removedSecond = [];
-  MahjongBoard(this.tiles, this.solutionOrder, {List<MahjongPosition>? positions,
+  MahjongBoard(List<MahjongTile?> tiles, this.solutionOrder, {List<MahjongPosition>? positions,
       this.layoutId = 'flat'})
-      : initialTiles = List<MahjongTile?>.from(tiles),
+      : tiles = List<MahjongTile?>.from(tiles),
+        initialTiles = List<MahjongTile?>.from(tiles),
         positions = positions ?? layout('flat') {
     if (this.positions.length != tiles.length) throw ArgumentError('Layout size mismatch');
   }
