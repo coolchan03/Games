@@ -20,7 +20,9 @@ void main() {
         final boundary = key.currentContext!.findRenderObject() as RenderRepaintBoundary;
         final img = await boundary.toImage(pixelRatio: 1.5);
         final data = await img.toByteData(format: ui.ImageByteFormat.png);
-        File('/tmp/claude-0/-home-user-Games/da079d9a-6076-56ca-acdd-ae73a897b4fe/scratchpad/$id.png').writeAsBytesSync(data!.buffer.asUint8List());
+        final output = Directory('build/screenshots')..createSync(recursive: true);
+        File('${output.path}${Platform.pathSeparator}$id.png')
+            .writeAsBytesSync(data!.buffer.asUint8List());
       });
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 5));
