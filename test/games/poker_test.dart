@@ -6,6 +6,24 @@ import 'package:puzzle/ui/features/games/poker/poker_table.dart';
 
 PokerRank rank(String codes) => evaluatePoker(codes.split(' ').map(PlayingCard.parse).toList());
 void main() {
+  test('short all-in big blind does not force an uncallable extra bet', () {
+    final game = PokerTable(startingStacks: [200, 3], random: Random(19));
+    expect(game.ended, true);
+    expect(game.community.length, 5);
+    expect(game.stacks.reduce((a, b) => a + b), 203);
+  });
+  test('last funded player calls only the live all-in amount', () {
+    final game = PokerTable(seats: 3, dealer: 2, startingStacks: [4, 6, 200], random: Random(4));
+    expect(game.current, 2);
+    expect(game.toCall, 6);
+    expect(game.act(PokerAction.checkCall), true);
+    expect(game.ended, true);
+  });
+  test('saved board must match the betting phase', () {
+    final data = PokerTable(random: Random(7)).toJson();
+    data['phase'] = 'river';
+    expect(() => PokerTable.fromJson(data), throwsFormatException);
+  });
   test('all nine categories and royal flush have correct ordering', () {
     final examples = ['As Ks Qs Js Ts', '9c 9d 9h 9s 2d', 'Ac Ad Ah 2s 2d',
       'As Js 8s 5s 2s', '9c 8h 7d 6s 5c', 'Qc Qh Qs 9d 2c',

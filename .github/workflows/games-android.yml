@@ -1,0 +1,32 @@
+name: Games Android Verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, 'pro-classics-*']
+    paths: ['lib/**', 'test/**', 'pubspec.*', 'android/**', '.github/workflows/games-android.yml', 'THIRD_PARTY_LICENSES/**']
+permissions:
+  contents: read
+concurrency:
+  group: games-android-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Build release-mode test APK (debug signing, no release secrets)
+        run: flutter build apk --release --target-platform android-arm64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: games-android-test-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
