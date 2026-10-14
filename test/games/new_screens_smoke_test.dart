@@ -18,7 +18,7 @@ const addedGames = [
   'sixteen', 'signpost', 'hex', 'go_game', 'liars_dice', 'dominoes',
   'bagh_chal', 'alquerque', 'neutron', 'chinese_checkers', 'poker_squares',
   'aces_up', 'forty_thieves', 'sokoban', 'oware', 'nim', 'war',
-  'cribbage', 'air_hockey', 'goose_game',
+  'cribbage', 'air_hockey', 'goose_game', 'kings_corner',
 ];
 
 void main() {
