@@ -120,3 +120,13 @@ implement traditional public-domain rules and include no third-party code.
 
 No unlicensed crime-game repositories are copied. The original Detective Casebook
 content is created for Games and requires no web API or separate runtime.
+
+## Original rules implementation — King's Corner
+- Location: lib/ui/features/games/kings_corner/.
+- This is an original pure-Dart engine and Flutter UI released under the app's GPL-3.0.
+  It reuses Games' existing PlayingCard, CardDeck, CardFace, GamePage and local storage.
+- Game rules were checked against https://www.pagat.com/layout/kingscorners.html.
+  No third-party program source or artwork was copied.
+- The implemented family variant draws at the start of each turn, supports local
+  2-4 players or a casual opponent, and ends the round on going out or mutual
+  passes after the stock empties.
