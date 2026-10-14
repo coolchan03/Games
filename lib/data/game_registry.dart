@@ -1,4 +1,8 @@
 import 'game_metadata.dart';
+import '../ui/features/games/dominoes/dominoes_metadata.dart';
+import '../ui/features/games/liars_dice/liars_dice_metadata.dart';
+import '../ui/features/games/go_game/go_game_metadata.dart';
+import '../ui/features/games/hex/hex_metadata.dart';
 import '../ui/features/games/signpost/signpost_metadata.dart';
 import '../ui/features/games/sixteen/sixteen_metadata.dart';
 import '../ui/features/games/twiddle/twiddle_metadata.dart';
@@ -536,6 +540,10 @@ List<GameMetadata> _buildGameList() {
     checkersMetadata,
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
+    dominoesMetadata,
+    liarsDiceMetadata,
+    goGameMetadata,
+    hexMetadata,
     signpostMetadata,
     sixteenMetadata,
     twiddleMetadata,

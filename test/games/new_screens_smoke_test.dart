@@ -13,7 +13,7 @@ const addedGames = [
   'peg_solitaire', 'shut_the_box', 'tower_of_hanoi', 'memory_pairs',
   'mahjong_solitaire', 'detective_casebook', 'crazy_eights', 'go_fish',
   'gin_rummy', 'blackjack', 'inertia', 'same_game', 'black_box', 'twiddle',
-  'sixteen', 'signpost',
+  'sixteen', 'signpost', 'hex', 'go_game', 'liars_dice', 'dominoes',
 ];
 
 void main() {
