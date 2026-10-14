@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
@@ -30,7 +30,7 @@ void main() async {
       size: Size(1280, 720),
       minimumSize: Size(800, 600),
       center: true,
-      title: "Puzzle Games",
+      title: "Games",
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
@@ -94,7 +94,7 @@ class MyApp extends ConsumerWidget {
     }
 
     return MaterialApp(
-      title: 'Puzzle Games',
+      title: 'Games',
       debugShowCheckedModeBanner: false,
       theme: DesignSystem.lightTheme,
       darkTheme: DesignSystem.darkTheme,
@@ -126,5 +126,6 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
+
 
 
