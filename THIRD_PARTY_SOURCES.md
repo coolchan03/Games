@@ -25,6 +25,13 @@ Games is based on sidhant947/Puzzle (GPL-3.0). Existing upstream notices remain.
 - License: MIT; original LICENSE retained at THIRD_PARTY_LICENSES/checkers-MIT.txt.
 - Reimplemented English/American rules in pure Dart without the original DOM or JavaScript runtime, with local two-player and selectable AI.
 
+## Copied source — Mahjong tile matching
+- Source: https://github.com/edave64/ED-Mahjong
+- Original file: lib/engine/pieces/mahjong_tile.dart
+- Location: lib/ui/features/games/mahjong_solitaire/engine/mahjong_tile.dart
+- License: MIT for source code; the original project licenses graphical assets separately. LICENSE retained at THIRD_PARTY_LICENSES/ED-Mahjong-MIT.txt.
+- No upstream art assets were copied. Games adds a compact 64-tile single-layer arrangement with guaranteed solution sequences, using standard Unicode Mahjong glyphs. Full layered Mahjong Solitaire remains planned.
+
 ## Research and future port candidates
 - https://github.com/edave64/ED-Mahjong — Flutter MIT game engine; assets separately licensed
 - https://github.com/felipersteles/checkers-with-ai — MIT, JavaScript rules and AI

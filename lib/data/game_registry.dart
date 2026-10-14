@@ -1,4 +1,5 @@
 import 'game_metadata.dart';
+import '../ui/features/games/mahjong_solitaire/mahjong_metadata.dart';
 import '../ui/features/games/checkers/checkers_metadata.dart';
 import '../ui/features/games/reversi/reversi_metadata.dart';
 import '../ui/features/games/mancala/mancala_metadata.dart';
@@ -500,6 +501,7 @@ List<GameMetadata> _buildGameList() {
     reversiMetadata,
     mancalaMetadata,
     checkersMetadata,
+    mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
     ticTacToeMetadata,
     game_2048Metadata,

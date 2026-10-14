@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:puzzle/ui/features/games/mahjong_solitaire/engine/mahjong_board.dart';
 import 'package:puzzle/ui/features/games/checkers/engine/checkers_rules.dart';
 import 'package:puzzle/ui/features/games/reversi/engine/game_board.dart';
 import 'package:puzzle/ui/features/games/mancala/engine/mancala_state.dart';
@@ -59,6 +61,30 @@ void main() {
       final promoted = position.play(
         position.legalMoves.firstWhere((m) => m.to ~/ 8 == 0));
       expect(promoted.cells.any((p) => p == 3), true);
+    });
+  });
+  group('Mahjong Solitaire', () {
+    test('64 tiles have a complete legal solution by construction', () {
+      final board = MahjongBoard.generate(Random(42));
+      expect(board.remaining, 64);
+      for (final pair in board.solutionOrder) {
+        expect(board.isFree(pair.first), true);
+        expect(board.isFree(pair.second), true);
+        expect(board.remove(pair.first, pair.second), true);
+      }
+      expect(board.complete, true);
+      board.undo();
+      expect(board.remaining, 2);
+      expect(board.matches, isNotEmpty);
+    });
+    test('different seeds produce independently solvable boards', () {
+      for (final seed in [1, 2, 3, 4, 5, 1234, 9876]) {
+        final board = MahjongBoard.generate(Random(seed));
+        for (final pair in board.solutionOrder) {
+          expect(board.remove(pair.first, pair.second), true, reason: '$seed');
+        }
+        expect(board.complete, true, reason: '$seed');
+      }
     });
   });
   group('Detective Casebook', () {

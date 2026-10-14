@@ -9,6 +9,7 @@ Based on [Puzzle](https://github.com/sidhant947/Puzzle) (GPL-3.0). Preserves the
 - Added Connect Four, Tic-Tac-Toe, Reversi, Mancala and Checkers with local two-player and selectable computer difficulty.
 - Added Blackjack with an offline dealer (virtual scores only).
 - Added Detective Casebook with three original whodunit cases and a deduction notebook; logic engine checks unique solutions.
+- Added compact 64-tile Mahjong Solitaire with solvable layouts, undo, hints and matching from ED-Mahjong's MIT code (traditional layered layouts remain planned).
 - Existing Puzzle Word Search, Crossword, Cryptogram, Einstein Riddle and other puzzles retained.
 - Remaining board, card, Mahjong and detective titles are planned, not yet implemented. Build verification runs in GitHub Actions.
 
