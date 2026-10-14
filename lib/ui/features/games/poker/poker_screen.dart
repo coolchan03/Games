@@ -105,7 +105,10 @@ class _PokerScreenState extends State<PokerScreen> {
     return GamePage(title: title,
       rules: "Offline fixed-limit practice with virtual chips, not real money. Hold'em uses blinds 5/10 and bets of 10 before/on the flop, 20 on the turn/river. Draw uses a 10-chip ante, five private cards, one draw of up to three cards, and bets of 10 then 20. Up to three raises per betting round. A raise must be fully affordable; short stacks can call all-in. Main and side pots are awarded independently, ties split, and odd chips go clockwise after the dealer. Local play supports 2-6 people; computer mode is heads-up with a casual opponent that sees only its own cards and the board. Hand rankings: straight flush, four of a kind, full house, flush, straight, three of a kind, two pair, pair, high card. Best five cards count. Cards are hidden between local turns and after resume.",
       status: game.ended ? game.result : '${game.phaseLabel} - ${thinking ? 'Computer thinking' : 'Player ${game.current + 1} to act'} - pot ${game.pot}',
-      saveStatus: saveStatus, children: [
+      saveStatus: saveStatus,
+      actions: [IconButton(tooltip: 'New game', icon: const Icon(Icons.restart_alt),
+        onPressed: ready ? () => newTable(game.seats, vsComputer) : null)],
+      children: [
         DropdownButton<String>(isExpanded: true,
           value: vsComputer ? 'computer' : '${game.seats}',
           items: [const DropdownMenuItem(value: 'computer', child: Text('You vs casual computer')),
