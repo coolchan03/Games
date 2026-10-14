@@ -19,7 +19,12 @@ class ChessSession {
     if (position.in_draw) return 'Draw by the fifty-move rule';
     return '${whiteToMove ? 'White' : 'Black'} to move${position.in_check ? ' - check' : ''}';
   }
-  List<Map> get legalMoves => position.moves({'verbose': true}).cast<Map>();
+  // chess.dart 0.8.1 omits promotion from verbose maps despite its API docs.
+  // Normalize from Move objects so underpromotion and the chooser are correct.
+  List<Map> get legalMoves => position.generate_moves().map((move) => <String, dynamic>{
+    ...position.make_pretty(move),
+    if (move.promotion != null) 'promotion': move.promotion!.name,
+  }).toList();
   bool playSan(String san) {
     if (ended || !position.move(san)) return false;
     history.add(san);
