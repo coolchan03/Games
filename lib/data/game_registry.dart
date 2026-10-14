@@ -1,4 +1,11 @@
 import 'game_metadata.dart';
+import '../ui/features/games/pyramid/pyramid_metadata.dart';
+import '../ui/features/games/golf_solitaire/golf_solitaire_metadata.dart';
+import '../ui/features/games/spider/spider_metadata.dart';
+import '../ui/features/games/freecell/freecell_metadata.dart';
+import '../ui/features/games/klondike/klondike_metadata.dart';
+import '../ui/features/games/video_poker/video_poker_metadata.dart';
+import '../ui/features/games/texas_holdem/texas_holdem_metadata.dart';
 import '../ui/features/games/chess/chess_metadata.dart';
 import '../ui/features/games/hearts/hearts_metadata.dart';
 import '../ui/features/games/spades/spades_metadata.dart';
@@ -509,6 +516,13 @@ List<GameMetadata> _buildGameList() {
     checkersMetadata,
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
+    pyramidMetadata,
+    golfSolitaireMetadata,
+    spiderMetadata,
+    freeCellMetadata,
+    klondikeMetadata,
+    videoPokerMetadata,
+    texasHoldemMetadata,
     chessMetadata,
     heartsMetadata,
     spadesMetadata,

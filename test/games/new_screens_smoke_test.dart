@@ -1,0 +1,40 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:puzzle/data/game_metadata.dart';
+import 'package:puzzle/data/game_registry.dart';
+
+/// Games added on top of the original Puzzle catalogue. Each screen is
+/// pumped for a while so computer opponents get to move, then disposed.
+const addedGames = [
+  'chess', 'hearts', 'spades', 'oh_hell', 'yacht_dice', 'code_breaker',
+  'texas_holdem', 'video_poker', 'klondike', 'freecell', 'spider',
+  'golf_solitaire', 'pyramid',
+];
+
+void main() {
+  for (final id in addedGames) {
+    testWidgets('$id screen renders and runs', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 3.0; // 360 dp wide phone
+      addTearDown(tester.view.reset);
+      final GameMetadata meta = allGamesMetadata.firstWhere((g) => g.id == id);
+      await tester.pumpWidget(MaterialApp(home: Builder(builder: meta.builder)));
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 500));
+      }
+      expect(tester.takeException(), isNull);
+      // Open the rules dialog and start a new game.
+      await tester.tap(find.byTooltip('Rules'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Got it'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('New game'));
+      for (var i = 0; i < 6; i++) {
+        await tester.pump(const Duration(milliseconds: 500));
+      }
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 5));
+    });
+  }
+}
