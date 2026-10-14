@@ -6,7 +6,7 @@ Based on [Puzzle](https://github.com/sidhant947/Puzzle) (GPL-3.0). Preserves the
 
 ## Current status
 - Imported upstream Puzzle code as base.
-- Added Connect Four, Tic-Tac-Toe, Reversi and Mancala with local two-player and selectable computer difficulty.
+- Added Connect Four, Tic-Tac-Toe, Reversi, Mancala and Checkers with local two-player and selectable computer difficulty.
 - Added Blackjack with an offline dealer (virtual scores only).
 - Added Detective Casebook with three original whodunit cases and a deduction notebook; logic engine checks unique solutions.
 - Existing Puzzle Word Search, Crossword, Cryptogram, Einstein Riddle and other puzzles retained.

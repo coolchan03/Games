@@ -18,6 +18,13 @@ Games is based on sidhant947/Puzzle (GPL-3.0). Existing upstream notices remain.
 - Original license text preserved in THIRD_PARTY_LICENSES/minigames-MIT.txt.
 - UI and turn-aware alpha-beta AI added here without importing the upstream DB.
 
+## Adapted source — Checkers
+- Source: https://github.com/felipersteles/checkers-with-ai
+- Reference files: machine.js and game.js (logical move rules, mandatory captures, chain jumps, AI minimax).
+- Location: lib/ui/features/games/checkers/engine/checkers_rules.dart
+- License: MIT; original LICENSE retained at THIRD_PARTY_LICENSES/checkers-MIT.txt.
+- Reimplemented English/American rules in pure Dart without the original DOM or JavaScript runtime, with local two-player and selectable AI.
+
 ## Research and future port candidates
 - https://github.com/edave64/ED-Mahjong — Flutter MIT game engine; assets separately licensed
 - https://github.com/felipersteles/checkers-with-ai — MIT, JavaScript rules and AI

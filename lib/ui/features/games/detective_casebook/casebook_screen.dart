@@ -94,7 +94,7 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
                   )),
                 ),
             ]),
-        ])),
+        ]),
       ),
     ]);
   }
