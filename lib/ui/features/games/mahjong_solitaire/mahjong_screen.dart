@@ -1,138 +1,106 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import '../shared/game_page.dart';
+import '../shared/game_storage.dart';
 import 'engine/mahjong_board.dart';
 
 class MahjongSolitaireScreen extends StatefulWidget {
   const MahjongSolitaireScreen({super.key});
   @override
-  State<MahjongSolitaireScreen> createState() => _MahjongSolitaireState();
+  State<MahjongSolitaireScreen> createState() => _MahjongSolitaireScreenState();
 }
-class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
-  MahjongBoard game = MahjongBoard.generate();
+class _MahjongSolitaireScreenState extends State<MahjongSolitaireScreen> {
+  MahjongBoard board = MahjongBoard.generate(null, 'pagoda');
   int? selected;
-  MahjongPair? highlighted;
-  int pairsRemoved = 0;
-
-  void newGame() => setState(() {
-    game = MahjongBoard.generate();
-    selected = null;
-    highlighted = null;
-    pairsRemoved = 0;
-  });
-  void choose(int index) {
-    if (!game.isFree(index)) return;
-    if (selected == null || selected == index) {
-      setState(() => selected = selected == index ? null : index);
-      return;
-    }
+  MahjongPair? hint;
+  bool ready = false;
+  String saveStatus = 'Loading saved deal...';
+  @override
+  void initState() { super.initState(); restore(); }
+  Future<void> restore() async {
+    try {
+      final data = await GameStorage.load('mahjong_layered');
+      if (!mounted) return;
+      if (data != null) board = MahjongBoard.fromJson(data);
+      saveStatus = data == null ? 'Deal saves on this device' : 'Resumed your saved deal';
+    } catch (_) { saveStatus = 'Save unavailable or invalid; starting a new deal'; }
+    if (mounted) setState(() => ready = true);
+  }
+  Future<void> save() async {
+    try {
+      await GameStorage.save('mahjong_layered', board.toJson());
+      if (mounted) setState(() => saveStatus = 'Saved on this device');
+    } catch (_) { if (mounted) setState(() => saveStatus = 'Could not save; keep this deal open'); }
+  }
+  void choose(int i) {
+    if (!ready || !board.isFree(i)) return;
     setState(() {
-      if (game.remove(selected!, index)) pairsRemoved++;
-      selected = null;
-      highlighted = null;
+      hint = null;
+      if (selected == i) selected = null;
+      else if (selected != null && board.remove(selected!, i)) selected = null;
+      else selected = i;
     });
+    save();
   }
-  void hint() {
-    if (game.matches.isEmpty) return;
-    setState(() => highlighted = game.matches.first);
-  }
-  void undo() {
-    if (game.history.isEmpty) return;
+  void reset({bool sameDeal = false, String? layout}) {
     setState(() {
-      game.undo();
-      pairsRemoved--;
-      selected = null;
-      highlighted = null;
+      board = sameDeal ? board.restart() : MahjongBoard.generate(null, layout ?? board.layoutId);
+      selected = null; hint = null;
     });
+    save();
   }
-
-  Widget tile(int index, ColorScheme colors) {
-    final face = game.tiles[index];
-    if (face == null) return const SizedBox.expand();
-    final free = game.isFree(index);
-    final isSelected = selected == index;
-    final isHinted = highlighted?.first == index ||
-        highlighted?.second == index;
-    return InkWell(
-      onTap: () => choose(index),
-      borderRadius: BorderRadius.circular(5),
-      child: Container(
-        margin: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          color: isSelected ? colors.primaryContainer
-              : isHinted ? colors.tertiaryContainer
-              : colors.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(5),
-          border: Border.all(
-            width: isSelected || isHinted ? 2.0 : 1.0,
-            color: isSelected || isHinted ? colors.primary
-                : colors.outlineVariant,
-          ),
-        ),
-        alignment: Alignment.center,
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          FittedBox(fit: BoxFit.scaleDown,
-            child: Text(MahjongBoard.tileGlyph(face),
-              style: const TextStyle(fontSize: 28))),
-          if (!free)
-            Icon(Icons.lock_outline,
-              color: colors.onSurfaceVariant, size: 11),
-        ]),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final won = game.complete;
-    final stuck = !won && game.matches.isEmpty;
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mahjong Solitaire')),
-      body: SafeArea(child: Center(child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 650),
-        child: ListView(padding: const EdgeInsets.all(16), children: [
-          const Text('Compact, single-layer Mahjong. Match identical free '
-            'tiles. A tile is free if its left or right side is open. '
-            'Each new board is generated from a valid solution.',
-            textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          Text(won ? 'Cleared the board!' : stuck ? 'No moves: undo or restart'
-              : '${game.remaining} tiles left · $pairsRemoved pairs matched',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 14),
-          AspectRatio(aspectRatio: 1,
-            child: GridView.builder(
-              itemCount: 64,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 8),
-              itemBuilder: (context, index) => tile(index, colors),
-            )),
-          const SizedBox(height: 14),
-          Row(children: [
-            Expanded(child: FilledButton.icon(
-              onPressed: newGame,
-              icon: const Icon(Icons.restart_alt),
-              label: const Text('New game'),
-            )),
-            const SizedBox(width: 8),
-            IconButton.filledTonal(
-              tooltip: 'Undo pair',
-              onPressed: game.history.isNotEmpty ? undo : null,
-              icon: const Icon(Icons.undo),
-            ),
-            IconButton.filledTonal(
-              tooltip: 'Show available pair',
-              onPressed: game.matches.isNotEmpty ? hint : null,
-              icon: const Icon(Icons.lightbulb_outline),
-            ),
-          ]),
-          const SizedBox(height: 16),
-          const Text('This is the lightweight flat-layout variant. '
-            'Traditional layered turtle layouts are planned separately.',
-            textAlign: TextAlign.center),
+    final matches = board.matches;
+    final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.5);
+    final w = 56.0 * scale, h = 76.0 * scale;
+    final width = (board.positions.map((p) => p.x).reduce(max) + 2) * w / 2 + 24;
+    final height = (board.positions.map((p) => p.y).reduce(max) + 2) * h / 2 + 24;
+    return GamePage(title: 'Mahjong Solitaire',
+      rules: 'Remove matching pairs. A tile must have no overlapping tile above it and at least one open left or right side. Flowers match any flower; seasons match any season. Garden has one layer, Terraces and Pagoda have four. Every generated starting deal has a verified removal sequence, but choosing other matches can still lead to a dead end. Use Undo or Restart deal. Hint highlights a legal pair, not a guaranteed winning route. Scroll the board sideways on small screens.',
+      status: board.complete ? 'Deal complete!' : '${board.remaining} tiles - ${matches.length} legal pairs${matches.isEmpty ? ' - undo or restart' : ''}',
+      saveStatus: saveStatus, children: [
+        DropdownButton<String>(isExpanded: true, value: board.layoutId,
+          items: [for (final entry in MahjongBoard.layoutNames.entries)
+            DropdownMenuItem(value: entry.key, child: Text(entry.value))],
+          onChanged: !ready ? null : (value) { if (value != null) reset(layout: value); }),
+        const SizedBox(height: 12),
+        SingleChildScrollView(scrollDirection: Axis.horizontal, child: SizedBox(width: width, height: height,
+          child: Stack(children: [for (var i = 0; i < board.tiles.length; i++) if (board.tiles[i] != null)
+            Positioned(left: 18 + board.positions[i].x * w / 2 - board.positions[i].z * 4,
+              top: 18 + board.positions[i].y * h / 2 - board.positions[i].z * 4,
+              width: w - 2, height: h - 2,
+              child: Semantics(label: '${MahjongBoard.tileLabel(board.tiles[i]!)}; layer ${board.positions[i].z + 1}; ${board.isFree(i) ? 'free' : 'blocked'}',
+                button: true, selected: selected == i, excludeSemantics: true,
+                child: Tooltip(message: MahjongBoard.tileLabel(board.tiles[i]!), child: Material(
+                  elevation: 2 + board.positions[i].z.toDouble(), borderRadius: BorderRadius.circular(7),
+                  color: selected == i || hint?.first == i || hint?.second == i ? colors.primaryContainer
+                    : board.isFree(i) ? colors.surfaceContainerLowest : colors.surfaceContainerHighest,
+                  child: InkWell(onTap: ready && board.isFree(i) ? () => choose(i) : null,
+                    borderRadius: BorderRadius.circular(7), child: Container(
+                      decoration: BoxDecoration(border: Border.all(color: selected == i || hint?.first == i || hint?.second == i
+                        ? colors.primary : colors.outlineVariant, width: selected == i ? 3 : 1), borderRadius: BorderRadius.circular(7)),
+                      padding: const EdgeInsets.all(4), child: Column(children: [
+                        Expanded(child: Center(child: FittedBox(fit: BoxFit.scaleDown,
+                          child: Text(MahjongBoard.tileLabel(board.tiles[i]!).replaceFirst(' ', '\n'),
+                            textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold))))),
+                        Icon(board.isFree(i) ? Icons.lock_open : Icons.lock_outline, size: 13),
+                      ])),
+                  ),
+                )))),
+          ]))),
+        const SizedBox(height: 16),
+        Wrap(spacing: 8, runSpacing: 8, children: [
+          FilledButton(onPressed: ready ? () => reset() : null, child: const Text('New deal')),
+          OutlinedButton(onPressed: ready ? () => reset(sameDeal: true) : null, child: const Text('Restart deal')),
+          OutlinedButton.icon(onPressed: !ready || board.history.isEmpty ? null : () {
+            setState(() { board.undo(); selected = null; hint = null; }); save();
+          }, icon: const Icon(Icons.undo), label: const Text('Undo')),
+          OutlinedButton.icon(onPressed: ready && matches.isNotEmpty ? () => setState(() {
+            hint = matches.first; selected = null;
+          }) : null, icon: const Icon(Icons.lightbulb_outline), label: const Text('Hint')),
         ]),
-      ))),
-    );
+      ]);
   }
 }

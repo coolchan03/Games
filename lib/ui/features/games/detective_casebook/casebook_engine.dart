@@ -1,5 +1,7 @@
 import 'dart:math';
 
+enum CaseDifficulty { easy, standard, hard }
+
 /// A compact offline logic-grid solver for original whodunit cases.
 /// All people have unique rooms, arrival times, and objects.
 class CaseAssignment {
@@ -12,7 +14,8 @@ class CaseAssignment {
 class CaseClue {
   final String text;
   final bool Function(CaseAssignment) matches;
-  const CaseClue(this.text, this.matches);
+  final bool direct;
+  const CaseClue(this.text, this.matches, {this.direct = false});
 }
 
 class DetectiveCase {
@@ -21,6 +24,7 @@ class DetectiveCase {
   final List<String> suspects, rooms, times, objects;
   final CaseAssignment solution;
   final List<CaseClue> clues;
+  final CaseDifficulty difficulty;
   const DetectiveCase({
     required this.id,
     required this.title,
@@ -32,6 +36,7 @@ class DetectiveCase {
     required this.objects,
     required this.solution,
     required this.clues,
+    this.difficulty = CaseDifficulty.standard,
   });
   int get culpritIndex => solution.objects.indexOf(objects.indexOf(incidentObject));
   String get culprit => suspects[culpritIndex];
@@ -113,7 +118,71 @@ class DetectiveCasebook {
       truth: const CaseAssignment([3, 1, 0, 2], [1, 3, 2, 0], [1, 3, 0, 2]),
       seed: 300,
     ),
+    _build(
+      id: "night_train", title: "The Night Train Ruby", summary: "The museum ruby vanished during a sleeper-train reception. A witness saw it concealed in a velvet pouch. Identify who carried the pouch, where they visited, and when they arrived.",
+      suspects: ["Lena Frost", "Miles Grant", "Priya Shah", "Rowan Lake"], rooms: ["Dining Car", "Sleeper", "Lounge", "Baggage Car"],
+      times: ["8:00 PM", "8:15 PM", "8:30 PM", "8:45 PM"], objects: ["Velvet pouch", "Ticket case", "Chess book", "Silver flask"], crimeObject: "Velvet pouch",
+      truth: _truth(400), seed: 400,
+    ),
+    _build(
+      id: "opera", title: "The Final Encore", summary: "A singer was found dead after the final curtain. The doctor identified a poisoned goblet. Determine which guest carried it and reconstruct their room and arrival time.",
+      suspects: ["Ada Moon", "Bruno West", "Cora Blake", "Damon Finch"], rooms: ["Stage", "Green Room", "Balcony", "Wardrobe"],
+      times: ["9:00 PM", "9:20 PM", "9:40 PM", "10:00 PM"], objects: ["Opera glasses", "Poisoned goblet", "Music score", "Silk scarf"], crimeObject: "Poisoned goblet",
+      truth: _truth(500), seed: 500,
+    ),
+    _build(
+      id: "snow_lodge", title: "Murder at Snowglass Lodge", summary: "A lodge owner was attacked during a blizzard. Investigators identified an ice pick as the weapon. Four guests each carried one item; find the carrier and their location and time.",
+      suspects: ["June Alder", "Kian Birch", "Mina Cedar", "Noel Pine"], rooms: ["Study", "Boot Room", "Sunroom", "Lounge"],
+      times: ["5:10 PM", "5:30 PM", "5:50 PM", "6:10 PM"], objects: ["Trail map", "Thermos", "Ice pick", "Wool mittens"], crimeObject: "Ice pick",
+      truth: _truth(600), seed: 600,
+    ),
+    _build(
+      id: "observatory", title: "The Blackout at Orion", summary: "The observatory telescope failed before a rare event. Only the person carrying the fuse key could have caused the blackout. Establish their identity, room, and arrival time.",
+      suspects: ["Aria North", "Basil Finch", "Cass Vega", "Drew Sol"], rooms: ["Dome", "Workshop", "Control Room", "Roof"],
+      times: ["7:00 PM", "7:15 PM", "7:30 PM", "7:45 PM"], objects: ["Star chart", "Fuse key", "Lens cloth", "Notebook"], crimeObject: "Fuse key",
+      truth: _truth(700), seed: 700,
+    ),
+    _build(
+      id: "orchard", title: "The Orchard Heirloom", summary: "A family heirloom disappeared at an orchard gathering. The thief carried it away in a blue satchel. Match the visitors to their locations, times, and possessions.",
+      suspects: ["Elise Hart", "Finn Reed", "Gia Moss", "Hugo Vale"], rooms: ["Cider House", "Potting Shed", "Veranda", "Glasshouse"],
+      times: ["3:00 PM", "3:20 PM", "3:40 PM", "4:00 PM"], objects: ["Blue satchel", "Pruning gloves", "Camera", "Recipe book"], crimeObject: "Blue satchel",
+      truth: _truth(800), seed: 800,
+    ),
+    _build(
+      id: "harbor", title: "The Forged Harbor Ledger", summary: "A shipping ledger was replaced with a forgery. The false document bore wax from the red seal carried by one visitor. Who had the seal, and where and when were they recorded?",
+      suspects: ["Isla Kent", "Jonah Pike", "Keira Dawn", "Luca Grey"], rooms: ["Chart Room", "Wharf Office", "Warehouse", "Cabin"],
+      times: ["4:10 PM", "4:25 PM", "4:40 PM", "4:55 PM"], objects: ["Red seal", "Compass", "Brass token", "Coiled rope"], crimeObject: "Red seal",
+      truth: _truth(900), seed: 900,
+    ),
   ];
+
+  static final Map<String, DetectiveCase> _difficultyCache = {};
+  static CaseAssignment _truth(int seed) {
+    final random = Random(seed);
+    List<int> permutation() => [0, 1, 2, 3]..shuffle(random);
+    return CaseAssignment(permutation(), permutation(), permutation());
+  }
+  static DetectiveCase caseAt(int index, CaseDifficulty difficulty) {
+    if (difficulty == CaseDifficulty.standard) return cases[index];
+    final base = cases[index];
+    return _difficultyCache.putIfAbsent('$index/${difficulty.name}', () => _build(
+      id: base.id, title: base.title, summary: base.summary,
+      suspects: base.suspects, rooms: base.rooms, times: base.times, objects: base.objects,
+      crimeObject: base.incidentObject, truth: base.solution, seed: (index + 1) * 100,
+      difficulty: difficulty,
+    ));
+  }
+  static DetectiveCase daily(DateTime date, CaseDifficulty difficulty) {
+    final day = DateTime.utc(date.year, date.month, date.day).millisecondsSinceEpoch ~/ 86400000;
+    final base = cases[day % cases.length];
+    return _build(
+      id: 'daily-${date.year}-${date.month}-${date.day}',
+      title: 'Daily: ${base.title}', summary: base.summary,
+      suspects: base.suspects, rooms: base.rooms, times: base.times, objects: base.objects,
+      crimeObject: base.incidentObject, truth: _truth(day), seed: day,
+      difficulty: difficulty,
+    );
+  }
 
   static DetectiveCase _build({
     required String id,
@@ -126,17 +195,18 @@ class DetectiveCasebook {
     required String crimeObject,
     required CaseAssignment truth,
     required int seed,
+    CaseDifficulty difficulty = CaseDifficulty.standard,
   }) {
     final pool = <CaseClue>[];
     for (var s = 0; s < 4; s++) {
       final suspect = s, room = truth.rooms[s], time = truth.times[s];
       pool.add(CaseClue(
         '${suspects[s]} was seen in the ${rooms[room]}.',
-        (a) => a.rooms[suspect] == room,
+        (a) => a.rooms[suspect] == room, direct: true,
       ));
       pool.add(CaseClue(
         '${suspects[s]} arrived at ${times[time]}.',
-        (a) => a.times[suspect] == time,
+        (a) => a.times[suspect] == time, direct: true,
       ));
       for (var item = 0; item < 4; item++) {
         if (item == truth.objects[s]) continue;
@@ -180,7 +250,7 @@ class DetectiveCasebook {
       }
     }
 
-    final shuffled = List<CaseClue>.from(pool)..shuffle(Random(seed));
+    final shuffled = pool.where((clue) => difficulty != CaseDifficulty.hard || !clue.direct).toList()..shuffle(Random(seed));
     final selected = <CaseClue>[];
     var remaining = List<CaseAssignment>.from(possibilities);
 
@@ -214,12 +284,25 @@ class DetectiveCasebook {
       remaining = filtered;
     }
     if (remaining.length != 1) throw StateError('Case is ambiguous: $id');
+    if (difficulty == CaseDifficulty.easy) {
+      for (final clue in pool.where((clue) => clue.direct).take(4)) {
+        if (!selected.any((other) => other.text == clue.text)) selected.add(clue);
+      }
+    } else if (difficulty == CaseDifficulty.hard) {
+      // Keep indirect clues only and remove redundant information, one clue at a time.
+      for (var i = selected.length - 1; i >= 0; i--) {
+        final reduced = List<CaseClue>.from(selected)..removeAt(i);
+        if (possibilities.where((s) => reduced.every((c) => c.matches(s))).take(2).length == 1) {
+          selected.removeAt(i);
+        }
+      }
+    }
     selected.shuffle(Random(seed + 1));
     return DetectiveCase(
       id: id, title: title, summary: summary,
       incidentObject: crimeObject,
       suspects: suspects, rooms: rooms, times: times, objects: objects,
-      solution: truth, clues: selected,
+      solution: truth, clues: selected, difficulty: difficulty,
     );
   }
 }

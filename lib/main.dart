@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +11,9 @@ import 'data/models/game_streak.dart';
 import 'data/repositories/user_repository.dart';
 import 'providers/user_providers.dart';
 import 'providers/theme_provider.dart';
+import 'providers/library_style_provider.dart';
+import 'utils/library_theme.dart';
+import 'utils/game_licenses.dart';
 import 'providers/locale_provider.dart';
 import 'ui/features/main_shell/main_shell.dart';
 import 'utils/design_system.dart';
@@ -20,6 +23,7 @@ void main() async {
   final stopwatch = Stopwatch()..start();
 
   WidgetsFlutterBinding.ensureInitialized();
+  registerGameLicenses();
 
   if (!kIsWeb &&
       (defaultTargetPlatform == TargetPlatform.windows ||
@@ -78,6 +82,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appThemeMode = ref.watch(themeNotifierProvider);
+    final libraryStyle = ref.watch(libraryStyleProvider).style;
     final appLocale = ref.watch(localeNotifierProvider);
 
     ThemeMode themeMode;
@@ -96,8 +101,8 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Games',
       debugShowCheckedModeBanner: false,
-      theme: DesignSystem.lightTheme,
-      darkTheme: DesignSystem.darkTheme,
+      theme: applyLibraryStyle(DesignSystem.lightTheme, libraryStyle),
+      darkTheme: applyLibraryStyle(DesignSystem.darkTheme, libraryStyle),
       themeMode: themeMode,
       localizationsDelegates: [
         AppLocalizations.delegate,

@@ -1,7 +1,7 @@
 name: Games Web Build
 on:
   push:
-    branches: [main]
+    branches: [main, 'pro-classics-*']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -9,7 +9,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: pages
+  group: games-web-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -21,9 +21,29 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
+      - run: python tool/format_classics.py
       - run: flutter analyze --no-fatal-infos
-      - run: flutter test
+      - run: flutter test --reporter expanded --timeout 120s test/games/chess_session_test.dart test/games/poker_test.dart test/games/card_deck_test.dart test/games/mahjong_layered_test.dart test/games/detective_expansion_test.dart test/games/classics_persistence_test.dart test/games/classics_widgets_test.dart
+      - run: flutter test test/games/classics_catalog_test.dart
+      - run: flutter test --reporter expanded --timeout 120s
+      - name: Capture responsive classics screens
+        run: flutter test --update-goldens --dart-define=CAPTURE=true test/games/classics_widgets_test.dart
+      - name: Verify rule engines in Chrome
+        run: flutter test --platform chrome test/games/chess_session_test.dart test/games/poker_test.dart test/games/card_deck_test.dart
       - run: flutter build web --release --base-href /Games/
+      - name: Stamp deployed revision
+        run: printf '{"commit":"%s","run":"%s"}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > build/web/build_info.json
+      - name: Upload verification artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: classics-verification
+          path: |
+            pubspec.lock
+            build/verified-classics-sources.zip
+            build/classics-screenshots/
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
       - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:

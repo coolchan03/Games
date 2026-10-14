@@ -33,6 +33,7 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
+  chess: 0.8.1
   cupertino_icons: ^1.0.8
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5
@@ -79,6 +80,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - THIRD_PARTY_LICENSES/
     - assets/chain_words.txt
     - assets/crossword_data.json
     - assets/find_word_words.txt
