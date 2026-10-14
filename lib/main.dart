@@ -11,9 +11,11 @@ import 'data/models/game_streak.dart';
 import 'data/repositories/user_repository.dart';
 import 'providers/user_providers.dart';
 import 'providers/theme_provider.dart';
+import 'providers/library_style_provider.dart';
 import 'providers/locale_provider.dart';
 import 'ui/features/main_shell/main_shell.dart';
 import 'utils/design_system.dart';
+import 'utils/library_theme.dart';
 import 'widgets/error_boundary.dart';
 
 void main() async {
@@ -79,6 +81,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appThemeMode = ref.watch(themeNotifierProvider);
     final appLocale = ref.watch(localeNotifierProvider);
+    final visualStyle = ref.watch(libraryStyleProvider).style;
 
     ThemeMode themeMode;
     switch (appThemeMode) {
@@ -96,8 +99,8 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'Games',
       debugShowCheckedModeBanner: false,
-      theme: DesignSystem.lightTheme,
-      darkTheme: DesignSystem.darkTheme,
+      theme: applyLibraryStyle(DesignSystem.lightTheme, visualStyle),
+      darkTheme: applyLibraryStyle(DesignSystem.darkTheme, visualStyle),
       themeMode: themeMode,
       localizationsDelegates: [
         AppLocalizations.delegate,

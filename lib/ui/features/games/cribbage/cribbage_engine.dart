@@ -134,7 +134,9 @@ class CribbageGame {
 
   /// Both players discard two cards; the human's choice is [mine].
   void discard(List<PlayingCard> mine, int level) {
-    if (phase != CribPhase.discard || mine.length != 2) return;
+    if (phase != CribPhase.discard || mine.length != 2 ||
+        mine.toSet().length != 2 ||
+        mine.any((card) => !hands[0].contains(card))) return;
     final theirs = aiDiscard(hands[1], dealer == 1, level);
     for (final c in mine) {
       hands[0].remove(c);
@@ -154,7 +156,8 @@ class CribbageGame {
   bool hasPlay(int p) => pegHands[p].any((c) => canPlay(p, c));
 
   void play(PlayingCard c) {
-    if (phase != CribPhase.pegging || !canPlay(turn, c)) return;
+    if (phase != CribPhase.pegging ||
+        !pegHands[turn].contains(c) || !canPlay(turn, c)) return;
     pegHands[turn].remove(c);
     pile.add(c);
     count += pipValue(c);

@@ -46,9 +46,18 @@ void main() {
       if (find.byTooltip('Rules').evaluate().isNotEmpty) {
         await tester.tap(find.byTooltip('Rules'));
         await tester.pump(const Duration(seconds: 1));
-        await tester.tap(find.text('Got it'));
+        final closeRules = find.text('Got it').evaluate().isNotEmpty
+            ? find.text('Got it') : find.text('Close');
+        expect(closeRules, findsOneWidget,
+            reason: 'Rules button must open a dismissible dialog for $id');
+        await tester.tap(closeRules);
         await tester.pump(const Duration(seconds: 1));
-        await tester.tap(find.byTooltip('New game'));
+        if (find.byTooltip('New game').evaluate().isNotEmpty) {
+          await tester.tap(find.byTooltip('New game'));
+        } else if (id == 'five_card_draw') {
+          expect(find.text('New table'), findsOneWidget);
+          await tester.tap(find.text('New table'));
+        }
       }
       for (var i = 0; i < 6; i++) {
         await tester.pump(const Duration(milliseconds: 500));
