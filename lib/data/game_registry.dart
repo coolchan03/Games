@@ -1,4 +1,7 @@
 import 'game_metadata.dart';
+import '../ui/features/games/reversi/reversi_metadata.dart';
+import '../ui/features/games/mancala/mancala_metadata.dart';
+import '../ui/features/games/detective_casebook/casebook_metadata.dart';
 import '../ui/features/games/connect_four/connect_four_metadata.dart';
 import '../ui/features/games/blackjack/blackjack_metadata.dart';
 import '../ui/features/games/tic_tac_toe/tic_tac_toe_metadata.dart';
@@ -493,6 +496,9 @@ List<GameMetadata> _buildGameList() {
     wordSearchMetadata,
     connectFourMetadata,
     blackjackMetadata,
+    reversiMetadata,
+    mancalaMetadata,
+    detectiveCasebookMetadata,
     ticTacToeMetadata,
     game_2048Metadata,
     crownMetadata,

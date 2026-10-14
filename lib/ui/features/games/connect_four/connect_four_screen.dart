@@ -104,7 +104,7 @@ class _ConnectFourState extends State<ConnectFourScreen> {
                   widthFactor:.75,heightFactor:.75,child:DecoratedBox(
                   decoration:BoxDecoration(shape:BoxShape.circle,
                     color:p==0?colors.surface:p==1
-                      ?colors.tertiary:colors.primary))))));})),
+                      ?colors.tertiary:colors.primary)))))));})),
           const SizedBox(height:16),
           FilledButton(onPressed:()=>setState(reset),
             child:const Text('New game'))

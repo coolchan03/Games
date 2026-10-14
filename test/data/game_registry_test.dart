@@ -16,6 +16,8 @@ void main() {
     'WORD',
     'MEMORY',
     'SPATIAL',
+    'BOARD',
+    'CARD',
   };
 
   group('allGamesMetadata', () {

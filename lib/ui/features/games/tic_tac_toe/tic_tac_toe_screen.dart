@@ -80,9 +80,9 @@ class _TicTacToeState extends State<TicTacToeScreen> {
           gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:3),
           itemBuilder:(context,i)=>Card(child:InkWell(onTap:()=>play(i),
             child:Center(child:Text(board[i]==0?'':board[i]==1?'X':'O',
-              style:Theme.of(context).textTheme.displayLarge))))),
+              style:Theme.of(context).textTheme.displayLarge)))))),
         Padding(padding:const EdgeInsets.all(16),
           child:FilledButton(onPressed:reset,child:const Text('New game')))
-      ])))));
+      ]))));
   }
 }
