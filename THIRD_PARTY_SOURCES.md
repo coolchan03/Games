@@ -84,6 +84,15 @@ algorithm), Spider, Golf, Pyramid, Nine Men's Morris, Gomoku, Dots and Boxes, Ba
 Snakes and Ladders, Peg Solitaire, Shut the Box, Tower of Hanoi and Memory Pairs. These
 implement traditional public-domain rules and include no third-party code.
 
+## Ported source — Simon Tatham's Portable Puzzle Collection
+- Source: https://www.chiark.greenend.org.uk/~sgtatham/puzzles/ (mirror https://github.com/ghewgill/puzzles)
+- License: MIT, Copyright (c) 2004-2014 Simon Tatham and contributors (THIRD_PARTY_LICENSES/sgt-puzzles-MIT.txt)
+- Inertia: inertia.c level generator, gem-reachability search and move rules ported to Dart.
+- Same Game: samegame.c rules and (n-2)^2 scoring; solvable boards are built backwards in the
+  spirit of samegame.c's gen_grid, in a simplified form.
+- Black Box (blackbox.c), Twiddle (twiddle.c), Sixteen (sixteen.c) and Signpost (signpost.c):
+  rules re-implemented in Dart; Signpost uses a new generator with a uniqueness solver.
+
 ## Research and future port candidates
 - https://github.com/edave64/ED-Mahjong — Flutter MIT game engine; assets separately licensed
 - https://github.com/felipersteles/checkers-with-ai — MIT, JavaScript rules and AI

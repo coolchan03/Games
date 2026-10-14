@@ -1,4 +1,10 @@
 import 'game_metadata.dart';
+import '../ui/features/games/signpost/signpost_metadata.dart';
+import '../ui/features/games/sixteen/sixteen_metadata.dart';
+import '../ui/features/games/twiddle/twiddle_metadata.dart';
+import '../ui/features/games/black_box/black_box_metadata.dart';
+import '../ui/features/games/same_game/same_game_metadata.dart';
+import '../ui/features/games/inertia/inertia_metadata.dart';
 import '../ui/features/games/gin_rummy/gin_rummy_metadata.dart';
 import '../ui/features/games/go_fish/go_fish_metadata.dart';
 import '../ui/features/games/crazy_eights/crazy_eights_metadata.dart';
@@ -530,6 +536,12 @@ List<GameMetadata> _buildGameList() {
     checkersMetadata,
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
+    signpostMetadata,
+    sixteenMetadata,
+    twiddleMetadata,
+    blackBoxMetadata,
+    sameGameMetadata,
+    inertiaMetadata,
     ginRummyMetadata,
     goFishMetadata,
     crazyEightsMetadata,

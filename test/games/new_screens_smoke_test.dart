@@ -12,7 +12,8 @@ const addedGames = [
   'gomoku', 'dots_and_boxes', 'battleship', 'snakes_and_ladders',
   'peg_solitaire', 'shut_the_box', 'tower_of_hanoi', 'memory_pairs',
   'mahjong_solitaire', 'detective_casebook', 'crazy_eights', 'go_fish',
-  'gin_rummy', 'blackjack',
+  'gin_rummy', 'blackjack', 'inertia', 'same_game', 'black_box', 'twiddle',
+  'sixteen', 'signpost',
 ];
 
 void main() {
