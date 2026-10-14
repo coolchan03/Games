@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 import '../../../providers/theme_provider.dart';
+import '../../../widgets/library_style_selector.dart';
 import '../../../providers/locale_provider.dart';
 import '../../../providers/user_providers.dart';
 import '../../../utils/design_system.dart';
@@ -105,7 +106,7 @@ class SettingsScreen extends ConsumerWidget {
                           case 9: return const SizedBox(height: DesignSystem.spaceXL);
                           case 10: return _buildSectionTitle(context, l10n.appearance.toUpperCase());
                           case 11: return const SizedBox(height: DesignSystem.spaceMD);
-                          case 12: return _buildThemeSelector(context, ref, themeMode, l10n);
+                          case 12: return Column(children: [_buildThemeSelector(context, ref, themeMode, l10n), const LibraryStyleSelector()]);
                           case 13: return const SizedBox(height: DesignSystem.spaceXL);
                           case 14: return _buildSectionTitle(context, l10n.language.toUpperCase());
                           case 15: return const SizedBox(height: DesignSystem.spaceMD);

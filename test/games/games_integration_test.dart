@@ -89,7 +89,7 @@ void main() {
   });
   group('Detective Casebook', () {
     test('each case has a unique consistent solution', () {
-      expect(DetectiveCasebook.cases.length, 3);
+      expect(DetectiveCasebook.cases.length, 9);
       for (final game in DetectiveCasebook.cases) {
         expect(game.countSolutions(), 1, reason: game.title);
         expect(game.clues.every((clue) => clue.matches(game.solution)), true,
