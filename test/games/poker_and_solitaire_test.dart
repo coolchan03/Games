@@ -106,8 +106,10 @@ void main() {
       expect(g.toCall(0), 20);
       expect(g.canRaise(0), isFalse);
       g.act(const PokerAction(ActionType.raise, 200));
-      expect(g.currentBet, 80);
-      expect(g.players[0].bet, 80);
+      // The forced call ends preflop; bet counters reset for the flop.
+      expect(g.currentBet, 0);
+      expect(g.players[0].totalIn, 80);
+      expect(g.board.length, 3);
       expect(g.pot, 240);
     });
   });

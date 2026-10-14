@@ -30,6 +30,26 @@ void main() {
     expect(peggingScore(c('TH 6C 5D 5S 5C')), 2 + 6); // 31 and a pair royal
   });
 
+  test('illegal discards and pegging cards cannot create phantom cards', () {
+    final g = CribbageGame(random: Random(42));
+    final held = g.hands[0].first;
+    final fake = standardDeckCards().firstWhere((x) => !g.hands[0].contains(x));
+    g.discard([held, fake], 1);
+    expect(g.phase, CribPhase.discard);
+    expect(g.hands[0].length, 6);
+    g.discard([held, held], 1);
+    expect(g.phase, CribPhase.discard);
+    g.discard(g.hands[0].take(2).toList(), 1);
+    expect(g.phase, CribPhase.pegging);
+    final bogus = standardDeckCards().firstWhere(
+        (x) => !g.pegHands[g.turn].contains(x));
+    final count = g.count;
+    final original = g.pegHands[g.turn].length;
+    g.play(bogus);
+    expect(g.count, count);
+    expect(g.pegHands[g.turn].length, original);
+  });
+
   test('computer vs computer games reach 121', () {
     final rng = Random(4);
     for (var game = 0; game < 3; game++) {

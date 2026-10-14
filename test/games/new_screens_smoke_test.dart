@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle/data/game_metadata.dart';
@@ -20,6 +22,15 @@ const addedGames = [
 ];
 
 void main() {
+  late Directory tempHive;
+  setUpAll(() async {
+    tempHive = await Directory.systemTemp.createTemp('games-smoke-hive-');
+    Hive.init(tempHive.path);
+  });
+  tearDownAll(() async {
+    await Hive.close();
+    await tempHive.delete(recursive: true);
+  });
   for (final id in addedGames) {
     testWidgets('$id screen renders and runs', (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
