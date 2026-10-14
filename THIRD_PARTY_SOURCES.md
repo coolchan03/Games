@@ -56,6 +56,27 @@ Games is based on sidhant947/Puzzle (GPL-3.0). Existing upstream notices remain.
 - Changes: package imports rewritten to relative paths. The card artwork and cat images
   were not copied; Games draws cards with vector widgets (common/card_view.dart).
 
+## Copied source — Backgammon
+- Source: https://github.com/demirburakk/bbackgammon (backgammon_shared package)
+- Original files: lib/src/entities/game_entities.dart, lib/src/logic/heuristic_evaluator.dart,
+  lib/src/usecases/get_possible_moves.dart, lib/src/usecases/move_piece_use_case.dart,
+  lib/src/common/constants.dart (board indices only)
+- Location: lib/ui/features/games/backgammon/engine/
+- License: GPL-3.0 (THIRD_PARTY_LICENSES/bbackgammon-GPL-3.0.txt)
+- Changes: imports made relative; maxPlayableMoves made public. New backgammon_match.dart
+  adds opening roll, doubles, the "use as many dice as possible" rule and a full-turn search AI.
+
+## Adapted data — Ludo
+- Source: https://github.com/nizwar/ludo_flutter lib/constants.dart (route and safe squares)
+- License: Apache-2.0 (THIRD_PARTY_LICENSES/ludo_flutter-Apache-2.0.txt, NOTICE in ludo_flutter-NOTICE.txt)
+- Location: lib/ui/features/games/ludo/ludo_engine.dart. Engine (fair dice), AI and UI are new.
+
+## Original pure-Dart games written for Games
+Texas Hold'em, Video Poker, poker evaluator, Klondike, FreeCell (Microsoft deal numbering
+algorithm), Spider, Golf, Pyramid, Nine Men's Morris, Gomoku, Dots and Boxes, Battleship,
+Snakes and Ladders, Peg Solitaire, Shut the Box, Tower of Hanoi and Memory Pairs. These
+implement traditional public-domain rules and include no third-party code.
+
 ## Research and future port candidates
 - https://github.com/edave64/ED-Mahjong — Flutter MIT game engine; assets separately licensed
 - https://github.com/felipersteles/checkers-with-ai — MIT, JavaScript rules and AI

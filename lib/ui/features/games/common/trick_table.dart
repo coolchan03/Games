@@ -35,7 +35,8 @@ class TrickTable extends StatelessWidget {
       final isActive = active == i;
       final isWinner = winner == i;
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        constraints: const BoxConstraints(maxWidth: 112),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: isWinner
               ? colors.tertiaryContainer
@@ -47,7 +48,7 @@ class TrickTable extends StatelessWidget {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(names[i],
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-          Text(info[i], style: const TextStyle(fontSize: 12)),
+          Text(info[i], style: const TextStyle(fontSize: 11), textAlign: TextAlign.center),
         ]),
       );
     }
@@ -59,7 +60,7 @@ class TrickTable extends StatelessWidget {
 
     const w = 50.0;
     return AspectRatio(
-      aspectRatio: 1.25,
+      aspectRatio: 1.05,
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF1E6B45),
@@ -67,15 +68,15 @@ class TrickTable extends StatelessWidget {
         ),
         child: Stack(children: [
           Align(alignment: const Alignment(0, -.95), child: seat(2)),
-          Align(alignment: const Alignment(-.97, 0), child: seat(1)),
-          Align(alignment: const Alignment(.97, 0), child: seat(3)),
+          Align(alignment: const Alignment(-.97, -.3), child: seat(1)),
+          Align(alignment: const Alignment(.97, -.3), child: seat(3)),
           Align(alignment: const Alignment(0, .97), child: seat(0)),
           if (center != null) Align(alignment: Alignment.center, child: center),
           for (final (s, a) in const [
-            (0, Alignment(0, .4)),
-            (1, Alignment(-.35, 0)),
-            (2, Alignment(0, -.4)),
-            (3, Alignment(.35, 0)),
+            (0, Alignment(0, .5)),
+            (1, Alignment(-.42, .15)),
+            (2, Alignment(0, -.25)),
+            (3, Alignment(.42, .15)),
           ])
             if (cardFor(s) != null)
               Align(alignment: a, child: CardView(card: cardFor(s), width: w)),

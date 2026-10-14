@@ -1,4 +1,15 @@
 import 'game_metadata.dart';
+import '../ui/features/games/memory_pairs/memory_pairs_metadata.dart';
+import '../ui/features/games/tower_of_hanoi/tower_of_hanoi_metadata.dart';
+import '../ui/features/games/shut_the_box/shut_the_box_metadata.dart';
+import '../ui/features/games/peg_solitaire/peg_solitaire_metadata.dart';
+import '../ui/features/games/snakes_and_ladders/snakes_and_ladders_metadata.dart';
+import '../ui/features/games/battleship/battleship_metadata.dart';
+import '../ui/features/games/dots_and_boxes/dots_and_boxes_metadata.dart';
+import '../ui/features/games/gomoku/gomoku_metadata.dart';
+import '../ui/features/games/nine_mens_morris/nine_mens_morris_metadata.dart';
+import '../ui/features/games/ludo/ludo_metadata.dart';
+import '../ui/features/games/backgammon/backgammon_metadata.dart';
 import '../ui/features/games/pyramid/pyramid_metadata.dart';
 import '../ui/features/games/golf_solitaire/golf_solitaire_metadata.dart';
 import '../ui/features/games/spider/spider_metadata.dart';
@@ -516,6 +527,17 @@ List<GameMetadata> _buildGameList() {
     checkersMetadata,
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
+    memoryPairsMetadata,
+    towerOfHanoiMetadata,
+    shutTheBoxMetadata,
+    pegSolitaireMetadata,
+    snakesAndLaddersMetadata,
+    battleshipMetadata,
+    dotsAndBoxesMetadata,
+    gomokuMetadata,
+    nineMensMorrisMetadata,
+    ludoMetadata,
+    backgammonMetadata,
     pyramidMetadata,
     golfSolitaireMetadata,
     spiderMetadata,
