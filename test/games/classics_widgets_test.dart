@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
@@ -15,13 +15,15 @@ import 'package:puzzle/ui/features/games/detective_casebook/casebook_screen.dart
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  late Directory directory;
+  // Layout tests run in FakeAsync. Use Hive's real in-memory backend so a
+  // computer turn cannot leave filesystem futures pending across test zones.
+  // Disk durability is covered separately by classics_persistence_test.dart.
   setUpAll(() async {
-    directory = await Directory.systemTemp.createTemp('games-widget-');
-    Hive.init(directory.path);
-    await Hive.openBox<String>('classic_games_v1');
+    await Hive.openBox<String>('classic_games_v1', bytes: Uint8List(0));
   });
-  tearDownAll(() async { await Hive.close(); await directory.delete(recursive: true); });
+  tearDownAll(() async {
+    await Hive.close().timeout(const Duration(seconds: 20));
+  });
   final screens = <String, Widget Function()>{
     'chess': () => const ChessScreen(),
     'holdem': () => const PokerScreen(),
