@@ -85,45 +85,27 @@ class VennNumbersEngine {
     final ruleA = rules[0];
     final ruleB = rules[1];
 
-    // Try to find a number that fits some regions
-    int number;
-    VennRegion region;
-    
-    // We try to pick a region first to ensure distribution
-    final targetRegion = VennRegion.values[_random.nextInt(4)];
-    int attempts = 0;
-    
-    while (true) {
-      number = _random.nextInt(100) + 1;
-      bool inA = ruleA.test(number);
-      bool inB = ruleB.test(number);
-      
-      if (inA && inB) {
-        region = VennRegion.both;
-      } else if (inA) {
-        region = VennRegion.aOnly;
-      } else if (inB) {
-        region = VennRegion.bOnly;
-      } else {
-        region = VennRegion.neither;
-      }
-      
-      if (region == targetRegion) {
-        break;
-      }
-      
-      attempts++;
-      if (attempts > 50) {
-        break;
-      } // Fallback
-    }
-
+    // Choose a target region first, then sample from its actual members.
+    // No 50-attempt fallback: every generated puzzle matches its target.
+    final region = VennRegion.values[_random.nextInt(4)];
+    final candidates = [
+      for (var n = 1; n <= 100; n++)
+        if (_region(ruleA, ruleB, n) == region) n,
+    ];
+    final number = candidates[_random.nextInt(candidates.length)];
     return VennProblem(
       number: number,
       ruleA: ruleA,
       ruleB: ruleB,
       correctRegion: region,
     );
+  }
+
+  VennRegion _region(VennRule a, VennRule b, int n) {
+    final inA = a.test(n);
+    final inB = b.test(n);
+    if (inA) return inB ? VennRegion.both : VennRegion.aOnly;
+    return inB ? VennRegion.bOnly : VennRegion.neither;
   }
 
   List<VennRule> _getTwoDistinctRules() {
@@ -140,6 +122,19 @@ class VennNumbersEngine {
     ];
     
     allRules.shuffle(_random);
-    return allRules.sublist(0, 2);
+    // Avoid equivalent or mutually exclusive rule pairs. Every region
+    // should have at least one valid answer from the displayed 1..100 range.
+    for (var i = 0; i < allRules.length; i++) {
+      for (var j = i + 1; j < allRules.length; j++) {
+        final a = allRules[i], b = allRules[j];
+        if (a.description == b.description) continue;
+        final found = <VennRegion>{};
+        for (var n = 1; n <= 100 && found.length < 4; n++) {
+          found.add(_region(a, b, n));
+        }
+        if (found.length == 4) return [a, b];
+      }
+    }
+    throw StateError('No meaningful Venn rule pairs found');
   }
 }

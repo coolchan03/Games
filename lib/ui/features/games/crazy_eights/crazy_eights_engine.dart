@@ -64,6 +64,9 @@ class CrazyEightsGame {
   }
 
   void play(PlayingCard c, {Suit? chosen}) {
+    if (winner != null || !hands[turn].contains(c) || !canPlay(c)) {
+      throw ArgumentError.value(c, 'card', 'Card is not in hand or is not playable');
+    }
     hands[turn].remove(c);
     discard.add(c);
     activeSuit = c.rank == Rank.eight ? (chosen ?? c.suit) : c.suit;

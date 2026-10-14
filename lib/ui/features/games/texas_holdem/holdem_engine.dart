@@ -67,6 +67,9 @@ class HoldemGame {
   int currentBet = 0;
   int minRaise = 0;
   Set<int> toAct = {};
+  // A short all-in only creates a call obligation; players who already
+  // acted may not raise again until another full minimum raise occurs.
+  final Set<int> actedSinceFullRaise = {};
   List<PotResult> results = [];
   int handNumber = 0;
 
@@ -87,6 +90,7 @@ class HoldemGame {
   void startHand() {
     if (seatsWithChips.length < 2) return;
     handNumber++;
+    actedSinceFullRaise.clear();
     deck = standardDeckCards()..shuffle(rng);
     board = [];
     results = [];
@@ -135,6 +139,7 @@ class HoldemGame {
   int maxRaiseTo(int seat) => players[seat].bet + players[seat].chips;
 
   bool canRaise(int seat) =>
+      !actedSinceFullRaise.contains(seat) &&
       players[seat].chips > toCall(seat) &&
       players.where((p) => p.canAct).length > 1;
 
@@ -156,6 +161,7 @@ class HoldemGame {
         p.totalIn += pay;
         p.lastAction = pay == 0 ? 'Check' : p.chips == 0 ? 'All-in' : 'Call $pay';
       case ActionType.raise:
+        if (!canRaise(seat)) return act(const PokerAction(ActionType.call));
         final target = action.amount.clamp(minRaiseTo(seat), maxRaiseTo(seat));
         if (target <= currentBet) return act(const PokerAction(ActionType.call));
         final pay = target - p.bet;
@@ -164,7 +170,10 @@ class HoldemGame {
         p.bet += pay;
         p.totalIn += pay;
         // A short all-in does not reopen the minimum raise.
-        if (raiseBy >= minRaise) minRaise = raiseBy;
+        if (raiseBy >= minRaise) {
+          minRaise = raiseBy;
+          actedSinceFullRaise.clear(); // A full raise reopens betting.
+        }
         currentBet = target;
         p.lastAction = p.chips == 0 ? 'All-in $target' : 'Raise to $target';
         toAct = {
@@ -172,6 +181,7 @@ class HoldemGame {
             if (i != seat && players[i].canAct) i
         };
     }
+    actedSinceFullRaise.add(seat);
     toAct.remove(seat);
     if (players.where((x) => x.inHand).length == 1) {
       _awardUncontested();
@@ -199,6 +209,7 @@ class HoldemGame {
     }
     currentBet = 0;
     minRaise = bigBlind;
+    actedSinceFullRaise.clear();
     switch (street) {
       case Street.preflop:
         deck.removeLast(); // burn

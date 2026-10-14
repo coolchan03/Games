@@ -44,6 +44,7 @@ import '../ui/features/games/freecell/freecell_metadata.dart';
 import '../ui/features/games/klondike/klondike_metadata.dart';
 import '../ui/features/games/video_poker/video_poker_metadata.dart';
 import '../ui/features/games/texas_holdem/texas_holdem_metadata.dart';
+import '../ui/features/games/poker/poker_metadata.dart';
 import '../ui/features/games/chess/chess_metadata.dart';
 import '../ui/features/games/hearts/hearts_metadata.dart';
 import '../ui/features/games/spades/spades_metadata.dart';
@@ -599,6 +600,7 @@ List<GameMetadata> _buildGameList() {
     klondikeMetadata,
     videoPokerMetadata,
     texasHoldemMetadata,
+    fiveCardDrawMetadata,
     chessMetadata,
     heartsMetadata,
     spadesMetadata,

@@ -78,6 +78,15 @@ Games is based on sidhant947/Puzzle (GPL-3.0). Existing upstream notices remain.
 - License: Apache-2.0 (THIRD_PARTY_LICENSES/ludo_flutter-Apache-2.0.txt, NOTICE in ludo_flutter-NOTICE.txt)
 - Location: lib/ui/features/games/ludo/ludo_engine.dart. Engine (fair dice), AI and UI are new.
 
+## Restored source — Five Card Draw and fixed-limit poker evaluation
+- Previous work: `pro-classics-20261014` in coolchan03/Games, restored without replacing
+  Claude's no-limit Texas Hold'em engine or its `texas_holdem` catalog entry.
+- Original evaluator source: https://github.com/thlorenz/phe (MIT, Thorsten Lorenz).
+- Adapted evaluator logic and generated lookup tables in `lib/ui/features/games/poker/`;
+  license preserved in `THIRD_PARTY_LICENSES/phe-MIT.txt`.
+- Five Card Draw uses virtual chips, pass-and-play / casual AI, hand rankings,
+  side-pot accounting and versioned local table saves. No gambling services.
+
 ## Original pure-Dart games written for Games
 Texas Hold'em, Video Poker, poker evaluator, Klondike, FreeCell (Microsoft deal numbering
 algorithm), Spider, Golf, Pyramid, Nine Men's Morris, Gomoku, Dots and Boxes, Battleship,

@@ -37,10 +37,20 @@ void main() {
       expect(problem.correctRegion, expected);
     });
 
-    test('generateProblem produces two distinct rules', () {
-      final problem = engine.generateProblem();
-      expect(problem.ruleA.runtimeType != problem.ruleB.runtimeType ||
-          problem.ruleA.toString() != problem.ruleB.toString(), isTrue);
+    test('generateProblem produces two distinct meaningful rules', () {
+      for (var i = 0; i < 80; i++) {
+        final problem = engine.generateProblem();
+        expect(problem.ruleA.description, isNot(problem.ruleB.description));
+        final regions = <VennRegion>{};
+        for (var n = 1; n <= 100; n++) {
+          final a = problem.ruleA.test(n);
+          final b = problem.ruleB.test(n);
+          regions.add(a ? (b ? VennRegion.both : VennRegion.aOnly)
+              : (b ? VennRegion.bOnly : VennRegion.neither));
+        }
+        expect(regions, containsAll(VennRegion.values),
+            reason: '${problem.ruleA.description} / ${problem.ruleB.description}');
+      }
     });
   });
 

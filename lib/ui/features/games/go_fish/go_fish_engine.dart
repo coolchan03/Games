@@ -68,6 +68,10 @@ class GoFishGame {
   /// Current player asks [target] for [rank]. Returns true if the same
   /// player continues.
   bool ask(int target, Rank rank) {
+    if (over || target < 0 || target >= players || target == turn ||
+        hands[target].isEmpty || !askable(turn).contains(rank)) {
+      throw ArgumentError('Must ask another active player for a rank you hold');
+    }
     final asker = turn;
     (known[asker] ??= {}).add(rank);
     final got = hands[target].where((c) => c.rank == rank).toList();
