@@ -58,6 +58,15 @@ void main() {
       final total = g.hands.fold<int>(0, (s, h) => s + h.length) + g.stock.length + g.discard.length;
       expect(total, 52);
     });
+    test('rejects cards not held by the current player', () {
+      final g = CrazyEightsGame(2, random: Random(12));
+      final invalid = standardDeckCards().firstWhere(
+          (c) => !g.hands[0].contains(c));
+      final before = g.discard.length;
+      expect(() => g.play(invalid), throwsArgumentError);
+      expect(g.discard.length, before);
+      expect(g.turn, 0);
+    });
   });
 
   group('Go Fish', () {
@@ -70,6 +79,15 @@ void main() {
       }
       expect(g.over, isTrue);
       expect(g.books.fold<int>(0, (s, b) => s + b.length), 13);
+    });
+    test('rejects asking yourself or for a rank not in your hand', () {
+      final g = GoFishGame(2, random: Random(17));
+      final held = g.askable(0).first;
+      final missing = Rank.values.firstWhere(
+          (r) => !g.askable(0).contains(r));
+      expect(() => g.ask(0, held), throwsArgumentError);
+      expect(() => g.ask(1, missing), throwsArgumentError);
+      expect(g.turn, 0);
     });
   });
 

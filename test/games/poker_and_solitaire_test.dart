@@ -90,6 +90,26 @@ void main() {
       // Player A can win at most 3 * 100 = 300.
       expect(g.players[0].chips, lessThanOrEqualTo(300));
     });
+    test('short all-in does not reopen betting for an earlier raiser', () {
+      final g = HoldemGame(names: ['A', 'B', 'C'], random: Random(91));
+      g.dealer = 2;
+      g.players[1].chips = 80;
+      g.startHand();
+      expect(g.current, 0);
+      g.act(const PokerAction(ActionType.raise, 60));
+      expect(g.current, 1);
+      g.act(const PokerAction(ActionType.raise, 80));
+      expect(g.currentBet, 80);
+      expect(g.current, 2);
+      g.act(const PokerAction(ActionType.call));
+      expect(g.current, 0);
+      expect(g.toCall(0), 20);
+      expect(g.canRaise(0), isFalse);
+      g.act(const PokerAction(ActionType.raise, 200));
+      expect(g.currentBet, 80);
+      expect(g.players[0].bet, 80);
+      expect(g.pot, 240);
+    });
   });
 
   group('Video poker', () {

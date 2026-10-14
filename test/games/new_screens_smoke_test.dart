@@ -7,7 +7,7 @@ import 'package:puzzle/data/game_registry.dart';
 /// pumped for a while so computer opponents get to move, then disposed.
 const addedGames = [
   'chess', 'hearts', 'spades', 'oh_hell', 'yacht_dice', 'code_breaker',
-  'texas_holdem', 'video_poker', 'klondike', 'freecell', 'spider',
+  'texas_holdem', 'five_card_draw', 'video_poker', 'klondike', 'freecell', 'spider',
   'golf_solitaire', 'pyramid', 'backgammon', 'ludo', 'nine_mens_morris',
   'gomoku', 'dots_and_boxes', 'battleship', 'snakes_and_ladders',
   'peg_solitaire', 'shut_the_box', 'tower_of_hanoi', 'memory_pairs',
