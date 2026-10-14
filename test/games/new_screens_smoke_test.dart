@@ -15,7 +15,8 @@ const addedGames = [
   'gin_rummy', 'blackjack', 'inertia', 'same_game', 'black_box', 'twiddle',
   'sixteen', 'signpost', 'hex', 'go_game', 'liars_dice', 'dominoes',
   'bagh_chal', 'alquerque', 'neutron', 'chinese_checkers', 'poker_squares',
-  'aces_up', 'forty_thieves', 'sokoban',
+  'aces_up', 'forty_thieves', 'sokoban', 'oware', 'nim', 'war',
+  'cribbage',
 ];
 
 void main() {

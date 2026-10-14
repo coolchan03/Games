@@ -1,4 +1,8 @@
 import 'game_metadata.dart';
+import '../ui/features/games/cribbage/cribbage_metadata.dart';
+import '../ui/features/games/war/war_metadata.dart';
+import '../ui/features/games/nim/nim_metadata.dart';
+import '../ui/features/games/oware/oware_metadata.dart';
 import '../ui/features/games/sokoban/sokoban_metadata.dart';
 import '../ui/features/games/forty_thieves/forty_thieves_metadata.dart';
 import '../ui/features/games/aces_up/aces_up_metadata.dart';
@@ -548,6 +552,10 @@ List<GameMetadata> _buildGameList() {
     checkersMetadata,
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
+    cribbageMetadata,
+    warMetadata,
+    nimMetadata,
+    owareMetadata,
     sokobanMetadata,
     fortyThievesMetadata,
     acesUpMetadata,
