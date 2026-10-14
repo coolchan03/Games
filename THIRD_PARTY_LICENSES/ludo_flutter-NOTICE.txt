@@ -1,0 +1,6 @@
+Portions of lib/ui/features/games/ludo/ludo_engine.dart (the green route and
+safe-square tables) are taken from https://github.com/nizwar/ludo_flutter
+lib/constants.dart, licensed under the Apache License, Version 2.0:
+http://www.apache.org/licenses/LICENSE-2.0
+The tables were converted to integer [column, row] cells; the game engine,
+board painter and UI are new.

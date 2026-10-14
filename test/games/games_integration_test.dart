@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:puzzle/ui/features/games/mahjong_solitaire/engine/mahjong_board.dart';
+import 'package:puzzle/ui/features/games/mahjong_solitaire/engine/layered_board.dart';
+import 'package:puzzle/ui/features/games/mahjong_solitaire/engine/mahjong_tile.dart';
 import 'package:puzzle/ui/features/games/checkers/engine/checkers_rules.dart';
 import 'package:puzzle/ui/features/games/reversi/engine/game_board.dart';
 import 'package:puzzle/ui/features/games/mancala/engine/mancala_state.dart';
@@ -64,32 +65,52 @@ void main() {
     });
   });
   group('Mahjong Solitaire', () {
-    test('64 tiles have a complete legal solution by construction', () {
-      final board = MahjongBoard.generate(Random(42));
-      expect(board.remaining, 64);
-      for (final pair in board.solutionOrder) {
-        expect(board.isFree(pair.first), true);
-        expect(board.isFree(pair.second), true);
-        expect(board.remove(pair.first, pair.second), true);
-      }
-      expect(board.complete, true);
-      board.undo();
-      expect(board.remaining, 2);
-      expect(board.matches, isNotEmpty);
-    });
-    test('different seeds produce independently solvable boards', () {
-      for (final seed in [1, 2, 3, 4, 5, 1234, 9876]) {
-        final board = MahjongBoard.generate(Random(seed));
-        for (final pair in board.solutionOrder) {
-          expect(board.remove(pair.first, pair.second), true, reason: '$seed');
+    test('every layout deals a board solvable by its recorded order', () {
+      for (final layout in Layout.all()) {
+        final board = LayeredBoard(layout, random: Random(42));
+        expect(board.remaining, layout.slots.length);
+        for (final (a, b) in board.solution) {
+          expect(board.remove(a, b), true, reason: layout.name);
         }
-        expect(board.complete, true, reason: '$seed');
+        expect(board.won, true, reason: layout.name);
+        board.undo();
+        expect(board.remaining, 2);
+        expect(board.moves, isNotEmpty);
       }
+    });
+    test('shuffle keeps tiles and stays solvable', () {
+      final board = LayeredBoard(Layout.all().first, random: Random(7));
+      for (final (a, b) in board.solution.take(20)) {
+        board.remove(a, b);
+      }
+      final before = board.remaining;
+      board.shuffle();
+      expect(board.remaining, before);
+      for (final (a, b) in board.solution) {
+        expect(board.remove(a, b), true);
+      }
+      expect(board.won, true);
+    });
+    test('flowers match any flower, seasons any season', () {
+      expect(doMatch(MahjongTile.FLOWER_1, MahjongTile.FLOWER_4), true);
+      expect(doMatch(MahjongTile.SEASON_2, MahjongTile.FLOWER_2), false);
     });
   });
   group('Detective Casebook', () {
+    test('generated cases are unique in both difficulties', () {
+      for (final seed in [1, 42, 777, 20261014]) {
+        for (final d in CaseDifficulty.values) {
+          final c = DetectiveCasebook.generate(seed, difficulty: d);
+          expect(c.countSolutions(), 1, reason: c.title);
+          if (d == CaseDifficulty.hard) {
+            expect(c.clues.any((x) => x.direct), isFalse);
+          }
+        }
+      }
+      expect(DetectiveCasebook.generate(5).title, DetectiveCasebook.generate(5).title);
+    });
     test('each case has a unique consistent solution', () {
-      expect(DetectiveCasebook.cases.length, 3);
+      expect(DetectiveCasebook.cases.length, 12);
       for (final game in DetectiveCasebook.cases) {
         expect(game.countSolutions(), 1, reason: game.title);
         expect(game.clues.every((clue) => clue.matches(game.solution)), true,

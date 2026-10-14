@@ -44,15 +44,22 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 - Dice and casual: Yatzy, Liar's Dice, Shut the Box, 421, Air Hockey, Peg Solitaire.
 
 ## What is already implemented vs not
-- Upstream Puzzle source with its original games is present.
-- Additional screens registered: Connect Four, Tic-Tac-Toe, Blackjack, Reversi,
-  Mancala, Checkers, Detective Casebook, and flat Mahjong Solitaire.
-- Build, analyzer and tests passed in GitHub Actions for commit 92363ab.
-- **Not complete:** Browser website publication (Pages must be enabled);
-  full Android device testing; true unified redesign; full 50-game parity;
-  Poker, Chess, layered Mahjong, online multiplayer, full PWA offline behavior.
-- "Integrated" means code exists, not that the game is fully tested in-browser.
-- See docs/GAME_SOURCE_MATRIX.md for source-by-source implementation status.
+- Upstream Puzzle source with its original games is present (about 304 titles).
+- 365 unique game IDs currently registered (original Puzzle and added titles). See
+  README "Current status" and docs/GAME_SOURCE_MATRIX.md. Copied FOSS
+  engines: minigames (Chess, Yacht Dice, Mancala, Hit & Blow scoring), CardsWithCats (Hearts,
+  Spades, Oh Hell), bbackgammon (Backgammon), flutterflip (Reversi), ED-Mahjong + KMahjongg
+  layouts, ludo_flutter route tables, and Simon Tatham's puzzles (Inertia and others).
+- Shared GameScaffold / opponent picker / vector cards, dice and boards give the added games
+  one look; they report wins to the existing streak/XP system.
+- Verified locally on Flutter 3.47: `flutter analyze` (no errors or warnings), `flutter test`
+  (all suites), `flutter build web --release`; release build loaded in headless Chromium.
+- Web build serves CanvasKit from the site and bundles a symbol font, so card suits and chess
+  pieces render offline. A full PWA service-worker/offline audit is still open.
+- **Not complete:** manual Android device QA; full unified redesign of the ~304 original
+  screens; remaining Family's Game Pack titles (Bagh Bandi, Petits Chevaux, Nain Jaune,
+  421, Passe-Trappe); Riichi Mahjong; Bridge; online multiplayer;
+  saved-game persistence for the added games.
 
 ## Completion gates for each new game
 1. License and source provenance documented before copying code.

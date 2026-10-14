@@ -30,7 +30,84 @@ Games is based on sidhant947/Puzzle (GPL-3.0). Existing upstream notices remain.
 - Original file: lib/engine/pieces/mahjong_tile.dart
 - Location: lib/ui/features/games/mahjong_solitaire/engine/mahjong_tile.dart
 - License: MIT for source code; the original project licenses graphical assets separately. LICENSE retained at THIRD_PARTY_LICENSES/ED-Mahjong-MIT.txt.
-- No upstream art assets were copied. Games adds a compact 64-tile single-layer arrangement with guaranteed solution sequences, using standard Unicode Mahjong glyphs. Full layered Mahjong Solitaire remains planned.
+- No upstream art assets were copied; tiles are drawn with Material icons.
+- Layered layouts (Turtle/Default, Cat, Dragon, Crab, Eagle, Spider, Temple, Helios) come from
+  KDE KMahjongg (Author: KDE Games team; https://github.com/KDE/kmahjongg, project licence
+  GPL-2.0-or-later, redistributed in ED-Mahjong's assets). They are converted to compact tile
+  coordinates in lib/ui/features/games/mahjong_solitaire/engine/mahjong_layouts.dart and used
+  under GPL-3.0 as permitted by "or later". The layout files carry no separate per-file licence.
+- The layered engine (layered_board.dart) is new: deals and shuffles follow a simulated removal
+  order, so every board is solvable.
+
+## Copied source — Chess
+- Source: https://github.com/z7workbench/minigames
+- Original files: lib/games/chess_intl/models/*, ai/*, logic/* (rules, FEN, SAN, PGN, easy and alpha-beta AI)
+- Location: lib/ui/features/games/chess/engine/
+- License: MIT, Copyright (c) 2021 ZeroGo Yoosee (THIRD_PARTY_LICENSES/minigames-MIT.txt).
+- Changes: an unused counter field was removed; the Games UI is new.
+
+## Copied source — Yacht Dice and Code Breaker
+- Source: https://github.com/z7workbench/minigames (MIT, as above)
+- Original files: lib/games/yacht_dice/models/{scoring,scoring_category,yacht_dice_state}.dart and ai/*;
+  scoring logic from lib/games/hit_and_blow/hit_and_blow_provider.dart.
+- Location: lib/ui/features/games/yacht_dice/engine/ and lib/ui/features/games/code_breaker/
+- Changes: the Riverpod provider turn logic was adapted into a plain Dart controller
+  (yacht_game.dart); Code Breaker adds colour pegs, modes and a consistency hint solver.
+
+## Copied source — Hearts, Spades, Oh Hell and shared card model
+- Source: https://github.com/dozingcat/CardsWithCats
+- Original files: lib/cards/{card,trick,round,rollout}.dart, lib/hearts/{hearts,hearts_ai}.dart,
+  lib/spades/{spades,spades_ai}.dart, lib/ohhell/{ohhell,ohhell_ai}.dart
+- Location: lib/ui/features/games/common/cards/, hearts/engine/, spades/engine/, oh_hell/engine/
+- License: GPL-3.0 (same as Games); copy in THIRD_PARTY_LICENSES/CardsWithCats-GPL-3.0.txt.
+- Changes: package imports rewritten to relative paths. The card artwork and cat images
+  were not copied; Games draws cards with vector widgets (common/card_view.dart).
+
+## Copied source — Backgammon
+- Source: https://github.com/demirburakk/bbackgammon (backgammon_shared package)
+- Original files: lib/src/entities/game_entities.dart, lib/src/logic/heuristic_evaluator.dart,
+  lib/src/usecases/get_possible_moves.dart, lib/src/usecases/move_piece_use_case.dart,
+  lib/src/common/constants.dart (board indices only)
+- Location: lib/ui/features/games/backgammon/engine/
+- License: GPL-3.0 (THIRD_PARTY_LICENSES/bbackgammon-GPL-3.0.txt)
+- Changes: imports made relative; maxPlayableMoves made public. New backgammon_match.dart
+  adds opening roll, doubles, the "use as many dice as possible" rule and a full-turn search AI.
+
+## Adapted data — Ludo
+- Source: https://github.com/nizwar/ludo_flutter lib/constants.dart (route and safe squares)
+- License: Apache-2.0 (THIRD_PARTY_LICENSES/ludo_flutter-Apache-2.0.txt, NOTICE in ludo_flutter-NOTICE.txt)
+- Location: lib/ui/features/games/ludo/ludo_engine.dart. Engine (fair dice), AI and UI are new.
+
+## Restored source — Five Card Draw and fixed-limit poker evaluation
+- Previous work: `pro-classics-20261014` in coolchan03/Games, restored without replacing
+  Claude's no-limit Texas Hold'em engine or its `texas_holdem` catalog entry.
+- Original evaluator source: https://github.com/thlorenz/phe (MIT, Thorsten Lorenz).
+- Adapted evaluator logic and generated lookup tables in `lib/ui/features/games/poker/`;
+  license preserved in `THIRD_PARTY_LICENSES/phe-MIT.txt`.
+- Five Card Draw uses virtual chips, pass-and-play / casual AI, hand rankings,
+  side-pot accounting and versioned local table saves. No gambling services.
+
+## Original pure-Dart games written for Games
+Texas Hold'em, Video Poker, poker evaluator, Klondike, FreeCell (Microsoft deal numbering
+algorithm), Spider, Golf, Pyramid, Nine Men's Morris, Gomoku, Dots and Boxes, Battleship,
+Snakes and Ladders, Peg Solitaire, Shut the Box, Tower of Hanoi and Memory Pairs. These
+implement traditional public-domain rules and include no third-party code.
+
+## Ported source — Simon Tatham's Portable Puzzle Collection
+- Source: https://www.chiark.greenend.org.uk/~sgtatham/puzzles/ (mirror https://github.com/ghewgill/puzzles)
+- License: MIT, Copyright (c) 2004-2014 Simon Tatham and contributors (THIRD_PARTY_LICENSES/sgt-puzzles-MIT.txt)
+- Inertia: inertia.c level generator, gem-reachability search and move rules ported to Dart.
+- Same Game: samegame.c rules and (n-2)^2 scoring; solvable boards are built backwards in the
+  spirit of samegame.c's gen_grid, in a simplified form.
+- Black Box (blackbox.c), Twiddle (twiddle.c), Sixteen (sixteen.c) and Signpost (signpost.c):
+  rules re-implemented in Dart; Signpost uses a new generator with a uniqueness solver.
+
+## Bundled font subset — GamesSymbols
+- Source: DejaVu Sans (https://dejavu-fonts.github.io/), Bitstream Vera licence with public-domain
+  DejaVu changes; licence text in THIRD_PARTY_LICENSES/DejaVu-Bitstream-Vera.txt.
+- assets/fonts/GamesSymbols/GamesSymbols.ttf keeps only arrows, geometric shapes, card suits,
+  chess pieces and a few symbols (about 68 KB) and is used as the theme's fallback font so these
+  glyphs render offline.
 
 ## Research and future port candidates
 - https://github.com/edave64/ED-Mahjong — Flutter MIT game engine; assets separately licensed
@@ -43,3 +120,13 @@ Games is based on sidhant947/Puzzle (GPL-3.0). Existing upstream notices remain.
 
 No unlicensed crime-game repositories are copied. The original Detective Casebook
 content is created for Games and requires no web API or separate runtime.
+
+## Original rules implementation — King's Corner
+- Location: lib/ui/features/games/kings_corner/.
+- This is an original pure-Dart engine and Flutter UI released under the app's GPL-3.0.
+  It reuses Games' existing PlayingCard, CardDeck, CardFace, GamePage and local storage.
+- Game rules were checked against https://www.pagat.com/layout/kingscorners.html.
+  No third-party program source or artwork was copied.
+- The implemented family variant draws at the start of each turn, supports local
+  2-4 players or a casual opponent, and ends the round on going out or mutual
+  passes after the stock empties.

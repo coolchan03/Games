@@ -10,6 +10,6 @@ final blackjackMetadata = GameMetadata(
   color: DesignSystem.gameGreen,
   builder: (context) => const BlackjackScreen(),
   titleGetter: (context) => 'Blackjack',
-  subtitleGetter: (context) => 'Single player vs dealer; no real-money betting',
+  subtitleGetter: (context) => 'Six-deck shoe, double, split and strategy advice — virtual chips',
   popularity: Popularity.high,
 );

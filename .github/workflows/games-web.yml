@@ -1,7 +1,7 @@
 name: Games Web Build
 on:
   push:
-    branches: [main]
+    branches: [main, 'pro-classics-*']
   pull_request:
   workflow_dispatch:
 permissions:
@@ -9,7 +9,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: pages
+  group: games-web-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   build:
@@ -20,10 +20,22 @@ jobs:
         with:
           channel: stable
           cache: true
+      - run: python tool/audit_catalog.py
       - run: flutter pub get
       - run: flutter analyze --no-fatal-infos
       - run: flutter test
       - run: flutter build web --release --base-href /Games/
+      - name: Stamp built revision
+        run: printf '{"commit":"%s","run":"%s"}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" > build/web/build_info.json
+      - name: Save responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: games-screen-audit
+          path: build/screenshots/
+          if-no-files-found: ignore
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
       - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v3
         with:

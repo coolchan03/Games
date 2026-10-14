@@ -7,6 +7,7 @@ import '../../../providers/locale_provider.dart';
 import '../../../providers/user_providers.dart';
 import '../../../utils/design_system.dart';
 import '../../../widgets/tangible.dart';
+import '../../../widgets/library_style_selector.dart';
 
 
 class SettingsScreen extends ConsumerWidget {
@@ -105,7 +106,13 @@ class SettingsScreen extends ConsumerWidget {
                           case 9: return const SizedBox(height: DesignSystem.spaceXL);
                           case 10: return _buildSectionTitle(context, l10n.appearance.toUpperCase());
                           case 11: return const SizedBox(height: DesignSystem.spaceMD);
-                          case 12: return _buildThemeSelector(context, ref, themeMode, l10n);
+                          case 12: return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _buildThemeSelector(context, ref, themeMode, l10n),
+                              const LibraryStyleSelector(),
+                            ],
+                          );
                           case 13: return const SizedBox(height: DesignSystem.spaceXL);
                           case 14: return _buildSectionTitle(context, l10n.language.toUpperCase());
                           case 15: return const SizedBox(height: DesignSystem.spaceMD);

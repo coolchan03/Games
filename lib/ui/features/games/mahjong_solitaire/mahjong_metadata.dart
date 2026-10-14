@@ -10,6 +10,6 @@ final mahjongSolitaireMetadata = GameMetadata(
   color: DesignSystem.gameGreen,
   builder: (context) => const MahjongSolitaireScreen(),
   titleGetter: (context) => 'Mahjong Solitaire',
-  subtitleGetter: (context) => 'Compact solvable tile matching with undo and hints',
+  subtitleGetter: (context) => 'Classic layered layouts, always solvable',
   popularity: Popularity.high,
 );

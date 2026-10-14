@@ -107,6 +107,9 @@ class DesignSystem {
       useMaterial3: true,
       brightness: brightness,
       fontFamily: 'Geist',
+      // Bundled symbols (card suits, chess pieces, arrows) so they render
+      // offline without fetching fallback fonts.
+      fontFamilyFallback: const ['GamesSymbols'],
       scaffoldBackgroundColor: bgColor,
       colorScheme: isDark
           ? ColorScheme.dark(
