@@ -267,7 +267,9 @@ class _LudoBoard extends CustomPainter {
     // Safe-square stars.
     for (final s in safeSquares) {
       final tp = TextPainter(
-        text: TextSpan(text: '★', style: TextStyle(fontSize: cell * .6, color: Colors.black38)),
+        text: TextSpan(
+            text: '★',
+            style: TextStyle(fontSize: cell * .6, color: Colors.black38, fontFamily: 'GamesSymbols')),
         textDirection: TextDirection.ltr,
       )..layout();
       tp.paint(canvas, Offset((s[0] + .5) * cell - tp.width / 2, (s[1] + .5) * cell - tp.height / 2));

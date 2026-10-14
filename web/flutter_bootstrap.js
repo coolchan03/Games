@@ -2,6 +2,11 @@
 {{flutter_build_config}}
 
 _flutter.loader.load({
+  // Load the renderer from this site instead of Google's CDN so the app
+  // keeps working offline and behind restrictive networks.
+  config: {
+    canvasKitBaseUrl: "canvaskit/",
+  },
   onEntrypointLoaded: async function(engineInitializer) {
     const appRunner = await engineInitializer.initializeEngine();
     await appRunner.runApp();

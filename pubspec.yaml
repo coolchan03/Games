@@ -94,6 +94,9 @@ flutter:
     - family: Bebas Neue
       fonts:
         - asset: assets/fonts/Bebas_Neue/BebasNeue-Regular.ttf
+    - family: GamesSymbols
+      fonts:
+        - asset: assets/fonts/GamesSymbols/GamesSymbols.ttf
     - family: Geist
       fonts:
         - asset: assets/fonts/Geist/static/Geist-Regular.ttf

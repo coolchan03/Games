@@ -4,7 +4,17 @@ import 'package:flutter/material.dart';
 
 import '../common/game_kit.dart';
 
-const _symbols = ['🍎', '🍌', '🍇', '🍓', '🍒', '🍍', '🥝', '🍑', '🥕', '🌽', '🍄', '🌵', '🌻', '🐟', '🐢', '🦋', '🐞', '⭐'];
+const _symbols = <(IconData, Color)>[
+  (Icons.pets, Color(0xFF8D6E63)), (Icons.favorite, Color(0xFFE53935)),
+  (Icons.star, Color(0xFFFFB300)), (Icons.local_florist, Color(0xFFD81B60)),
+  (Icons.wb_sunny, Color(0xFFF57C00)), (Icons.ac_unit, Color(0xFF039BE5)),
+  (Icons.eco, Color(0xFF43A047)), (Icons.rocket_launch, Color(0xFF5E35B1)),
+  (Icons.music_note, Color(0xFF3949AB)), (Icons.cake, Color(0xFFEC407A)),
+  (Icons.bolt, Color(0xFFFDD835)), (Icons.diamond, Color(0xFF00ACC1)),
+  (Icons.anchor, Color(0xFF546E7A)), (Icons.sailing, Color(0xFF1E88E5)),
+  (Icons.emoji_nature, Color(0xFF7CB342)), (Icons.beach_access, Color(0xFFFF7043)),
+  (Icons.directions_bike, Color(0xFF6D4C41)), (Icons.icecream, Color(0xFFAB47BC)),
+];
 
 /// Concentration: flip two cards at a time to find pairs. Solo, two players,
 /// or against a computer that remembers a share of what it has seen.
@@ -220,9 +230,12 @@ class _MemoryPairsScreenState extends State<MemoryPairsScreen> {
                 ),
                 alignment: Alignment.center,
                 child: faceUp
-                    ? FittedBox(child: Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Text(_symbols[game.cards[i]], style: const TextStyle(fontSize: 34))))
+                    ? FittedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: Icon(_symbols[game.cards[i]].$1, color: _symbols[game.cards[i]].$2, size: 34),
+                        ),
+                      )
                     : Icon(Icons.help_outline, color: colors.onPrimary),
               ),
             );

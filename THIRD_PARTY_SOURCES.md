@@ -93,6 +93,13 @@ implement traditional public-domain rules and include no third-party code.
 - Black Box (blackbox.c), Twiddle (twiddle.c), Sixteen (sixteen.c) and Signpost (signpost.c):
   rules re-implemented in Dart; Signpost uses a new generator with a uniqueness solver.
 
+## Bundled font subset — GamesSymbols
+- Source: DejaVu Sans (https://dejavu-fonts.github.io/), Bitstream Vera licence with public-domain
+  DejaVu changes; licence text in THIRD_PARTY_LICENSES/DejaVu-Bitstream-Vera.txt.
+- assets/fonts/GamesSymbols/GamesSymbols.ttf keeps only arrows, geometric shapes, card suits,
+  chess pieces and a few symbols (about 68 KB) and is used as the theme's fallback font so these
+  glyphs render offline.
+
 ## Research and future port candidates
 - https://github.com/edave64/ED-Mahjong — Flutter MIT game engine; assets separately licensed
 - https://github.com/felipersteles/checkers-with-ai — MIT, JavaScript rules and AI

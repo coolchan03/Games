@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 
+import '../data/game_metadata.dart';
+import '../data/game_registry.dart';
+
 class L10nGameHelpers {
   static final Map<String, String Function(AppLocalizations)> _titleMap = {
     'slitherlink': (l) => l.slitherlinkTitle,
@@ -616,15 +619,25 @@ class L10nGameHelpers {
     'corsi_backward_span': (l) => l.corsiBackwardSpanSubtitle,
   };
 
+  static Map<String, GameMetadata>? _registry;
+
+  /// Registry entry for games that are not in the localisation tables
+  /// (board, card and dice games added to Games).
+  static GameMetadata? _metadata(String gameId) =>
+      (_registry ??= {for (final g in allGamesMetadata) g.id: g})[gameId];
+
   static String getGameTitle(BuildContext context, String gameId) {
     final l10n = AppLocalizations.of(context)!;
     final factory = _titleMap[gameId];
-    return factory != null ? factory(l10n) : gameId;
+    if (factory != null) return factory(l10n);
+    return _metadata(gameId)?.titleGetter(context) ?? gameId;
   }
 
   static String getGameSubtitle(BuildContext context, String gameId) {
     final l10n = AppLocalizations.of(context)!;
     final factory = _subtitleMap[gameId];
-    return factory != null ? factory(l10n) : 'CHALLENGE AND TRAIN YOUR COGNITIVE SKILLS.';
+    if (factory != null) return factory(l10n);
+    return _metadata(gameId)?.subtitleGetter(context) ??
+        'CHALLENGE AND TRAIN YOUR COGNITIVE SKILLS.';
   }
 }
