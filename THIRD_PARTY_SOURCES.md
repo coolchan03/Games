@@ -32,6 +32,30 @@ Games is based on sidhant947/Puzzle (GPL-3.0). Existing upstream notices remain.
 - License: MIT for source code; the original project licenses graphical assets separately. LICENSE retained at THIRD_PARTY_LICENSES/ED-Mahjong-MIT.txt.
 - No upstream art assets were copied. Games adds a compact 64-tile single-layer arrangement with guaranteed solution sequences, using standard Unicode Mahjong glyphs. Full layered Mahjong Solitaire remains planned.
 
+## Copied source — Chess
+- Source: https://github.com/z7workbench/minigames
+- Original files: lib/games/chess_intl/models/*, ai/*, logic/* (rules, FEN, SAN, PGN, easy and alpha-beta AI)
+- Location: lib/ui/features/games/chess/engine/
+- License: MIT, Copyright (c) 2021 ZeroGo Yoosee (THIRD_PARTY_LICENSES/minigames-MIT.txt).
+- Changes: an unused counter field was removed; the Games UI is new.
+
+## Copied source — Yacht Dice and Code Breaker
+- Source: https://github.com/z7workbench/minigames (MIT, as above)
+- Original files: lib/games/yacht_dice/models/{scoring,scoring_category,yacht_dice_state}.dart and ai/*;
+  scoring logic from lib/games/hit_and_blow/hit_and_blow_provider.dart.
+- Location: lib/ui/features/games/yacht_dice/engine/ and lib/ui/features/games/code_breaker/
+- Changes: the Riverpod provider turn logic was adapted into a plain Dart controller
+  (yacht_game.dart); Code Breaker adds colour pegs, modes and a consistency hint solver.
+
+## Copied source — Hearts, Spades, Oh Hell and shared card model
+- Source: https://github.com/dozingcat/CardsWithCats
+- Original files: lib/cards/{card,trick,round,rollout}.dart, lib/hearts/{hearts,hearts_ai}.dart,
+  lib/spades/{spades,spades_ai}.dart, lib/ohhell/{ohhell,ohhell_ai}.dart
+- Location: lib/ui/features/games/common/cards/, hearts/engine/, spades/engine/, oh_hell/engine/
+- License: GPL-3.0 (same as Games); copy in THIRD_PARTY_LICENSES/CardsWithCats-GPL-3.0.txt.
+- Changes: package imports rewritten to relative paths. The card artwork and cat images
+  were not copied; Games draws cards with vector widgets (common/card_view.dart).
+
 ## Research and future port candidates
 - https://github.com/edave64/ED-Mahjong — Flutter MIT game engine; assets separately licensed
 - https://github.com/felipersteles/checkers-with-ai — MIT, JavaScript rules and AI

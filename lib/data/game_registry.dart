@@ -1,4 +1,10 @@
 import 'game_metadata.dart';
+import '../ui/features/games/chess/chess_metadata.dart';
+import '../ui/features/games/hearts/hearts_metadata.dart';
+import '../ui/features/games/spades/spades_metadata.dart';
+import '../ui/features/games/oh_hell/oh_hell_metadata.dart';
+import '../ui/features/games/yacht_dice/yacht_dice_metadata.dart';
+import '../ui/features/games/code_breaker/code_breaker_metadata.dart';
 import '../ui/features/games/mahjong_solitaire/mahjong_metadata.dart';
 import '../ui/features/games/checkers/checkers_metadata.dart';
 import '../ui/features/games/reversi/reversi_metadata.dart';
@@ -503,6 +509,12 @@ List<GameMetadata> _buildGameList() {
     checkersMetadata,
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
+    chessMetadata,
+    heartsMetadata,
+    spadesMetadata,
+    ohHellMetadata,
+    yachtDiceMetadata,
+    codeBreakerMetadata,
     ticTacToeMetadata,
     game_2048Metadata,
     crownMetadata,
