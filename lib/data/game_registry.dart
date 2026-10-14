@@ -1,4 +1,6 @@
 import 'game_metadata.dart';
+import '../ui/features/games/goose_game/goose_game_metadata.dart';
+import '../ui/features/games/air_hockey/air_hockey_metadata.dart';
 import '../ui/features/games/cribbage/cribbage_metadata.dart';
 import '../ui/features/games/war/war_metadata.dart';
 import '../ui/features/games/nim/nim_metadata.dart';
@@ -552,6 +554,8 @@ List<GameMetadata> _buildGameList() {
     checkersMetadata,
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
+    gooseGameMetadata,
+    airHockeyMetadata,
     cribbageMetadata,
     warMetadata,
     nimMetadata,

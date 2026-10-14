@@ -14,7 +14,7 @@ Date: 2026-10-14
 ## Current delivered features (updated 2026-10-14, cloud session)
 - Work from this session is on branch `ccr-2c9dfd0e-lym5o4` (not yet merged to main, so the
   Pages workflow has not deployed it).
-- 361 catalogue entries: ~304 upstream Puzzle games + 57 added games (list in README and
+- 363 catalogue entries: ~304 upstream Puzzle games + 59 added games (list in README and
   docs/GAME_SOURCE_MATRIX.md).
 - Copied/ported FOSS: minigames (Chess, Yacht Dice, Hit & Blow scoring), CardsWithCats
   (Hearts, Spades, Oh Hell), bbackgammon (Backgammon), ludo_flutter (route tables),
@@ -36,7 +36,7 @@ Date: 2026-10-14
 1. Merge the branch to main and confirm the Pages deployment serves the app.
 2. Manual Android device QA of the added games (touch targets, layouts, performance of AI).
 3. Remaining Family's Game Pack titles: Bagh Bandi, Petits Chevaux, Nain Jaune, King's Corner,
-   421, Passe-Trappe, Goose game, Air Hockey (peeweesusername/airhockey, GPL-3.0).
+   421, Passe-Trappe.
 4. Persist in-progress games for the added titles (Hive), PWA offline audit (service worker,
    Roboto fallback request).
 5. Optional heavier ports: Riichi Mahjong (kobalab/Majiang, MIT), more Tatham puzzles

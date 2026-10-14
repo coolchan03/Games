@@ -127,9 +127,13 @@ class HandView extends StatelessWidget {
     this.selected = const {},
     this.onTap,
     this.cardWidth = 56,
+    this.faceDown = false,
   });
 
   final List<PlayingCard> cards;
+
+  /// Show only card backs (an opponent's hidden hand).
+  final bool faceDown;
   final Set<PlayingCard>? playable;
   final Set<PlayingCard> selected;
   final void Function(PlayingCard)? onTap;
@@ -157,6 +161,7 @@ class HandView extends StatelessWidget {
                   top: cardWidth * .2,
                   child: CardView(
                     card: cards[i],
+                    faceDown: faceDown,
                     width: cardWidth,
                     selected: selected.contains(cards[i]),
                     dimmed: playable != null && !playable!.contains(cards[i]),

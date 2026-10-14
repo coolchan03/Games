@@ -63,7 +63,8 @@ Status key:
 | Liar's Dice | Original | GPL-3.0 | Integrated |
 | Shut the Box | Original | GPL-3.0 | Integrated |
 | Memory Pairs | Original | GPL-3.0 | Integrated |
-| Air Hockey | peeweesusername/airhockey | GPL-3.0 | Verified source |
+| Air Hockey | Original lightweight physics (peeweesusername/airhockey reviewed; it needs Flame/Forge2D) | GPL-3.0 | Integrated, vs AI or 2 players multi-touch |
+| Game of the Goose | Original | GPL-3.0 | Integrated, 2–4 players |
 
 ## Puzzles and deduction
 
@@ -85,10 +86,11 @@ the proprietary pack is not copied; only traditional game names are targets.
 Now available: Alquerque, Neutron, Bagh Chal, Nine Men's Morris, Chinese Checkers, Snakes and
 Ladders, Crazy Eights, Forty Thieves, Golf Solitaire, Peg Solitaire, Poker Squares, Aces Up
 ("Four Aces"), Shut the Box, Yatzy (Yacht Dice), Memory, War, Ludo, Backgammon, Dominoes,
-Checkers, Chess, Reversi, Mancala/Oware, Connect Four, Battleship, Dots and Boxes.
+Checkers, Chess, Reversi, Mancala/Oware, Connect Four, Battleship, Dots and Boxes, Game of the
+Goose, Air Hockey.
 
 Still missing: Bagh Bandi, Petits Chevaux (Ludo variant), Nain Jaune, King's Corner, 421,
-Passe-Trappe, Goose game, Air Hockey.
+Passe-Trappe.
 
 ## Quality rules
 - Shared GameScaffold, opponent picker, status banner, card/dice/disc widgets.

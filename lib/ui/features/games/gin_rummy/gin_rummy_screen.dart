@@ -105,6 +105,7 @@ class _GinRummyScreenState extends State<GinRummyScreen> {
         Text(over ? 'Computer\'s hand' : 'Computer: ${game.hands[1].length} cards', textAlign: TextAlign.center),
         HandView(
           cards: over ? _ordered(game.hands[1]) : game.hands[1],
+          faceDown: !over,
           cardWidth: 44,
           selected: over ? game.laidOff.toSet() : const {},
           onTap: null,

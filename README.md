@@ -5,11 +5,12 @@
 Based on [Puzzle](https://github.com/sidhant947/Puzzle) (GPL-3.0). Preserves the original catalog and adds classic board/card games within the same Flutter app.
 
 ## Current status
-- 361 games in one catalogue: the ~304 original Puzzle titles plus 57 board, card, dice,
+- 363 games in one catalogue: the ~304 original Puzzle titles plus 59 board, card, dice,
   deduction and puzzle games added for Games.
 - **Board & strategy:** Chess, Checkers, Reversi, Connect Four, Tic-Tac-Toe, Go (9×9/13×13),
   Hex, Gomoku, Backgammon, Ludo, Nine Men's Morris, Alquerque, Bagh Chal, Neutron, Chinese
-  Checkers, Mancala, Oware, Dots and Boxes, Battleship, Snakes and Ladders, Dominoes.
+  Checkers, Mancala, Oware, Dots and Boxes, Battleship, Snakes and Ladders, Dominoes, Game of
+  the Goose, Air Hockey.
 - **Cards:** Hearts, Spades, Oh Hell, Texas Hold'em, Video Poker, Blackjack, Gin Rummy,
   Cribbage, Crazy Eights, Go Fish, War, and solitaires Klondike, FreeCell, Spider, Golf,
   Pyramid, Forty Thieves, Aces Up, Poker Squares. Virtual chips only — no real money.

@@ -16,7 +16,7 @@ const addedGames = [
   'sixteen', 'signpost', 'hex', 'go_game', 'liars_dice', 'dominoes',
   'bagh_chal', 'alquerque', 'neutron', 'chinese_checkers', 'poker_squares',
   'aces_up', 'forty_thieves', 'sokoban', 'oware', 'nim', 'war',
-  'cribbage',
+  'cribbage', 'air_hockey', 'goose_game',
 ];
 
 void main() {
@@ -34,9 +34,9 @@ void main() {
       // Open the rules dialog and start a new game (shared GameScaffold).
       if (find.byTooltip('Rules').evaluate().isNotEmpty) {
         await tester.tap(find.byTooltip('Rules'));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(seconds: 1));
         await tester.tap(find.text('Got it'));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(seconds: 1));
         await tester.tap(find.byTooltip('New game'));
       }
       for (var i = 0; i < 6; i++) {

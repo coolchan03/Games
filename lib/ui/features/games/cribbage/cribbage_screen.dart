@@ -98,7 +98,8 @@ class _CribbageScreenState extends State<CribbageScreen> {
         const SizedBox(height: 8),
         Text('Computer${g.dealer == 1 ? ' (dealer)' : ''}', textAlign: TextAlign.center),
         HandView(
-          cards: g.phase == CribPhase.show || g.phase == CribPhase.gameOver ? g.hands[1] : (g.phase == CribPhase.pegging ? g.pegHands[1] : g.hands[1]),
+          cards: g.phase == CribPhase.pegging ? g.pegHands[1] : g.hands[1],
+          faceDown: g.phase == CribPhase.discard || g.phase == CribPhase.pegging,
           cardWidth: 40,
           onTap: null,
         ),
