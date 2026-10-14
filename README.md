@@ -5,13 +5,25 @@
 Based on [Puzzle](https://github.com/sidhant947/Puzzle) (GPL-3.0). Preserves the original catalog and adds classic board/card games within the same Flutter app.
 
 ## Current status
-- Imported upstream Puzzle code as base.
-- Added Connect Four, Tic-Tac-Toe, Reversi, Mancala and Checkers with local two-player and selectable computer difficulty.
-- Added Blackjack with an offline dealer (virtual scores only).
-- Added Detective Casebook with three original whodunit cases and a deduction notebook; logic engine checks unique solutions.
-- Added compact 64-tile Mahjong Solitaire with solvable layouts, undo, hints and matching from ED-Mahjong's MIT code (traditional layered layouts remain planned).
-- Existing Puzzle Word Search, Crossword, Cryptogram, Einstein Riddle and other puzzles retained.
-- Remaining board, card, Mahjong and detective titles are planned, not yet implemented. Build verification runs in GitHub Actions.
+- 361 games in one catalogue: the ~304 original Puzzle titles plus 57 board, card, dice,
+  deduction and puzzle games added for Games.
+- **Board & strategy:** Chess, Checkers, Reversi, Connect Four, Tic-Tac-Toe, Go (9×9/13×13),
+  Hex, Gomoku, Backgammon, Ludo, Nine Men's Morris, Alquerque, Bagh Chal, Neutron, Chinese
+  Checkers, Mancala, Oware, Dots and Boxes, Battleship, Snakes and Ladders, Dominoes.
+- **Cards:** Hearts, Spades, Oh Hell, Texas Hold'em, Video Poker, Blackjack, Gin Rummy,
+  Cribbage, Crazy Eights, Go Fish, War, and solitaires Klondike, FreeCell, Spider, Golf,
+  Pyramid, Forty Thieves, Aces Up, Poker Squares. Virtual chips only — no real money.
+- **Dice & casual:** Yacht Dice, Liar's Dice, Shut the Box, Memory Pairs.
+- **Puzzles & deduction:** layered Mahjong Solitaire (8 KMahjongg layouts, always solvable),
+  Detective Casebook (12 cases plus solver-verified daily/random cases), Sokoban (generated,
+  solvable), Code Breaker, Peg Solitaire, Tower of Hanoi, Nim, and Inertia, Same Game, Black Box,
+  Twiddle, Sixteen and Signpost from Simon Tatham's collection.
+- Two-player pass-and-play and Easy/Medium/Hard computer opponents where meaningful; wins feed
+  the app's existing streaks and XP.
+- Engines are tested in `test/games/`; every added screen is smoke-tested at 360 dp width.
+  `flutter analyze`, `flutter test` and `flutter build web` pass locally, and the release web
+  build was loaded in headless Chromium. Manual Android device testing is still to do.
+- See [docs/GAME_SOURCE_MATRIX.md](docs/GAME_SOURCE_MATRIX.md) for what came from where.
 
 ## Run
 Use a compatible Flutter SDK:

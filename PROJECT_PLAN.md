@@ -38,4 +38,8 @@ Word Search, Crossword, Cryptogram, Einstein Riddle, Sudoku, Nonogram, Minesweep
 - PySolFC: https://github.com/shlomif/PySolFC GPL-3.0
 
 ## Current implementation status
-Puzzle foundation imported and additional modules registered: Connect Four, Tic-Tac-Toe, Blackjack, Checkers, Mancala, Reversi, Detective Casebook, flat Mahjong Solitaire. GitHub Actions Flutter analysis/tests/web build succeeded for commit 92363ab; Pages deployment remains blocked until Pages is enabled with GitHub Actions as source. See PROJECT_GOALS.md for acceptance gates and docs/GAME_SOURCE_MATRIX.md for detailed game-by-game status.
+Waves 1–3 are largely done and much of wave 4: 57 added games on top of the Puzzle catalogue
+(see README and docs/GAME_SOURCE_MATRIX.md). Remaining: Bagh Bandi, Petits Chevaux, Nain Jaune,
+King's Corner, 421, Passe-Trappe, Goose, Air Hockey (wave 4); Riichi Mahjong, Shogi, Bridge
+(wave 5); and wave 6 QA on real Android devices and browsers. Local `flutter analyze`,
+`flutter test` and `flutter build web` pass; see PROJECT_GOALS.md for acceptance gates.
