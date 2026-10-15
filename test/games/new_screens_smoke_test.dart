@@ -19,6 +19,7 @@ const addedGames = [
   'bagh_chal', 'alquerque', 'neutron', 'chinese_checkers', 'poker_squares',
   'aces_up', 'forty_thieves', 'sokoban', 'oware', 'nim', 'war',
   'cribbage', 'air_hockey', 'goose_game', 'kings_corner',
+  'four_two_one', 'petits_chevaux',
 ];
 
 void main() {
