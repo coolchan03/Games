@@ -50,6 +50,8 @@ Status key:
 | Gin Rummy | Original | GPL-3.0 | Integrated, optimal melds, layoffs |
 | Cribbage | Original | GPL-3.0 | Integrated |
 | King's Corner | Original engine; shared card deck and vector UI | GPL-3.0 | Integrated, local 2-4 / casual AI, local save |
+| 421 | Original Dart rule controller | GPL-3.0 | New — 21-token charge/discharge, local 2–6, bots, save |
+| Petits Chevaux | Original controller with existing Ludo board route | GPL-3.0 (Ludo track reference Apache-2.0) | New — local 2–4/bots, exact finish ladder, save |
 | Crazy Eights, Go Fish, War | Original | GPL-3.0 | Integrated |
 | Klondike, FreeCell, Spider, Golf, Pyramid | Original (rules as in PySolFC) | GPL-3.0 | Integrated; FreeCell uses Microsoft deal numbers |
 | Forty Thieves, Aces Up, Poker Squares | Original | GPL-3.0 | Integrated |

@@ -196,7 +196,7 @@ class _LudoScreenState extends State<LudoScreen> {
               }
             }
             return Stack(children: [
-              Positioned.fill(child: CustomPaint(painter: _LudoBoard())),
+              Positioned.fill(child: CustomPaint(painter: LudoBoard())),
               ...pieces,
             ]);
           }),
@@ -216,7 +216,7 @@ class _LudoScreenState extends State<LudoScreen> {
   }
 }
 
-class _LudoBoard extends CustomPainter {
+class LudoBoard extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final cell = size.width / 15;
@@ -277,5 +277,5 @@ class _LudoBoard extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_LudoBoard old) => false;
+  bool shouldRepaint(LudoBoard old) => false;
 }

@@ -233,6 +233,7 @@ class GameTile extends ConsumerWidget {
         ),
         const SizedBox(width: 12.0),
         IconButton(
+          tooltip: 'How to play',
           icon: Icon(
             Icons.info_outline_rounded,
             color: theme.colorScheme.onSurface.withValues(alpha: 0.5),

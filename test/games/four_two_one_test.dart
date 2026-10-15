@@ -6,8 +6,10 @@ void main() {
   test('421 combinations are ordered, not merely summed', () {
     expect(FourTwoOneHand([4, 2, 1]).strength,
         greaterThan(FourTwoOneHand([1, 1, 6]).strength));
+    expect(FourTwoOneHand([1, 1, 1]).strength,
+        greaterThan(FourTwoOneHand([1, 1, 6]).strength));
     expect(FourTwoOneHand([1, 1, 6]).strength,
-        greaterThan(FourTwoOneHand([1, 1, 1]).strength));
+        greaterThan(FourTwoOneHand([6, 6, 6]).strength));
     expect(FourTwoOneHand([6, 6, 6]).strength,
         greaterThan(FourTwoOneHand([6, 5, 4]).strength));
     expect(FourTwoOneHand([6, 5, 4]).strength,
