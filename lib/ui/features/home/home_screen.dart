@@ -20,6 +20,7 @@ import 'widgets/category_button.dart';
 import 'widgets/search_bar.dart' as custom;
 import 'widgets/game_tile.dart';
 import 'widgets/empty_games_state.dart';
+import 'game_menu_selection.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -31,7 +32,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String _searchQuery = "";
   String _selectedCategory = "ALL";
-  bool _isSearchVisible = false;
+  bool _isSearchVisible = true;
+  bool _favoritesOnly = false;
+  bool _alphabetical = false;
   late final TextEditingController _searchController;
   Timer? _debounce;
   Map<String, String>? _localizedTitlesCache;
@@ -70,6 +73,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         searchQuery: _searchQuery,
         selectedCategory: _selectedCategory,
         localizedTitles: localizedTitles));
+    final favoriteIds = ref.watch(userDataNotifierProvider.select(
+        (data) => data.favoriteGameIds ?? <String>[]));
+    final visibleGames = selectMenuGames(filteredGames,
+        favorites: favoriteIds.toSet(), favoritesOnly: _favoritesOnly,
+        alphabetical: _alphabetical, titles: localizedTitles);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -91,6 +99,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               searchController: _searchController,
               searchQuery: _searchQuery,
               selectedCategory: _selectedCategory,
+              favoritesOnly: _favoritesOnly,
+              alphabetical: _alphabetical,
+              shownCount: visibleGames.length,
+              onFavoritesChanged: (v) => setState(() => _favoritesOnly = v),
+              onAlphabeticalChanged: (v) => setState(() => _alphabetical = v),
               onSearchChanged: (value) {
                 if (_debounce?.isActive ?? false) _debounce!.cancel();
                 _debounce = Timer(const Duration(milliseconds: 300), () {
@@ -105,12 +118,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   setState(() => _selectedCategory = value),
             ),
           ),
-          filteredGames.isEmpty
+          visibleGames.isEmpty
               ? const SliverFillRemaining(
                   hasScrollBody: false,
                   child: EmptyGamesState(),
                 )
-              : _buildGameGrid(filteredGames),
+              : _buildGameGrid(visibleGames),
         ],
       ),
     );
@@ -333,6 +346,9 @@ class _HomeFilterSection extends ConsumerWidget {
   final TextEditingController searchController;
   final String searchQuery;
   final String selectedCategory;
+  final bool favoritesOnly, alphabetical;
+  final int shownCount;
+  final ValueChanged<bool> onFavoritesChanged, onAlphabeticalChanged;
   final ValueChanged<String> onSearchChanged;
   final VoidCallback onSearchClear;
   final ValueChanged<String> onCategorySelected;
@@ -342,6 +358,11 @@ class _HomeFilterSection extends ConsumerWidget {
     required this.searchController,
     required this.searchQuery,
     required this.selectedCategory,
+    required this.favoritesOnly,
+    required this.alphabetical,
+    required this.shownCount,
+    required this.onFavoritesChanged,
+    required this.onAlphabeticalChanged,
     required this.onSearchChanged,
     required this.onSearchClear,
     required this.onCategorySelected,
@@ -369,8 +390,29 @@ class _HomeFilterSection extends ConsumerWidget {
               onChanged: onSearchChanged,
               onClear: onSearchClear,
             ),
-            const SizedBox(height: DesignSystem.spaceMD),
+            const SizedBox(height: DesignSystem.spaceSM),
           ],
+          Wrap(
+            spacing: 8,
+            runSpacing: 4,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              FilterChip(
+                label: const Text('Favorites only'),
+                avatar: const Icon(Icons.star_outline, size: 18),
+                selected: favoritesOnly,
+                onSelected: onFavoritesChanged,
+              ),
+              FilterChip(
+                label: const Text('A-Z'),
+                avatar: const Icon(Icons.sort_by_alpha, size: 18),
+                selected: alphabetical,
+                onSelected: onAlphabeticalChanged,
+              ),
+              Text('$shownCount games',
+                style: Theme.of(context).textTheme.labelMedium),
+            ],
+          ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),

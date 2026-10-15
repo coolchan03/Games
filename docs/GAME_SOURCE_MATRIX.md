@@ -62,6 +62,7 @@ Status key:
 | --- | --- | --- | --- |
 | Yacht Dice | z7workbench/minigames (scoring + AI) | MIT | Integrated, 1–4 players / AI |
 | Liar's Dice | Original | GPL-3.0 | Integrated |
+| 421 (dice) | Original French charge/discharge engine; classic rules reference | GPL-3.0 | Integrated, 2–4 same-device / computer, local saves |
 | Shut the Box | Original | GPL-3.0 | Integrated |
 | Memory Pairs | Original | GPL-3.0 | Integrated |
 | Air Hockey | Original lightweight physics (peeweesusername/airhockey reviewed; it needs Flame/Forge2D) | GPL-3.0 | Integrated, vs AI or 2 players multi-touch |

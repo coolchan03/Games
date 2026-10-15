@@ -130,3 +130,18 @@ content is created for Games and requires no web API or separate runtime.
 - The implemented family variant draws at the start of each turn, supports local
   2-4 players or a casual opponent, and ends the round on going out or mutual
   passes after the stock empties.
+
+## Original game module — French 421
+- Location: lib/ui/features/games/dice_421/ (GPL-3.0, original Dart code).
+- Rules reference: https://www.regles-du-jeu.fr/regle-du-421.html
+  and https://www.zpag.net/Jeux/421_Jeu_Des.html (public game rules).
+- No proprietary app engine, artwork, or source was copied.
+- The common vector DieFace, GameScaffold and GameStorage components are reused.
+- Standard 21-counter charge/discharge, deterministic rankings, pass-and-play
+  or local bot, and versioned save-state integrity tests.
+
+## New game help content
+- lib/data/game_guides_added.dart contains descriptions adapted from this
+  project's own in-app rules, plus concise original descriptions of earlier
+  Games additions. No game-guide content was copied from a third-party site.
+- tool/generate_added_game_guides.py rebuilds that map when rules change.

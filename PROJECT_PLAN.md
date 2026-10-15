@@ -5,7 +5,7 @@ One offline-first Flutter application for Android and web (GitHub Pages), built 
 
 ## Core rules
 - All original Puzzle titles retained unless demonstrably broken or duplicate.
-- Competitive games: local pass-and-play (2-6 where rules allow), AI with Easy/Medium/Hard where meaningful. Casino-style single-player games use consistent dealer rules, not artificially random "AI" difficulties.
+- Competitive games: prioritize same-device pass-and-play (2-6 where rules allow), plus AI with Easy/Medium/Hard where meaningful. Casino-style single-player games use consistent dealer rules, not artificially random "AI" difficulties.
 - Blackjack/Poker: virtual chips only; no betting, payments, or real-money integration.
 - Solo puzzles: clearly labeled solo; randomized seeds and daily challenges.
 - Every game is a module registered in one library, shares a common design, and has restart, rules, persistence and accessibility plans.
@@ -38,8 +38,10 @@ Word Search, Crossword, Cryptogram, Einstein Riddle, Sudoku, Nonogram, Minesweep
 - PySolFC: https://github.com/shlomif/PySolFC GPL-3.0
 
 ## Current implementation status
-Waves 1–3 are largely done and much of wave 4: 59 added games on top of the Puzzle catalogue
-(see README and docs/GAME_SOURCE_MATRIX.md). Remaining: Bagh Bandi, Petits Chevaux, Nain Jaune,
-King's Corner, 421, Passe-Trappe (wave 4); Riichi Mahjong, Shogi, Bridge
-(wave 5); and wave 6 QA on real Android devices and browsers. Local `flutter analyze`,
-`flutter test` and `flutter build web` pass; see PROJECT_GOALS.md for acceptance gates.
+Waves 1–3 and most of wave 4 are integrated. The catalogue now contains 366 IDs,
+including King's Corner and 421 (see README and docs/GAME_SOURCE_MATRIX.md).
+Remaining named games: Bagh Bandi, Petits Chevaux, Nain Jaune, Passe-Trappe,
+Riichi Mahjong, Shogi, Bridge, and Shisen-Sho — 8. Further variants are optional.
+After those, focus on smartphone drag/touch, per-game rules, menu organization,
+local save/resume, and wave 6 physical Android/browser/offline QA.
+Cross-device online multiplayer is optional and not a launch requirement.

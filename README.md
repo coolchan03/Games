@@ -5,7 +5,7 @@
 Based on [Puzzle](https://github.com/sidhant947/Puzzle) (GPL-3.0). Preserves the original catalog and adds classic board/card games within the same Flutter app.
 
 ## Current status
-- 365 verified unique game IDs in one catalogue, including the original Puzzle titles
+- 366 verified unique game IDs in one catalogue, including the original Puzzle titles
   and additional board, card, dice, deduction, and puzzle games.
 - **Board & strategy:** Chess, Checkers, Reversi, Connect Four, Tic-Tac-Toe, Go (9×9/13×13),
   Hex, Gomoku, Backgammon, Ludo, Nine Men's Morris, Alquerque, Bagh Chal, Neutron, Chinese
@@ -15,7 +15,7 @@ Based on [Puzzle](https://github.com/sidhant947/Puzzle) (GPL-3.0). Preserves the
   Video Poker, Blackjack, Gin Rummy,
   Cribbage, Crazy Eights, Go Fish, War, and solitaires Klondike, FreeCell, Spider, Golf,
   Pyramid, Forty Thieves, Aces Up, Poker Squares. Virtual chips only — no real money.
-- **Dice & casual:** Yacht Dice, Liar's Dice, Shut the Box, Memory Pairs.
+- **Dice & casual:** Yacht Dice, French 421, Liar's Dice, Shut the Box, Memory Pairs.
 - **Puzzles & deduction:** layered Mahjong Solitaire (8 KMahjongg layouts, always solvable),
   Detective Casebook (12 cases plus solver-verified daily/random cases), Sokoban (generated,
   solvable), Code Breaker, Peg Solitaire, Tower of Hanoi, Nim, and Inertia, Same Game, Black Box,
@@ -25,6 +25,9 @@ Based on [Puzzle](https://github.com/sidhant947/Puzzle) (GPL-3.0). Preserves the
 - Engines are tested in `test/games/`; every added screen is smoke-tested at 360 dp width.
   GitHub Actions verifies `flutter analyze`, `flutter test`, and `flutter build web`.
   Manual Android-device testing and a comprehensive browser-offline audit remain open.
+- Every registered game has a **Rules** guide in the catalogue; the 62 guides for newer games reuse their in-game rule descriptions.
+- Game selection offers visible search, favorites-only filtering and alphabetical sorting.
+- Chess supports tap-to-move or hold-and-drag on touchscreens; other games retain tap controls.
 - See [docs/GAME_SOURCE_MATRIX.md](docs/GAME_SOURCE_MATRIX.md) for what came from where.
 
 ## Run

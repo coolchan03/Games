@@ -140,6 +140,22 @@ class _ChessScreenState extends State<ChessScreen> {
     });
   }
 
+  Future<void> dragMove(int source, int row, int col) async {
+    if (over || thinking ||
+        (vsComputer && game.currentTurn == PieceColor.black)) return;
+    final moves = game.getLegalMovesForSquare(source ~/ 8, source % 8)
+        .where((m) => m.toRow == row && m.toCol == col).toList();
+    if (moves.isEmpty) return;
+    var move = moves.first;
+    if (moves.length > 1 || move.promotionPiece != null) {
+      final choice = await askPromotion();
+      if (choice == null) return;
+      move = moves.firstWhere((m) => m.promotionPiece == choice,
+          orElse: () => moves.first);
+    }
+    await commit(move);
+  }
+
   void undo() {
     if (thinking || history.isEmpty) return;
     setState(() {
@@ -169,7 +185,8 @@ class _ChessScreenState extends State<ChessScreen> {
       title: 'Chess',
       onNewGame: newGame,
       rules: 'Standard chess. Tap a piece to see its legal moves, then tap a '
-          'highlighted square. Castling, en passant, promotion, check, '
+          'highlighted square. On touchscreens, hold and drag a piece onto a '
+          'legal square as an alternative. Castling, en passant, promotion, check, '
           'checkmate, stalemate, threefold repetition, the fifty-move rule '
           'and insufficient material are all enforced.\n\n'
           'Against the computer you play White. Easy plays casually; Medium '
@@ -203,7 +220,7 @@ class _ChessScreenState extends State<ChessScreen> {
               final isLast = (game.lastMoveFromRow == r && game.lastMoveFromCol == c) ||
                   (game.lastMoveToRow == r && game.lastMoveToCol == c);
               final base = (r + c).isEven ? light : dark;
-              return GestureDetector(
+              final square = GestureDetector(
                 onTap: () => tap(r, c),
                 child: Semantics(
                   label: '${ChessMove.colToFile(c)}${ChessMove.rowToRank(r)}'
@@ -258,6 +275,44 @@ class _ChessScreenState extends State<ChessScreen> {
                     ]),
                   ),
                 ),
+              );
+              return DragTarget<int>(
+                onWillAcceptWithDetails: (details) {
+                  if (over || thinking ||
+                      (vsComputer && game.currentTurn == PieceColor.black)) {
+                    return false;
+                  }
+                  final src = details.data;
+                  return game.getLegalMovesForSquare(src ~/ 8, src % 8)
+                      .any((m) => m.toRow == r && m.toCol == c);
+                },
+                onAcceptWithDetails: (details) {
+                  dragMove(details.data, r, c);
+                },
+                builder: (context, candidateData, rejectedData) {
+                  final draggable = piece != null &&
+                      piece.color == game.currentTurn && !over && !thinking &&
+                      (!vsComputer || game.currentTurn == PieceColor.white);
+                  if (!draggable || piece == null) return square;
+                  return LongPressDraggable<int>(
+                    data: r * 8 + c,
+                    maxSimultaneousDrags: 1,
+                    feedback: Material(
+                      color: Colors.transparent,
+                      child: SizedBox(
+                        width: 48, height: 48,
+                        child: Center(child: Text(
+                          piece.type.unicodeBlack,
+                          style: TextStyle(fontSize: 42,
+                              color: piece.color == PieceColor.white
+                                  ? Colors.white : Colors.black),
+                        )),
+                      ),
+                    ),
+                    childWhenDragging: Opacity(opacity: .3, child: square),
+                    child: square,
+                  );
+                },
               );
             },
           ),

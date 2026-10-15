@@ -232,12 +232,13 @@ class GameTile extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: 12.0),
-        IconButton(
+        TextButton.icon(
           icon: Icon(
-            Icons.info_outline_rounded,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            Icons.menu_book_outlined,
+            size: isMobile ? 18 : 22,
+            color: theme.colorScheme.primary,
           ),
-          iconSize: isMobile ? 20 : 28,
+          label: const Text('Rules'),
           onPressed: () {
             Navigator.push(
               context,

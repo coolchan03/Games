@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:puzzle/data/game_guides.dart';
+import 'package:puzzle/data/game_guides_complete.dart';
 import 'package:puzzle/utils/design_system.dart';
 import 'package:puzzle/widgets/tangible.dart';
 
@@ -16,7 +16,7 @@ class GameGuideScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final guide = gameGuides[gameId];
+    final guide = guideForGame(gameId);
 
     if (guide == null) {
       return Scaffold(
