@@ -131,12 +131,9 @@ content is created for Games and requires no web API or separate runtime.
   2-4 players or a casual opponent, and ends the round on going out or mutual
   passes after the stock empties.
 
-## Original controllers — 421 and Petits Chevaux
-- Source locations: `lib/ui/features/games/four_two_one/` and
-  `lib/ui/features/games/petits_chevaux/`. All new controllers and
-  interactive screens are original GPL-3.0 Dart/Flutter code.
-- Reference for the 421 21-token charge/discharge variant and ranked hands:
-  https://florian-savoie.github.io/jeux-421/regles.html .
+## Original controller — Petits Chevaux
+- Location: `lib/ui/features/games/petits_chevaux/`. The new controller
+  and touch interface are original GPL-3.0 Dart/Flutter code.
 - Reference for Petits Chevaux' exact-count staircase and captures:
   https://jeudesociete.net/regles-petits-chevaux/ .
   House choice: no stacking/barrages and no three-sixes penalty.

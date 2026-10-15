@@ -6,26 +6,6 @@ import 'package:puzzle/data/game_metadata.dart';
 GameGuide guideForGame(GameMetadata game) {
   final existing = gameGuides[game.id];
   if (existing != null) return existing;
-  if (game.id == 'four_two_one') {
-    return const GameGuide(
-      title: '421',
-      category: 'BOARD',
-      objective: 'Get rid of your chips. The player left holding them loses.',
-      controls: 'Tap Roll, then tap individual dice to Hold or release them; '
-          'tap Reroll and finally Keep result to pass the device.',
-      walkthrough: [
-        'Roll three dice, then choose which to Hold or reroll.',
-        'The first player decides how many rolls everyone can take.',
-        'In Charge, the weakest hand takes chips from the central bank.',
-        'In Discharge, the strongest passes chips to the weakest.',
-        'The last player with chips loses the round.',
-      ],
-      strategies: [
-        '421 is strongest, followed by triple aces, two aces/triples, runs, and points.',
-        'Try to avoid being the weakest rather than chasing a risky top hand.',
-      ],
-    );
-  }
   if (game.id == 'petits_chevaux') {
     return const GameGuide(
       title: 'Petits Chevaux',

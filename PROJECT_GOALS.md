@@ -45,7 +45,7 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 
 ## What is already implemented vs not
 - Upstream Puzzle source with its original games is present (about 304 titles).
-- 367 unique game IDs currently registered (original Puzzle and added titles). See
+- 366 unique game IDs currently registered (original Puzzle and added titles). See
   README "Current status" and docs/GAME_SOURCE_MATRIX.md. Copied FOSS
   engines: minigames (Chess, Yacht Dice, Mancala, Hit & Blow scoring), CardsWithCats (Hearts,
   Spades, Oh Hell), bbackgammon (Backgammon), flutterflip (Reversi), ED-Mahjong + KMahjongg

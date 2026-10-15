@@ -18,8 +18,6 @@ class PetitsChevauxGame {
       throw ArgumentError('Expected 2-4 distinct seats from 0..3');
     }
   }
-  PetitsChevauxGame._(this.seats, this.computer)
-      : rng = Random(), steps = {}, current = seats.first;
   final List<int> seats;
   final Set<int> computer;
   final Random rng;
