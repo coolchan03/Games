@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../shared/card_face.dart';
+import '../shared/playing_cards.dart';
 import '../shared/game_page.dart';
 import '../shared/game_storage.dart';
 import '../shared/touch_cards.dart';
