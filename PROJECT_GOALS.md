@@ -45,7 +45,7 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 
 ## What is already implemented vs not
 - Upstream Puzzle source with its original games is present (about 304 titles).
-- 365 unique game IDs currently registered (original Puzzle and added titles). See
+- 366 unique game IDs currently registered (original Puzzle and added titles). See
   README "Current status" and docs/GAME_SOURCE_MATRIX.md. Copied FOSS
   engines: minigames (Chess, Yacht Dice, Mancala, Hit & Blow scoring), CardsWithCats (Hearts,
   Spades, Oh Hell), bbackgammon (Backgammon), flutterflip (Reversi), ED-Mahjong + KMahjongg
@@ -78,3 +78,20 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 4. Reuse shared deck/hand/scoring engines for Poker and card games.
 5. Complete the Family's Game Pack parity matrix systematically.
 6. Finalize global themes, local saves, lightweight asset loading, accessibility.
+
+## Gameplay-first direction (October 2026)
+- Complete the eight specifically named missing classics and then freeze the
+  catalog, apart from corrections and explicit, separately approved extras.
+  Do not treat an open-ended collection of variants as a compulsory checklist.
+- Prioritize mobile ergonomics: tap-to-move must always work; hold-and-drag
+  is an alternative, never the only way to play. Reject illegal drops and
+  prevent long-press tooltips, scrolling or overlays stealing drag gestures.
+- Every game should have an easy-to-find how-to-play guide (objective, steps,
+  controls, basic examples, and rules). Start in the shared scaffolds and
+  audit the original Puzzle screens separately for gaps.
+- Improve the main library: visible search, favorites, filter clarity,
+  readable cards, quick game discovery and resume.
+- Prioritize solo, computer-opponent, and pass-and-play on one device.
+  Online multiplayer is no longer a default completion gate.
+  Cross-device LAN play is optional only if it remains genuinely simple
+  and does not require accounts, matchmaking or external servers.

@@ -130,3 +130,14 @@ content is created for Games and requires no web API or separate runtime.
 - The implemented family variant draws at the start of each turn, supports local
   2-4 players or a casual opponent, and ends the round on going out or mutual
   passes after the stock empties.
+
+## Original rules implementation — Nain Jaune / Yellow Dwarf
+- Locations: lib/ui/features/games/nain_jaune/ and shared/touch_cards.dart.
+- Original GPL-3.0 Dart rules controller, UI and gesture components.
+  Only the existing Games card deck, vector cards and Hive save system are reused.
+- Rule descriptions reviewed against https://playboardgames.org/how-to-play/nain-jaune
+  and https://pioka.cc/guides/nain-jaune. No source code or art copied.
+- This variant uses 52 cards, 3-8 same-device players, ascending runs,
+  1/2/3/4/5 stakes on Td/Jc/Qs/Kh/7d, and 5-deal matches.
+  Traditional references disagree on some queen/king suits; the selected
+  five premium cards are shown explicitly in the UI and help.
