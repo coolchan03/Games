@@ -1,5 +1,6 @@
 import 'game_metadata.dart';
 import '../ui/features/games/goose_game/goose_game_metadata.dart';
+import '../ui/features/games/dice_421/dice_421_metadata.dart';
 import '../ui/features/games/kings_corner/kings_corner_metadata.dart';
 import '../ui/features/games/petits_chevaux/petits_chevaux_metadata.dart';
 import '../ui/features/games/air_hockey/air_hockey_metadata.dart';
@@ -558,6 +559,7 @@ List<GameMetadata> _buildGameList() {
     mahjongSolitaireMetadata,
     detectiveCasebookMetadata,
     gooseGameMetadata,
+    dice421Metadata,
     kingsCornerMetadata,
     petitsChevauxMetadata,
     airHockeyMetadata,

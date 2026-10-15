@@ -17,20 +17,28 @@ void main() {
     expect(() => Dice421Hand([0, 2, 7]), throwsArgumentError);
   });
 
-  test('held dice never change and only three throws per turn', () {
+  test('charge uses one throw; discharge lets you hold and reroll up to three', () {
     final game = Dice421Game(players: 2, random: Random(4));
     expect(game.stand(), isFalse);
     expect(game.roll(), isTrue);
-    final kept = game.dice[0];
-    expect(game.toggleHeld(0), isTrue);
-    expect(game.roll(), isTrue);
-    expect(game.roll(), isTrue);
-    expect(game.dice[0], kept);
     expect(game.roll(), isFalse);
+    expect(game.toggleHeld(0), isFalse);
     expect(game.stand(), isTrue);
     expect(game.current, 1);
     expect(game.throwsTaken, 0);
     expect(game.held, [false, false, false]);
+    final state = game.toJson();
+    state['phase'] = 'discharge';
+    state['bank'] = 0;
+    state['tokens'] = [13, 8];
+    final discharge = Dice421Game.fromJson(state);
+    expect(discharge.roll(), isTrue);
+    final kept = discharge.dice[0];
+    expect(discharge.toggleHeld(0), isTrue);
+    expect(discharge.roll(), isTrue);
+    expect(discharge.roll(), isTrue);
+    expect(discharge.dice[0], kept);
+    expect(discharge.roll(), isFalse);
   });
 
   test('charge transfers high-roll value from bank to weakest seat', () {
