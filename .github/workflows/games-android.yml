@@ -1,4 +1,4 @@
-name: Games Android Verification
+name: Games Android Signed Verification
 on:
   workflow_dispatch:
   push:
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -24,9 +24,37 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - name: Build release-mode test APK (debug signing, no release secrets)
+      - name: Restore permanent release signing key
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$KEYSTORE_BASE64" && test -n "$STORE_PASSWORD"
+          test -n "$KEY_ALIAS" && test -n "$KEY_PASSWORD"
+          umask 077
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > android/app/upload-keystore.jks
+          printf 'storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=%s\n' \
+            "$STORE_PASSWORD" "$KEY_PASSWORD" "$KEY_ALIAS" "upload-keystore.jks" > android/key.properties
+          keytool -list -storetype PKCS12 -keystore android/app/upload-keystore.jks \
+            -storepass "$STORE_PASSWORD" -alias "$KEY_ALIAS" >/dev/null
+      - name: Build permanently signed release APK
         run: flutter build apk --release --target-platform android-arm64
+      - name: Verify signed APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=build/app/outputs/flutter-apk/app-release.apk
+          test -s "$APK"
+          SDK="$ANDROID_HOME"
+          SIGNER="$SDK/build-tools/$(ls "$SDK/build-tools" | sort -V | tail -1)/apksigner"
+          test -x "$SIGNER"
+          "$SIGNER" verify --verbose --print-certs "$APK"
       - uses: actions/upload-artifact@v4
         with:
-          name: games-android-test-apk
+          name: games-android-permanently-signed-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
