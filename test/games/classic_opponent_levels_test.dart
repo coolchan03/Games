@@ -18,6 +18,13 @@ void main() {
     expect(speeds[1], lessThan(speeds[2]), reason: 'Hard is faster');
   });
 
+  test('Passe-Trappe allows finger-sized touch selection', () {
+    final game = PasseTrappeGame();
+    final puck = game.pucks.firstWhere((p) => p.position.dy > .5);
+    final point = puck.position + const Offset(0, .09);
+    expect(game.puckAt(point, side: 0)?.id, puck.id);
+  });
+
   test('Bagh Bandi easy/medium/hard all choose legal moves without mutation', () {
     for (var level = 0; level < 3; level++) {
       final game = BaghBandiGame();

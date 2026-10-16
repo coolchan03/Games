@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../common/alquerque_board.dart';
 import '../common/game_kit.dart';
+import '../common/grid_board_touch_area.dart';
 import 'bagh_chal_engine.dart';
 
 class BaghChalScreen extends StatefulWidget {
@@ -64,6 +65,19 @@ class _BaghChalScreenState extends State<BaghChalScreen> {
     _computer();
   }
 
+  void _drag(int source, int destination) {
+    if (thinking || game.result != 0 ||
+        (vsComputer && game.turn != humanSide)) return;
+    final options = game.moves().where(
+        (move) => move.from == source && move.to == destination).toList();
+    if (options.isEmpty) return;
+    setState(() {
+      game.apply(options.first);
+      from = null;
+    });
+    _computer();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -87,7 +101,9 @@ class _BaghChalScreenState extends State<BaghChalScreen> {
           'point. Once all are placed, goats move one step along a line. '
           'Tigers move one step or jump over a single adjacent goat to an '
           'empty point straight beyond it, capturing it. Tigers win by '
-          'capturing five goats; goats win by trapping every tiger.',
+          'capturing five goats; goats win by trapping every tiger. '
+          'CONTROLS: Tap empty points to place goats. Tap source and target '
+          'or drag a piece to move it.',
       children: [
         OpponentPicker(
           vsComputer: vsComputer,
@@ -119,7 +135,12 @@ class _BaghChalScreenState extends State<BaghChalScreen> {
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             final c = box.maxWidth / 5;
-            return Stack(children: [
+            return GridBoardTouchArea(
+              columns: 5,
+              onTapCell: _tap,
+              onDragCell: _drag,
+              onDragStartCell: _tap,
+              child: Stack(children: [
               Positioned.fill(child: CustomPaint(painter: AlquerqueBoardPainter(colors.onSurface.withValues(alpha: .5)))),
               for (var i = 0; i < 25; i++)
                 Positioned(
@@ -127,8 +148,9 @@ class _BaghChalScreenState extends State<BaghChalScreen> {
                   top: (i ~/ 5) * c,
                   width: c,
                   height: c,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
+                  child: Semantics(
+                    button: true,
+                    label: 'Row ${i ~/ 5 + 1}, column ${i % 5 + 1}',
                     onTap: () => _tap(i),
                     child: Center(
                       child: game.cells[i] == 0
@@ -155,7 +177,7 @@ class _BaghChalScreenState extends State<BaghChalScreen> {
                     ),
                   ),
                 ),
-            ]);
+            ]));
           }),
         ),
       ],

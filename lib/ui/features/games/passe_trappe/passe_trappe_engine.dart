@@ -59,7 +59,7 @@ class PasseTrappeGame {
 
   PassePuck? puckAt(Offset point, {int? side}) {
     PassePuck? candidate;
-    var bestDistance = .075;
+    var bestDistance = .11;
     for (final puck in pucks) {
       if (side != null &&
           (side == 0 ? puck.position.dy < mid : puck.position.dy >= mid)) {
@@ -115,12 +115,16 @@ class PasseTrappeGame {
         p.velocity.distance < .12).toList()..shuffle(random);
     if (available.isEmpty) return false;
     final puck = available.first;
+    final skill = level.clamp(0, 2).toInt();
+    // Three real difficulty tiers: imprecise gentle shots, balanced shots,
+    // and tight, fast shots. Firing cadence is also difficulty-dependent.
+    final jitter = [.23, .105, .025][skill];
+    final power = [.12, .18, .24][skill];
     final target = Offset(
-        .5 + (random.nextDouble() - .5) * [.19, .10, .035][level.clamp(0, 2).toInt()],
-        mid);
+        .5 + (random.nextDouble() - .5) * jitter, mid);
     final aim = target - puck.position;
     if (aim.distance < .02) return false;
-    return launch(puck.id, -aim / aim.distance * (level == 0 ? .13 : .21));
+    return launch(puck.id, -aim / aim.distance * power);
   }
 
   void step(double seconds) {

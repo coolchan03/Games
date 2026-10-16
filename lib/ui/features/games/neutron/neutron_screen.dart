@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../common/game_kit.dart';
+import '../common/grid_board_touch_area.dart';
 import 'neutron_engine.dart';
 
 class NeutronScreen extends StatefulWidget {
@@ -76,6 +77,19 @@ class _NeutronScreenState extends State<NeutronScreen> {
     _computer();
   }
 
+  void _drag(int source, int destination) {
+    if (thinking || game.result != 0 || (vsComputer && game.turn == 2)) return;
+    final options = game.moves();
+    final legal = _neutronPhase
+        ? source == game.neutron &&
+          options.any((move) => move.neutronTo == destination)
+        : options.any((move) => move.neutronTo == neutronTo &&
+            move.from == source && move.to == destination);
+    if (!legal) return;
+    _tap(source);
+    _tap(destination);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -112,7 +126,8 @@ class _NeutronScreenState extends State<NeutronScreen> {
           'next to another piece. If the Neutron ends on your home row '
           '(blue: bottom, red: top) you win — even if the opponent moved it '
           'there. A player who cannot move the Neutron loses. Blue skips the '
-          'Neutron on the very first turn.',
+          'Neutron on the very first turn. '
+          'CONTROLS: Tap a piece and its legal target, or drag it there.',
       children: [
         OpponentPicker(
           vsComputer: vsComputer,
@@ -126,14 +141,21 @@ class _NeutronScreenState extends State<NeutronScreen> {
         StatusBanner(status, highlight: r != 0),
         AspectRatio(
           aspectRatio: 1,
-          child: GridView.builder(
+          child: GridBoardTouchArea(
+            columns: 5,
+            onTapCell: _tap,
+            onDragCell: _drag,
+            onDragStartCell: _tap,
+            child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
             itemCount: 25,
             itemBuilder: (context, i) {
               final v = shown[i];
               final home = i ~/ 5 == 4 ? const Color(0x221E88E5) : i ~/ 5 == 0 ? const Color(0x22E53935) : null;
-              return GestureDetector(
+              return Semantics(
+                button: true,
+                label: 'Row ${i ~/ 5 + 1}, column ${i % 5 + 1}',
                 onTap: () => _tap(i),
                 child: Container(
                   margin: const EdgeInsets.all(2),
@@ -157,7 +179,7 @@ class _NeutronScreenState extends State<NeutronScreen> {
                 ),
               );
             },
-          ),
+          )),
         ),
         if (neutronTo != null)
           TextButton(onPressed: () => setState(() => neutronTo = null), child: const Text('Undo Neutron move')),

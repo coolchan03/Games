@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../common/alquerque_board.dart';
 import '../common/game_kit.dart';
+import '../common/grid_board_touch_area.dart';
 import 'alquerque_engine.dart';
 
 class AlquerqueScreen extends StatefulWidget {
@@ -57,6 +58,18 @@ class _AlquerqueScreenState extends State<AlquerqueScreen> {
     _computer();
   }
 
+  void _drag(int source, int destination) {
+    if (thinking || game.result != 0 || (vsComputer && game.turn == 2)) return;
+    final options = game.moves().where(
+        (move) => move.from == source && move.to == destination).toList();
+    if (options.isEmpty) return;
+    setState(() {
+      game.apply(options.first);
+      from = null;
+    });
+    _computer();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -81,7 +94,8 @@ class _AlquerqueScreenState extends State<AlquerqueScreen> {
           'a line to the next empty point, forwards or sideways but never '
           'backwards. If you can jump an adjacent enemy piece to the empty '
           'point straight behind it, you must; jumps can chain in any '
-          'direction. Capture all enemy pieces or block them to win.',
+          'direction. Capture all enemy pieces or block them to win. '
+          'CONTROLS: Tap the piece then its highlighted target, or drag it.',
       children: [
         OpponentPicker(
           vsComputer: vsComputer,
@@ -99,7 +113,12 @@ class _AlquerqueScreenState extends State<AlquerqueScreen> {
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             final c = box.maxWidth / 5;
-            return Stack(children: [
+            return GridBoardTouchArea(
+              columns: 5,
+              onTapCell: _tap,
+              onDragCell: _drag,
+              onDragStartCell: _tap,
+              child: Stack(children: [
               Positioned.fill(child: CustomPaint(painter: AlquerqueBoardPainter(colors.onSurface.withValues(alpha: .5)))),
               for (var i = 0; i < 25; i++)
                 Positioned(
@@ -107,8 +126,9 @@ class _AlquerqueScreenState extends State<AlquerqueScreen> {
                   top: (i ~/ 5) * c,
                   width: c,
                   height: c,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
+                  child: Semantics(
+                    button: true,
+                    label: 'Row ${i ~/ 5 + 1}, column ${i % 5 + 1}',
                     onTap: () => _tap(i),
                     child: Center(
                       child: game.cells[i] == 0
@@ -138,7 +158,7 @@ class _AlquerqueScreenState extends State<AlquerqueScreen> {
                     ),
                   ),
                 ),
-            ]);
+            ]));
           }),
         ),
       ],

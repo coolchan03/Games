@@ -39,6 +39,7 @@ void main() {
       (tester) async {
     final taps = <int>[];
     final drops = <(int, int)>[];
+    final sources = <int>[];
     await tester.pumpWidget(MaterialApp(home: Scaffold(
       body: Center(child: SizedBox(
         width: 250, height: 250,
@@ -47,6 +48,7 @@ void main() {
           columns: 5,
           onTapCell: taps.add,
           onDragCell: (from, to) => drops.add((from, to)),
+          onDragStartCell: sources.add,
           child: const ColoredBox(color: Colors.blue),
         ),
       )),
@@ -56,6 +58,7 @@ void main() {
         const Offset(110, 50), const Duration(milliseconds: 250));
     await tester.pump();
     expect(drops, [(0, 7)]);
+    expect(sources, [0]);
     expect(taps, isEmpty, reason: 'Dragging must not activate the tap handler');
   });
 
