@@ -191,6 +191,16 @@ class _PasseTrappeScreenState extends State<PasseTrappeScreen>
             _reset();
           },
         ),
+        if (computer)
+          Text(
+            switch (difficulty) {
+              AiLevel.easy => 'Easy: relaxed, gentle and less accurate shots',
+              AiLevel.medium => 'Medium: steady and reasonably aimed shots',
+              AiLevel.hard => 'Hard: quick, strong and accurate shots',
+            },
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
         StatusBanner(status, highlight: win != null),
         Text('Pull a puck back and release, or tap one and shoot.',
             textAlign: TextAlign.center,

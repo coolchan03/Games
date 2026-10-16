@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../common/alquerque_board.dart';
 import '../common/game_kit.dart';
+import '../common/grid_board_touch_area.dart';
 import '../shared/game_storage.dart';
 import 'bagh_bandi_engine.dart';
 
@@ -40,8 +41,7 @@ class _BaghBandiScreenState extends State<BaghBandiScreen> {
   AiLevel difficulty = AiLevel.medium;
   bool vsComputer = true, ready = false, thinking = false;
   int generation = 0;
-  int? selected, draggingFrom, hovered;
-  Offset? dragLast;
+  int? selected;
   String saveStatus = 'Loading the saved board…';
 
   @override
@@ -98,7 +98,7 @@ class _BaghBandiScreenState extends State<BaghBandiScreen> {
     setState(() {
       game = BaghBandiGame();
       thinking = false;
-      selected = draggingFrom = hovered = null;
+      selected = null;
     });
     _save();
     _runBot();
@@ -111,7 +111,7 @@ class _BaghBandiScreenState extends State<BaghBandiScreen> {
     if (matches.isEmpty) return false;
     setState(() {
       game.move(matches.first);
-      selected = draggingFrom = hovered = null;
+      selected = null;
     });
     _save();
     _runBot();
@@ -173,8 +173,8 @@ class _BaghBandiScreenState extends State<BaghBandiScreen> {
       final owned = game.turn == BandiSide.tigers ? tiger : goats > 0;
       final legalOrigin = canAct && owned &&
           game.legalMoves.any((m) => m.from == i);
-      final source = selected == i || draggingFrom == i;
-      final target = possible.contains(i) || hovered == i;
+      final source = selected == i;
+      final target = possible.contains(i);
       final symbol = tiger ? Icons.pets_rounded :
           goats > 0 ? Icons.cruelty_free_rounded : null;
       final label = 'Row ${i ~/ 5 + 1} column ${i % 5 + 1}: '
@@ -247,6 +247,15 @@ class _BaghBandiScreenState extends State<BaghBandiScreen> {
         ),
         if (vsComputer) ...[
           const SizedBox(height: 8),
+          Text(
+            switch (difficulty) {
+              AiLevel.easy => 'Easy: random legal moves',
+              AiLevel.medium => 'Medium: tactical positioning',
+              AiLevel.hard => 'Hard: anticipates the next opponent move',
+            },
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
           SegmentedButton<BandiSide>(
             segments: const [
               ButtonSegment(value: BandiSide.goats, label: Text('Play goats')),
@@ -280,47 +289,16 @@ class _BaghBandiScreenState extends State<BaghBandiScreen> {
           child: LayoutBuilder(builder: (context, box) {
             final size = box.maxWidth;
             final side = size / 5;
-            int point(Offset p) {
-              final col = (p.dx / side).floor().clamp(0, 4);
-              final row = (p.dy / side).floor().clamp(0, 4);
-              return row * 5 + col;
-            }
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTapUp: canAct ? (details) =>
-                  _tap(point(details.localPosition)) : null,
-              onPanStart: canAct ? (details) {
-                final cell = point(details.localPosition);
-                if (game.legalMoves.any((m) => m.from == cell)) {
-                  setState(() {
-                    draggingFrom = cell;
-                    selected = cell;
-                    hovered = null;
-                    dragLast = details.localPosition;
-                  });
+            return GridBoardTouchArea(
+              columns: 5,
+              onTapCell: _tap,
+              onDragCell: (from, to) { _play(from, to); },
+              onDragStartCell: (origin) {
+                if (canAct &&
+                    game.legalMoves.any((move) => move.from == origin)) {
+                  setState(() => selected = origin);
                 }
-              } : null,
-              onPanUpdate: canAct ? (details) {
-                if (draggingFrom != null) {
-                  setState(() {
-                    dragLast = details.localPosition;
-                    hovered = point(details.localPosition);
-                  });
-                }
-              } : null,
-              onPanEnd: canAct ? (_) {
-                final from = draggingFrom;
-                final to = dragLast == null ? null : point(dragLast!);
-                setState(() {
-                  draggingFrom = hovered = null;
-                  dragLast = null;
-                });
-                if (from != null && to != null) _play(from, to);
-              } : null,
-              onPanCancel: canAct ? () => setState(() {
-                draggingFrom = hovered = null;
-                dragLast = null;
-              }) : null,
+              },
               child: Stack(children: [
                 Positioned.fill(child: CustomPaint(
                   painter: AlquerqueBoardPainter(
