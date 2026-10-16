@@ -20,6 +20,7 @@ const addedGames = [
   'aces_up', 'forty_thieves', 'sokoban', 'oware', 'nim', 'war',
   'cribbage', 'air_hockey', 'goose_game', 'kings_corner',
   'petits_chevaux', 'dice_421', 'nain_jaune',
+  'bagh_bandi', 'passe_trappe',
 ];
 
 void main() {
