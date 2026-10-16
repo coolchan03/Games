@@ -1,13 +1,13 @@
 # Games — FOSS Source Matrix
 
-Updated 2026-10-14. One lightweight Flutter UI for web/Android.
+Updated 2026-10-15. One lightweight Flutter UI for web/Android.
 The existing sidhant947/Puzzle (GPL-3.0) is the foundation.
 Never embed whole browser apps or Android apps when a small engine or port is sufficient.
 
 Status key:
 - **Integrated** — engine + screen in Games, registered in the catalogue, covered by engine
   tests and the 360 dp widget smoke test (`test/games/`), and passing `flutter analyze`,
-  `flutter test` and `flutter build web` locally. Not yet checked by hand on Android devices.
+  `flutter test` and `flutter build web` in GitHub Actions. Not yet checked by hand on Android devices.
 - **Verified source** — licence checked, not integrated.
 - Details of copied code and licences: [THIRD_PARTY_SOURCES.md](../THIRD_PARTY_SOURCES.md).
 
@@ -22,7 +22,8 @@ Status key:
 | Mancala (Kalah) | z7workbench/minigames | MIT | Integrated (earlier) |
 | Oware (Abapa) | Original | GPL-3.0 | Integrated, 2P / AI |
 | Backgammon | demirburakk/bbackgammon (rules, heuristic) | GPL-3.0 | Integrated, gammons, max-dice rule, AI |
-| Ludo | nizwar/ludo_flutter (route tables) + original engine | Apache-2.0 | Integrated, 2–4 players, AI |
+| Ludo | nizwar/ludo_flutter (route tables) + original engine | Apache-2.0 | Integrated, 2–4 players, AI, larger touch controls |
+| Petits Chevaux | Original controller using existing Ludo track | GPL-3.0 (route reference Apache-2.0) | Integrated, 2–4 players/AI, exact finish, local saves |
 | Go (9×9, 13×13) | Original | GPL-3.0 | Integrated, ko/suicide, area scoring, MC AI |
 | Hex | Original | GPL-3.0 | Integrated, MC (AMAF) AI |
 | Gomoku | Original | GPL-3.0 | Integrated |
@@ -50,6 +51,7 @@ Status key:
 | Gin Rummy | Original | GPL-3.0 | Integrated, optimal melds, layoffs |
 | Cribbage | Original | GPL-3.0 | Integrated |
 | King's Corner | Original engine; shared card deck and vector UI | GPL-3.0 | Integrated, local 2-4 / casual AI, local save |
+| Nain Jaune | Original GPL-3.0 rules engine; shared touch cards, deck and storage | GPL-3.0 | Integrated, 3-8 pass-and-play / casual AI, 5 trays, local save |
 | Crazy Eights, Go Fish, War | Original | GPL-3.0 | Integrated |
 | Klondike, FreeCell, Spider, Golf, Pyramid | Original (rules as in PySolFC) | GPL-3.0 | Integrated; FreeCell uses Microsoft deal numbers |
 | Forty Thieves, Aces Up, Poker Squares | Original | GPL-3.0 | Integrated |
@@ -61,6 +63,7 @@ Status key:
 | Game | Source | License | Status |
 | --- | --- | --- | --- |
 | Yacht Dice | z7workbench/minigames (scoring + AI) | MIT | Integrated, 1–4 players / AI |
+| 421 (dice) | Original Dart charge/discharge controller | GPL-3.0 | Integrated, 2–4 local players or AI, save/restore |
 | Liar's Dice | Original | GPL-3.0 | Integrated |
 | Shut the Box | Original | GPL-3.0 | Integrated |
 | Memory Pairs | Original | GPL-3.0 | Integrated |
@@ -88,10 +91,9 @@ Now available: Alquerque, Neutron, Bagh Chal, Nine Men's Morris, Chinese Checker
 Ladders, Crazy Eights, Forty Thieves, Golf Solitaire, Peg Solitaire, Poker Squares, Aces Up
 ("Four Aces"), Shut the Box, Yatzy (Yacht Dice), Memory, War, Ludo, Backgammon, Dominoes,
 Checkers, Chess, Reversi, Mancala/Oware, Connect Four, Battleship, Dots and Boxes, Game of the
-Goose, Air Hockey.
+Goose, Air Hockey, King's Corner, Petits Chevaux and 421.
 
-Still missing: Bagh Bandi, Petits Chevaux (Ludo variant), Nain Jaune, King's Corner, 421,
-Passe-Trappe.
+Still missing: Bagh Bandi and Passe-Trappe.
 
 ## Quality rules
 - Shared GameScaffold, opponent picker, status banner, card/dice/disc widgets.

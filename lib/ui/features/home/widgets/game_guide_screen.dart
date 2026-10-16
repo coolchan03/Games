@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:puzzle/data/game_guides.dart';
+import 'package:puzzle/data/game_registry.dart';
+import 'game_guide_fallback.dart';
 import 'package:puzzle/utils/design_system.dart';
 import 'package:puzzle/widgets/tangible.dart';
 
@@ -16,14 +17,8 @@ class GameGuideScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final guide = gameGuides[gameId];
-
-    if (guide == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Guide')),
-        body: const Center(child: Text('Guide not found.')),
-      );
-    }
+    final game = allGamesMetadata.firstWhere((g) => g.id == gameId);
+    final guide = guideForGame(game);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,

@@ -45,7 +45,7 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 
 ## What is already implemented vs not
 - Upstream Puzzle source with its original games is present (about 304 titles).
-- 365 unique game IDs currently registered (original Puzzle and added titles). See
+- 368 unique game IDs currently registered (original Puzzle and added titles). See
   README "Current status" and docs/GAME_SOURCE_MATRIX.md. Copied FOSS
   engines: minigames (Chess, Yacht Dice, Mancala, Hit & Blow scoring), CardsWithCats (Hearts,
   Spades, Oh Hell), bbackgammon (Backgammon), flutterflip (Reversi), ED-Mahjong + KMahjongg
@@ -57,8 +57,8 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 - Web build serves CanvasKit from the site and bundles a symbol font, so card suits and chess
   pieces render offline. A full PWA service-worker/offline audit is still open.
 - **Not complete:** manual Android device QA; full unified redesign of the ~304 original
-  screens; remaining Family's Game Pack titles (Bagh Bandi, Petits Chevaux, Nain Jaune,
-  421, Passe-Trappe); Riichi Mahjong; Bridge; online multiplayer;
+  screens; remaining Family's Game Pack titles (Bagh Bandi,
+  Passe-Trappe); Riichi Mahjong; Bridge;
   saved-game persistence for the added games.
 
 ## Completion gates for each new game
@@ -70,11 +70,21 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 6. CI analyzer, automated tests and web build pass.
 7. Manual browser + Android checks documented separately.
 
-## Priorities for next work batches
-1. Maintain green automated builds and enable GitHub Pages deployment.
-2. Port verified Dart game engines first: Chess and full layered Mahjong.
-3. Improve detective variety: case difficulty, timelines, interactive reasoning,
-   solver-generated cases and unique-solution safeguards.
-4. Reuse shared deck/hand/scoring engines for Poker and card games.
-5. Complete the Family's Game Pack parity matrix systematically.
-6. Finalize global themes, local saves, lightweight asset loading, accessibility.
+## Priorities for next work batches (updated after phone testing)
+1. **Complete the short remaining game list, then freeze the catalog.** Add only
+   missing high-value families: Bagh Bandi, Passe-Trappe,
+   Bridge, Riichi Mahjong, Shogi, Shisen-Sho, Canasta and a few
+   worthwhile variants. Prefer polish to inflating the total count.
+2. **Phone-first interaction:** robust large targets, responsive long-press,
+   piece drag, hold, swipe and drop where sensible, plus a clearly labeled
+   tap-to-select/tap-to-destination fallback. Test on an actual narrow phone.
+3. **How to play for EVERY game:** consistent Objectives, Controls, Rules,
+   Hints and Winning sections reachable before play and during play. Avoid
+   empty guide screens and placeholder instructions; audit all registered IDs.
+4. **Library discovery:** always-accessible search, quick category filters,
+   useful sorting, favorites/recent games, readable compact card/list layouts.
+5. **Single-device first:** solo, vs computer and pass-and-play. Online rooms
+   and servers are out of scope. Local two-device multiplayer is optional
+   only when simple and reliable, and cannot displace usability work.
+6. Finish reliable autosave/resume, unified visual themes, PWA offline checks,
+   accessibility, cross-browser QA and physical Android testing.

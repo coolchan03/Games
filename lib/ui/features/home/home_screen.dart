@@ -20,6 +20,7 @@ import 'widgets/category_button.dart';
 import 'widgets/search_bar.dart' as custom;
 import 'widgets/game_tile.dart';
 import 'widgets/empty_games_state.dart';
+import 'game_browse_order.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -31,7 +32,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String _searchQuery = "";
   String _selectedCategory = "ALL";
-  bool _isSearchVisible = false;
+  bool _isSearchVisible = true;
+  bool _alphabetically = false;
   late final TextEditingController _searchController;
   Timer? _debounce;
   Map<String, String>? _localizedTitlesCache;
@@ -70,6 +72,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         searchQuery: _searchQuery,
         selectedCategory: _selectedCategory,
         localizedTitles: localizedTitles));
+    final displayedGames = orderGameCatalog(filteredGames, localizedTitles,
+        alphabetically: _alphabetically);
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -105,12 +109,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   setState(() => _selectedCategory = value),
             ),
           ),
-          filteredGames.isEmpty
+          SliverToBoxAdapter(child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            child: Row(children: [
+              Text('${displayedGames.length} games',
+                  style: theme.textTheme.labelLarge),
+              const Spacer(),
+              SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(value: false, label: Text('Featured')),
+                  ButtonSegment(value: true, label: Text('A-Z')),
+                ],
+                selected: {_alphabetically},
+                onSelectionChanged: (selection) =>
+                    setState(() => _alphabetically = selection.first),
+              ),
+            ]),
+          )),
+          displayedGames.isEmpty
               ? const SliverFillRemaining(
                   hasScrollBody: false,
                   child: EmptyGamesState(),
                 )
-              : _buildGameGrid(filteredGames),
+              : _buildGameGrid(displayedGames),
         ],
       ),
     );

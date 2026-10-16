@@ -32,10 +32,14 @@ void main() {
         }
       });
 
-      test('options are shuffled (not always same order)', () {
-        final q1 = engine.generateQuestionsForLevel(1).first;
-        final q2 = engine.generateQuestionsForLevel(1).first;
-        expect(q1.options, isNot(equals(q2.options)));
+      test('options vary across repeated shuffles', () {
+        // Two independent shuffles can legitimately match (1 in 24 chance).
+        // Sampling several deals avoids a nondeterministic CI failure.
+        final orders = <String>{};
+        for (var i = 0; i < 24; i++) {
+          orders.add(engine.generateQuestionsForLevel(1).first.options.join('|'));
+        }
+        expect(orders.length, greaterThan(1));
       });
 
       test('returns all questions from pool', () {
