@@ -5,7 +5,7 @@
 Based on [Puzzle](https://github.com/sidhant947/Puzzle) (GPL-3.0). Preserves the original catalog and adds classic board/card games within the same Flutter app.
 
 ## Current status
-- 366 verified unique game IDs in one catalogue, including the original Puzzle titles
+- 367 verified unique game IDs in one catalogue, including the original Puzzle titles
   and additional board, card, dice, deduction, and puzzle games.
 - **Board & strategy:** Chess, Checkers, Reversi, Connect Four, Tic-Tac-Toe, Go (9×9/13×13),
   Hex, Gomoku, Backgammon, Ludo, Nine Men's Morris, Alquerque, Bagh Chal, Neutron, Chinese

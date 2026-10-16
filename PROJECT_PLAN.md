@@ -39,7 +39,7 @@ Word Search, Crossword, Cryptogram, Einstein Riddle, Sudoku, Nonogram, Minesweep
 
 ## Current implementation status
 Waves 1–3 are largely done and much of wave 4: 59 added games on top of the Puzzle catalogue
-(see README and docs/GAME_SOURCE_MATRIX.md). Remaining: Bagh Bandi, Nain Jaune, 421 (parallel branch),
+(see README and docs/GAME_SOURCE_MATRIX.md). Remaining: Bagh Bandi, Nain Jaune,
 Passe-Trappe (wave 4); Riichi Mahjong, Shogi, Bridge
 (wave 5); and wave 6 QA on real Android devices and browsers. Local `flutter analyze`,
 `flutter test` and `flutter build web` pass; see PROJECT_GOALS.md for acceptance gates.

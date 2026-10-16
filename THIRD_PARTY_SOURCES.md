@@ -140,3 +140,11 @@ content is created for Games and requires no web API or separate runtime.
 - Petits Chevaux reuses the existing Ludo route from nizwar/ludo_flutter
   (Apache-2.0, already documented above); the shared vector board and
   its license notices are preserved. No new third-party assets are copied.
+
+## Original French 421 rules controller
+- `lib/ui/features/games/dice_421/` implements the three-dice 421
+  charge/discharge variant in Dart under GPL-3.0.
+- The rule engine, same-device UI, and persistence were developed in the
+  project's existing `pro-classics-next-421-pwa-20261014` branch and
+  integrated without copying external source or artwork.
+- Virtual counters only. No purchases, wagering or networking.
