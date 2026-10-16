@@ -132,7 +132,7 @@ class _PasseTrappeScreenState extends State<PasseTrappeScreen>
     if (puck == null) return;
     pointerStart[event.pointer] = point;
     pointerPuck[event.pointer] = puck.id;
-    setState(() => selectedPuck = puck!.id);
+    setState(() => selectedPuck = puck.id);
   }
 
   void _pointerUp(PointerUpEvent event) {
