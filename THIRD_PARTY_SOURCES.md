@@ -158,3 +158,27 @@ content is created for Games and requires no web API or separate runtime.
   1/2/3/4/5 stakes on Td/Jc/Qs/Kh/7d, and 5-deal matches.
   Traditional references disagree on some queen/king suits; the selected
   five premium cards are shown explicitly in the UI and help.
+
+## Bagh Bandi (Bengal, 2-tiger/20-goat stacked opening)
+- Location: `lib/ui/features/games/bagh_bandi/`.
+- Original GPL-3.0 Dart rules controller, lightweight computer player and
+  Flutter vector board; uses the existing Alquerque grid geometry only.
+- Rules references: https://sourceforge.net/p/bagh-bandi/wiki/Home/ and
+  https://en.wikipedia.org/wiki/Bagh_bandi
+  (the *two*-tiger, stacked-goat Bengal variant; NOT Bagh Chal).
+- House rule: a tiger may choose a single jump or step per turn. Goats
+  cannot restack. Tigers win by removing all goats or leaving goats
+  with no legal move; goats win by immobilising both tigers. A draw
+  follows 100 consecutive non-capturing moves. This is stated in help.
+- No third-party program source, images, or sound assets were copied.
+
+## Passe-Trappe
+- Location: `lib/ui/features/games/passe_trappe/`.
+- Original GPL-3.0 Dart puck-physics engine and drawn table with a
+  central gate, touch-slingshot or tap-to-shoot controls. References:
+  https://boardgamegeek.com/boardgame/12171/le-passe-trappe and
+  https://www.tenvoiesdubois.com/jeu-en-bois/passe-trappe/faq/comment-jouer-au-passe-trappe/
+- House implementation: five pucks on each half, one gate, first
+  to empty their half wins. Offline casual computer or two-thumb
+  same-device play; no cloud, purchases or real-money features.
+- No third-party program source or artwork was copied.
