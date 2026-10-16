@@ -30,6 +30,7 @@ Status key:
 | Nine Men's Morris | Original | GPL-3.0 | Integrated, alpha-beta AI |
 | Alquerque | Original | GPL-3.0 | Integrated, compulsory chained captures |
 | Bagh Chal | Original | GPL-3.0 | Integrated, play goats or tigers |
+| Bagh Bandi | Original rules/AI on Alquerque geometry | GPL-3.0 | New: two tigers, stacked goats, saves, same-device/AI |
 | Neutron | Original | GPL-3.0 | Integrated |
 | Chinese Checkers | Original | GPL-3.0 | Integrated, 2/3/6 players |
 | Dots and Boxes | Original | GPL-3.0 | Integrated, chain-aware AI |
@@ -68,6 +69,7 @@ Status key:
 | Shut the Box | Original | GPL-3.0 | Integrated |
 | Memory Pairs | Original | GPL-3.0 | Integrated |
 | Air Hockey | Original lightweight physics (peeweesusername/airhockey reviewed; it needs Flame/Forge2D) | GPL-3.0 | Integrated, vs AI or 2 players multi-touch |
+| Passe-Trappe | Original lightweight puck physics and vector board | GPL-3.0 | New: slingshot touch or tap-to-aim, AI or simultaneous same-device |
 | Game of the Goose | Original | GPL-3.0 | Integrated, 2–4 players |
 
 ## Puzzles and deduction
@@ -93,7 +95,7 @@ Ladders, Crazy Eights, Forty Thieves, Golf Solitaire, Peg Solitaire, Poker Squar
 Checkers, Chess, Reversi, Mancala/Oware, Connect Four, Battleship, Dots and Boxes, Game of the
 Goose, Air Hockey, King's Corner, Petits Chevaux and 421.
 
-Still missing: Bagh Bandi and Passe-Trappe.
+All specifically named Family's Game Pack gaps have a corresponding module. This is not a certification of complete feature parity with every proprietary reference game.
 
 ## Quality rules
 - Shared GameScaffold, opponent picker, status banner, card/dice/disc widgets.

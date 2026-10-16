@@ -1,5 +1,7 @@
 import 'game_metadata.dart';
 import '../ui/features/games/goose_game/goose_game_metadata.dart';
+import '../ui/features/games/bagh_bandi/bagh_bandi_metadata.dart';
+import '../ui/features/games/passe_trappe/passe_trappe_metadata.dart';
 import '../ui/features/games/dice_421/dice_421_metadata.dart';
 import '../ui/features/games/kings_corner/kings_corner_metadata.dart';
 import '../ui/features/games/petits_chevaux/petits_chevaux_metadata.dart';
@@ -577,6 +579,8 @@ List<GameMetadata> _buildGameList() {
     neutronMetadata,
     alquerqueMetadata,
     baghChalMetadata,
+    baghBandiMetadata,
+    passeTrappeMetadata,
     dominoesMetadata,
     liarsDiceMetadata,
     goGameMetadata,

@@ -51,6 +51,53 @@ GameGuide guideForGame(GameMetadata game) {
       ],
     );
   }
+  if (game.id == 'bagh_bandi') {
+    return const GameGuide(
+      title: 'Bagh Bandi',
+      category: 'BOARD',
+      objective: 'Trap both Bengal tigers before they capture every goat.',
+      controls: 'Tap a goat, stack or tiger and then a highlighted empty '
+          'intersection. You can also drag a selected piece to its target.',
+      walkthrough: [
+        'Two tigers begin on the middle column; 20 goats form four stacks '
+            'of five on the two side columns.',
+        'Goats play first. On each turn, move only one goat from a stack '
+            'or move one single goat along a marked line.',
+        'A goat may not form a new stack after leaving its starting pile.',
+        'Each tiger may step along a line or jump an adjacent goat, '
+            'capturing one goat from a stack if needed.',
+        'Immobilize both tigers to win as goats. Tigers win if they '
+            'remove all goats or leave goats no legal move.',
+      ],
+      strategies: [
+        'Keep paths behind goats blocked so a tiger cannot leap them.',
+        'Only the marked diagonals are valid; protect the central routes.',
+      ],
+    );
+  }
+  if (game.id == 'passe_trappe') {
+    return const GameGuide(
+      title: 'Passe-Trappe',
+      category: 'BOARD',
+      objective: 'Be first to clear every puck from your half by shooting '
+          'through the central gate.',
+      controls: 'Touch a puck, drag backward toward your own elastic rail, '
+          'then release. Or tap a puck and tap Shoot selected puck.',
+      walkthrough: [
+        'Each side begins with five pucks.',
+        'Drag and release a puck backward to launch it toward the other side.',
+        'Only pucks crossing the center gate switch halves; '
+            'outside hits bounce off the divider.',
+        'In two-player mode both people can shoot at once using two fingers.',
+        'When your half contains no pucks, you win. '
+            'Pause to stop movement and save your game.',
+      ],
+      strategies: [
+        'Aim at the highlighted center opening; ricochets can send pucks back.',
+        'Use tap-to-aim when fingers make accurate drag shots difficult.',
+      ],
+    );
+  }
   final title = game.id
       .split('_')
       .where((part) => part.isNotEmpty)
