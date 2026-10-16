@@ -31,7 +31,7 @@ void main() {
     expect(game.movesFor(3).single.to, 54);
     expect(game.movesFor(2), isEmpty);
     game.steps[0]![0] = 56;
-    expect(game.movesFor(6).single.to, 57);
+    expect(game.movesFor(6).firstWhere((m) => m.piece == 0).to, 57);
     expect(game.movesFor(5), isEmpty);
   });
 
@@ -54,8 +54,23 @@ void main() {
     final before = game.toJson();
     expect(game.play(0), isFalse);
     expect(game.toJson(), before);
-    expect(game.roll(fixed: 7), throwsArgumentError);
+    expect(() => game.roll(fixed: 7), throwsArgumentError);
     expect(game.toJson(), before);
+  });
+
+
+  test('two friendly horses cannot end on the same track or stair cell', () {
+    final game = PetitsChevauxGame(seats: [0, 1], random: Random(2));
+    game.steps[0]![0] = 5;
+    game.steps[0]![1] = 6;
+    expect(game.movesFor(1).any((move) => move.piece == 0), isFalse);
+    game.steps[0]![0] = 52;
+    game.steps[0]![1] = 53;
+    expect(game.movesFor(2).any((move) => move.piece == 0), isFalse);
+    // The shared finishing center must accept all four completed horses.
+    game.steps[0]![0] = 56;
+    game.steps[0]![1] = 57;
+    expect(game.movesFor(6).any((move) => move.piece == 0 && move.to == 57), isTrue);
   });
 
   test('round-trip save, corrupt save rejection, and AI legal moves', () {

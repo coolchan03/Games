@@ -114,7 +114,7 @@ class _LudoScreenState extends State<LudoScreen> {
     } else if (game.dice == null) {
       status = '${_seatNames[cur]}${cur == 3 && vsComputer ? ' (you)' : ''}: roll the die';
     } else {
-      status = '${_seatNames[cur]} rolled ${game.dice} — tap a glowing piece';
+      status = '${_seatNames[cur]} rolled ${game.dice} — tap/swipe a glowing piece or use a horse button';
     }
     if (game.message != null && !game.over) status = '${game.message}\n$status';
     final movable = {for (final m in game.legal) m.piece};
@@ -180,6 +180,7 @@ class _LudoScreenState extends State<LudoScreen> {
                   height: cell,
                   child: GestureDetector(
                     onTap: () => _tapPiece(seat, p),
+                    onPanEnd: glow ? (_) => _tapPiece(seat, p) : null,
                     child: Container(
                       margin: EdgeInsets.all(cell * .12),
                       decoration: BoxDecoration(
@@ -200,6 +201,23 @@ class _LudoScreenState extends State<LudoScreen> {
               ...pieces,
             ]);
           }),
+        ),
+        const SizedBox(height: 10),
+        if (!game.over) Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8, runSpacing: 8,
+          children: [
+            for (var p = 0; p < 4; p++)
+              SizedBox(
+                key: ValueKey('ludo_horse_${p + 1}'),
+                height: 48,
+                child: FilledButton.tonal(
+                  onPressed: !busy && !_computerTurn && movable.contains(p)
+                      ? () => _tapPiece(cur, p) : null,
+                  child: Text('Horse ${p + 1}'),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 10),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [

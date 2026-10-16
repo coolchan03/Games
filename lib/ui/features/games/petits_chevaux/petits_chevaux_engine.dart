@@ -48,6 +48,17 @@ class PetitsChevauxGame {
       } else {
         continue;
       }
+      // No stacking friendly horses on the track or home staircase.
+      if (steps[current]!.asMap().entries.any((entry) {
+        if (entry.key == piece) return false;
+        final ownStep = entry.value;
+        if (to >= 51) return ownStep == to;
+        if (ownStep < 0 || ownStep >= 51) return false;
+        final targetCell = cellFor(current, to);
+        final existingCell = cellFor(current, ownStep);
+        return targetCell[0] == existingCell[0] &&
+            targetCell[1] == existingCell[1];
+      })) continue;
       final hits = <(int, int)>[];
       if (to < 51) {
         final location = cellFor(current, to);
