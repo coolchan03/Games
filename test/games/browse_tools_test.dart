@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle/data/game_metadata.dart';
 import 'package:puzzle/data/game_registry.dart';
 import 'package:puzzle/ui/features/home/game_browse_order.dart';
 import 'package:puzzle/ui/features/home/widgets/game_guide_fallback.dart';
+import 'package:puzzle/ui/features/home/widgets/game_guide_screen.dart';
 
 void main() {
   test('alphabetic order sorts titles without changing the featured list', () {
@@ -31,6 +33,19 @@ void main() {
       expect(guide.controls, isNotEmpty, reason: game.id);
       expect(guide.walkthrough, isNotEmpty, reason: game.id);
     }
+  });
+
+  testWidgets('added-game guide opens complete rule sections on phone', (tester) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(const MaterialApp(
+      home: GameGuideScreen(gameId: 'petits_chevaux', gameColor: Colors.blue),
+    ));
+    expect(find.text('Petits Chevaux Guide'), findsOneWidget);
+    expect(find.text('Objective & Rules'), findsOneWidget);
+    expect(find.text('Controls & Interaction'), findsOneWidget);
+    expect(find.text('Guide not found.'), findsNothing);
   });
 
   test('Petits Chevaux guide describes phone controls and winning', () {

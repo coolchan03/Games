@@ -49,7 +49,7 @@ class PetitsChevauxGame {
         continue;
       }
       // No stacking friendly horses on the track or home staircase.
-      if (steps[current]!.asMap().entries.any((entry) {
+      if (to != 57 && steps[current]!.asMap().entries.any((entry) {
         if (entry.key == piece) return false;
         final ownStep = entry.value;
         if (to >= 51) return ownStep == to;

@@ -1,10 +1,11 @@
 import 'package:puzzle/data/game_guides.dart';
+import 'package:puzzle/data/game_guides_added.dart';
 import 'package:puzzle/data/game_metadata.dart';
 
 /// Preserve the original detailed guides; prevent newly registered titles
 /// from leading to a dead-end information screen.
 GameGuide guideForGame(GameMetadata game) {
-  final existing = gameGuides[game.id];
+  final existing = gameGuides[game.id] ?? addedGameGuides[game.id];
   if (existing != null) return existing;
   if (game.id == 'petits_chevaux') {
     return const GameGuide(
