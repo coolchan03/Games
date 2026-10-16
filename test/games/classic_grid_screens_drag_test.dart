@@ -24,6 +24,7 @@ void main() {
     phone(tester);
     await tester.pumpWidget(const MaterialApp(home: AlquerqueScreen()));
     final dynamic state = tester.state(find.byType(AlquerqueScreen));
+    state.vsComputer = false; // A deterministic pass-and-play gesture test.
     final AlquerqueState engine = state.game as AlquerqueState;
     final move = engine.moves().first;
     final board = tester.getRect(find.byType(GridBoardTouchArea));
