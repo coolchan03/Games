@@ -93,7 +93,7 @@ Ladders, Crazy Eights, Forty Thieves, Golf Solitaire, Peg Solitaire, Poker Squar
 Checkers, Chess, Reversi, Mancala/Oware, Connect Four, Battleship, Dots and Boxes, Game of the
 Goose, Air Hockey, King's Corner, Petits Chevaux and 421.
 
-Still missing: Bagh Bandi, Nain Jaune, Passe-Trappe.
+Still missing: Bagh Bandi and Passe-Trappe.
 
 ## Quality rules
 - Shared GameScaffold, opponent picker, status banner, card/dice/disc widgets.

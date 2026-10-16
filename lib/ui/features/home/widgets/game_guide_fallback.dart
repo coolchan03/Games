@@ -27,6 +27,30 @@ GameGuide guideForGame(GameMetadata game) {
       ],
     );
   }
+  if (game.id == 'nain_jaune') {
+    return const GameGuide(
+      title: 'Nain Jaune (Yellow Dwarf)',
+      category: 'CARD',
+      objective: 'Collect the most virtual chips across five deals by '
+          'playing premium cards and emptying your hand.',
+      controls: 'Tap a highlighted legal card or long-press and drag it '
+          'to the drop target; reveal only your own cards in local games.',
+      walkthrough: [
+        'Each player contributes 1, 2, 3, 4 and 5 chips to premium trays.',
+        'Lead any card, then play ascending ranks regardless of suit.',
+        'The holder of the next rank plays; a King can restart the run.',
+        'Playing the exact 10 diamonds, Jack clubs, Queen spades, '
+            'King hearts or 7 diamonds collects its tray.',
+        'Empty your hand to win the deal and take chip penalties from '
+            'opponents; the most chips after five deals wins.',
+      ],
+      strategies: [
+        'Watch the next rank and save premium cards for their trays.',
+        'A card is only legal when highlighted; do not reveal other '
+            'players private hands.',
+      ],
+    );
+  }
   final title = game.id
       .split('_')
       .where((part) => part.isNotEmpty)

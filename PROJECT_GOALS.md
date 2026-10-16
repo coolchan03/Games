@@ -45,7 +45,7 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 
 ## What is already implemented vs not
 - Upstream Puzzle source with its original games is present (about 304 titles).
-- 367 unique game IDs currently registered (original Puzzle and added titles). See
+- 368 unique game IDs currently registered (original Puzzle and added titles). See
   README "Current status" and docs/GAME_SOURCE_MATRIX.md. Copied FOSS
   engines: minigames (Chess, Yacht Dice, Mancala, Hit & Blow scoring), CardsWithCats (Hearts,
   Spades, Oh Hell), bbackgammon (Backgammon), flutterflip (Reversi), ED-Mahjong + KMahjongg
@@ -57,7 +57,7 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 - Web build serves CanvasKit from the site and bundles a symbol font, so card suits and chess
   pieces render offline. A full PWA service-worker/offline audit is still open.
 - **Not complete:** manual Android device QA; full unified redesign of the ~304 original
-  screens; remaining Family's Game Pack titles (Bagh Bandi, Nain Jaune,
+  screens; remaining Family's Game Pack titles (Bagh Bandi,
   Passe-Trappe); Riichi Mahjong; Bridge;
   saved-game persistence for the added games.
 
@@ -72,8 +72,8 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
 
 ## Priorities for next work batches (updated after phone testing)
 1. **Complete the short remaining game list, then freeze the catalog.** Add only
-   missing high-value families: 421, Petits Chevaux, Bagh Bandi, Nain Jaune,
-   Passe-Trappe, Bridge, Riichi Mahjong, Shogi, Shisen-Sho, Canasta and a few
+   missing high-value families: Bagh Bandi, Passe-Trappe,
+   Bridge, Riichi Mahjong, Shogi, Shisen-Sho, Canasta and a few
    worthwhile variants. Prefer polish to inflating the total count.
 2. **Phone-first interaction:** robust large targets, responsive long-press,
    piece drag, hold, swipe and drop where sensible, plus a clearly labeled
