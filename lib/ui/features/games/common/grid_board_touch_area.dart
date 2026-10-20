@@ -47,9 +47,15 @@ class GridBoardTouchArea extends StatefulWidget {
 }
 
 class _GridBoardTouchAreaState extends State<GridBoardTouchArea> {
+  int? _activePointer;
   int? _dragFrom;
-  Offset? _lastPoint;
   Offset? _pointerDownPoint;
+
+  void _resetDrag() {
+    _activePointer = null;
+    _dragFrom = null;
+    _pointerDownPoint = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,41 +65,41 @@ class _GridBoardTouchAreaState extends State<GridBoardTouchArea> {
       int? hit(Offset point) => boardCellForPoint(
             point, size, columns: widget.columns, rows: widget.rows);
 
-      void resetDrag() {
-        _dragFrom = null;
-        _lastPoint = null;
-        _pointerDownPoint = null;
-      }
-
-      return GestureDetector(
+      // Only a real PointerUp may commit a move; PointerCancel must not.
+      return Listener(
         behavior: HitTestBehavior.opaque,
-        onTapUp: (details) {
-          final cell = hit(details.localPosition);
-          resetDrag();
-          if (cell != null) widget.onTapCell(cell);
+        onPointerDown: (event) {
+          if (_activePointer != null) return;
+          _activePointer = event.pointer;
+          _pointerDownPoint = event.localPosition;
         },
-        onTapCancel: resetDrag,
-        // Preserve the finger-down cell: panStart occurs after touch slop,
-        // which can already be in a neighboring square on narrow phones.
-        onPanDown: (details) => _pointerDownPoint = details.localPosition,
-        onPanStart: (details) {
-          _dragFrom = hit(_pointerDownPoint ?? details.localPosition);
-          _lastPoint = details.localPosition;
-          if (_dragFrom != null) widget.onDragStartCell?.call(_dragFrom!);
-        },
-        onPanUpdate: (details) {
-          _lastPoint = details.localPosition;
-        },
-        onPanEnd: (_) {
+        onPointerUp: (event) {
+          if (event.pointer != _activePointer) return;
           final from = _dragFrom;
-          final to = _lastPoint == null ? null : hit(_lastPoint!);
-          resetDrag();
+          final to = hit(event.localPosition);
+          _resetDrag();
           if (from != null && to != null && from != to) {
             widget.onDragCell(from, to);
           }
         },
-        onPanCancel: resetDrag,
-        child: widget.child,
+        onPointerCancel: (event) {
+          if (event.pointer == _activePointer) _resetDrag();
+        },
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapUp: (details) {
+            final cell = hit(details.localPosition);
+            _resetDrag();
+            if (cell != null) widget.onTapCell(cell);
+          },
+          onPanStart: (details) {
+            // Finger-down cell, not the point after crossing touch slop.
+            _dragFrom = hit(_pointerDownPoint ?? details.localPosition);
+            if (_dragFrom != null) widget.onDragStartCell?.call(_dragFrom!);
+          },
+          onPanCancel: _resetDrag,
+          child: widget.child,
+        ),
       );
     });
   }

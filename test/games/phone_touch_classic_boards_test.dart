@@ -60,6 +60,9 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: CheckersScreen()));
     await tester.tap(find.text('Play against computer'));
     await tester.pump();
+    final dynamic checkersState = tester.state(find.byType(CheckersScreen));
+    expect(checkersState.versusAi, isFalse,
+        reason: 'Checkers must be in deterministic pass-and-play mode');
     final board = find.byKey(const ValueKey('checkers_touch_board'));
     await tester.ensureVisible(board);
     final rect = tester.getRect(board);
@@ -80,6 +83,9 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: CheckersScreen()));
     await tester.tap(find.text('Play against computer'));
     await tester.pump();
+    final dynamic checkersState = tester.state(find.byType(CheckersScreen));
+    expect(checkersState.versusAi, isFalse,
+        reason: 'Checkers must be in deterministic pass-and-play mode');
     final board = find.byKey(const ValueKey('checkers_touch_board'));
     await tester.ensureVisible(board);
     final rect = tester.getRect(board);
