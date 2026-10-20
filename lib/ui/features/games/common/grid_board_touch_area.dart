@@ -65,6 +65,12 @@ class _GridBoardTouchAreaState extends State<GridBoardTouchArea> {
       int? hit(Offset point) => boardCellForPoint(
             point, size, columns: widget.columns, rows: widget.rows);
 
+      void beginDrag(DragStartDetails details) {
+        // Use the original finger-down square, not the post-slop location.
+        _dragFrom = hit(_pointerDownPoint ?? details.localPosition);
+        if (_dragFrom != null) widget.onDragStartCell?.call(_dragFrom!);
+      }
+
       // Only a real PointerUp may commit a move; PointerCancel must not.
       return Listener(
         behavior: HitTestBehavior.opaque,
@@ -92,12 +98,12 @@ class _GridBoardTouchAreaState extends State<GridBoardTouchArea> {
             _resetDrag();
             if (cell != null) widget.onTapCell(cell);
           },
-          onPanStart: (details) {
-            // Finger-down cell, not the point after crossing touch slop.
-            _dragFrom = hit(_pointerDownPoint ?? details.localPosition);
-            if (_dragFrom != null) widget.onDragStartCell?.call(_dragFrom!);
-          },
-          onPanCancel: _resetDrag,
+          // A diagonal one-cell move must beat the outer ListView's
+          // vertical scroll recognizer instead of being swallowed by it.
+          onHorizontalDragStart: beginDrag,
+          onVerticalDragStart: beginDrag,
+          onHorizontalDragCancel: _resetDrag,
+          onVerticalDragCancel: _resetDrag,
           child: widget.child,
         ),
       );
