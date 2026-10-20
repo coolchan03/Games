@@ -102,8 +102,6 @@ class _GridBoardTouchAreaState extends State<GridBoardTouchArea> {
           // vertical scroll recognizer instead of being swallowed by it.
           onHorizontalDragStart: beginDrag,
           onVerticalDragStart: beginDrag,
-          onHorizontalDragCancel: _resetDrag,
-          onVerticalDragCancel: _resetDrag,
           child: widget.child,
         ),
       );
