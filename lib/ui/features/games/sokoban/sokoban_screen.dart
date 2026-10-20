@@ -200,4 +200,4 @@ class _SokobanScreenState extends State<SokobanScreen> {
       ],
     );
   }
-}\n
+}

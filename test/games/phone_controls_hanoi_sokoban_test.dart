@@ -72,4 +72,4 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isNull);
   });
-}\n
+}
