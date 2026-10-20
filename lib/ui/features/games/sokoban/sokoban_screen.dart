@@ -2,7 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../common/game_kit.dart';
+import '../common/grid_board_touch_area.dart';
 import 'sokoban_engine.dart';
+
+/// A swipe changes exactly one step, avoiding accidental multi-crate pushes.
+/// Diagonal swipes with equal horizontal and vertical travel are ignored.
+int? sokobanSwipeDirection(int from, int to, int columns) {
+  if (columns <= 0 || from < 0 || to < 0 || from == to) return null;
+  final dx = to % columns - from % columns;
+  final dy = to ~/ columns - from ~/ columns;
+  if (dx.abs() > dy.abs()) return dx > 0 ? 1 : 3;
+  if (dy.abs() > dx.abs()) return dy > 0 ? 2 : 0;
+  return null;
+}
 
 class SokobanScreen extends StatefulWidget {
   const SokobanScreen({super.key});
@@ -73,6 +85,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
       rules: 'Push every crate onto a target square. You can push one crate '
           'at a time and never pull. Tap a square next to you (or use the '
           'arrows / keyboard) to step, or tap any open square to walk there. '
+          'Swipe across the board to take one step in that direction. '
           'Every level is generated backwards from the solution, so all of '
           'them can be solved. Z or Backspace undoes a move.',
       children: [
@@ -118,7 +131,18 @@ class _SokobanScreenState extends State<SokobanScreen> {
           onKeyEvent: _key,
           child: AspectRatio(
             aspectRatio: lvl.w / lvl.h,
-            child: GridView.builder(
+            child: GridBoardTouchArea(
+              key: const ValueKey('sokoban_touch_board'),
+              columns: lvl.w,
+              rows: lvl.h,
+              onTapCell: (i) {
+                if (!lvl.walls.contains(i)) _tapCell(i);
+              },
+              onDragCell: (from, to) {
+                final direction = sokobanSwipeDirection(from, to, lvl.w);
+                if (direction != null) _step(direction);
+              },
+              child: GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: lvl.w),
               itemCount: lvl.w * lvl.h,
@@ -134,7 +158,10 @@ class _SokobanScreenState extends State<SokobanScreen> {
                 } else if (goal) {
                   child = Icon(Icons.close, color: colors.tertiary);
                 }
-                return GestureDetector(
+                return Semantics(
+                  label: 'Row ${i ~/ lvl.w + 1}, column ${i % lvl.w + 1}: '
+                      '${wall ? 'wall' : box ? 'crate' : i == game.player ? 'player' : goal ? 'target' : 'floor'}',
+                  button: !wall,
                   onTap: wall ? null : () => _tapCell(i),
                   child: Container(
                     margin: const EdgeInsets.all(.5),
@@ -143,6 +170,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
                   ),
                 );
               },
+              ),
             ),
           ),
         ),
@@ -172,4 +200,4 @@ class _SokobanScreenState extends State<SokobanScreen> {
       ],
     );
   }
-}
+}\n

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../common/game_kit.dart';
+import '../common/grid_board_touch_area.dart';
 
 class HanoiGame {
   HanoiGame(this.discs) : pegs = [List.generate(discs, (i) => discs - i), [], []];
@@ -78,10 +79,30 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
       hint = null;
       if (from == null) {
         if (game.pegs[peg].isNotEmpty) from = peg;
-      } else {
+      } else if (from == peg) {
+        from = null;
+      } else if (game.canMove(from!, peg)) {
         game.move(from!, peg);
         from = null;
+      } else if (game.pegs[peg].isNotEmpty) {
+        from = peg;
       }
+    });
+  }
+
+  void _selectPeg(int peg) {
+    setState(() {
+      hint = null;
+      from = game.pegs[peg].isEmpty ? null : peg;
+    });
+  }
+
+  void _dragPeg(int origin, int destination) {
+    if (!game.canMove(origin, destination)) return;
+    setState(() {
+      game.move(origin, destination);
+      from = null;
+      hint = null;
     });
   }
 
@@ -117,15 +138,26 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
           height: 260,
           child: LayoutBuilder(builder: (context, box) {
             final pegW = box.maxWidth / 3;
-            return Row(children: [
-              for (var p = 0; p < 3; p++)
-                GestureDetector(
-                  onTap: () => _tap(p),
-                  child: Container(
+            return GridBoardTouchArea(
+              key: const ValueKey('hanoi_touch_board'),
+              columns: 3,
+              rows: 1,
+              onTapCell: _tap,
+              onDragStartCell: _selectPeg,
+              onDragCell: _dragPeg,
+              child: Row(children: [
+                for (var p = 0; p < 3; p++)
+                  Semantics(
+                    label: 'Peg ${p + 1}, ${game.pegs[p].length} discs',
+                    button: true,
+                    selected: from == p,
+                    onTap: () => _tap(p),
+                    child: Container(
                     width: pegW,
                     color: from == p || hint?.$1 == p
                         ? colors.primaryContainer.withValues(alpha: .5)
-                        : hint?.$2 == p
+                        : hint?.$2 == p ||
+                                (from != null && game.canMove(from!, p))
                             ? colors.tertiaryContainer.withValues(alpha: .5)
                             : Colors.transparent,
                     child: Stack(alignment: Alignment.bottomCenter, children: [
@@ -149,9 +181,10 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
                         ]),
                       ),
                     ]),
+                    ),
                   ),
-                ),
-            ]);
+              ]),
+            );
           }),
         ),
         const SizedBox(height: 8),
@@ -163,4 +196,4 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
       ],
     );
   }
-}
+}\n
