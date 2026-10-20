@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../common/grid_board_touch_area.dart';
 import 'engine/checkers_rules.dart';
 
 class CheckersScreen extends StatefulWidget {
@@ -32,28 +33,48 @@ class _CheckersScreenState extends State<CheckersScreen> {
       thinking = false;
     });
   }
+  bool _playMove(int from, int to) {
+    if (game.complete || thinking || (versusAi && game.turn == 2)) return false;
+    final matching = game.legalMoves.where(
+      (move) => move.from == from && move.to == to,
+    ).toList();
+    if (matching.isEmpty) return false;
+    setState(() {
+      game = game.play(matching.first);
+      selected = null;
+    });
+    if (versusAi && !game.complete && game.turn == 2) computerTurn();
+    return true;
+  }
+
   void tap(int index) {
     if (game.complete || thinking || (versusAi && game.turn == 2)) return;
-    final moves = game.legalMoves;
-    if (selected != null) {
-      final matching = moves.where((m) =>
-        m.from == selected && m.to == index).toList();
-      if (matching.isNotEmpty) {
-        setState(() {
-          game = game.play(matching.first);
-          selected = null;
-        });
-        if (versusAi && !game.complete && game.turn == 2) computerTurn();
-        return;
-      }
+    if (selected != null && _playMove(selected!, index)) return;
+    if (game.legalMoves.any((move) => move.from == index)) {
+      setState(() => selected = index);
     }
-    if (moves.any((m) => m.from == index)) setState(() => selected = index);
+  }
+
+  void drag(int from, int to) => _playMove(from, to);
+
+  void selectDrag(int index) {
+    if (game.complete || thinking || (versusAi && game.turn == 2)) return;
+    if (game.legalMoves.any((move) => move.from == index) && selected != index) {
+      setState(() => selected = index);
+    }
   }
   Widget board(ColorScheme colors) {
     final moves = game.legalMoves;
     final targets = selected == null ? <int>{}
       : moves.where((m) => m.from == selected).map((m) => m.to).toSet();
-    return AspectRatio(aspectRatio: 1, child: GridView.builder(
+    return AspectRatio(aspectRatio: 1, child: GridBoardTouchArea(
+      key: const ValueKey('checkers_touch_board'),
+      columns: 8,
+      rows: 8,
+      onTapCell: tap,
+      onDragCell: drag,
+      onDragStartCell: selectDrag,
+      child: GridView.builder(
       itemCount: 64,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -62,14 +83,22 @@ class _CheckersScreenState extends State<CheckersScreen> {
         final row = index ~/ 8, col = index % 8, piece = game.cells[index];
         final isWhite = piece == 1 || piece == 3;
         final king = piece == 3 || piece == 4;
-        return InkWell(onTap: () => tap(index),
+        return Semantics(
+          key: ValueKey('checkers_cell_$index'),
+          label: piece == 0
+              ? 'Row ${row + 1}, column ${col + 1}, empty'
+              : 'Row ${row + 1}, column ${col + 1}, player ${CheckersPosition.owner(piece)} ${king ? 'king' : 'piece'}',
+          selected: selected == index,
+          hint: targets.contains(index) ? 'Legal destination' : null,
+          button: true,
+          onTap: () => tap(index),
           child: Container(margin: const EdgeInsets.all(1),
             color: selected == index ? colors.tertiaryContainer
               : (row + col).isOdd ? colors.primaryContainer
               : colors.surfaceContainer,
             alignment: Alignment.center,
             child: piece == 0 ? (targets.contains(index)
-              ? Icon(Icons.circle, size: 13,
+              ? Icon(Icons.radio_button_checked, size: 19,
                   color: colors.primary.withValues(alpha: 0.55)) : null)
               : FractionallySizedBox(widthFactor: .79, heightFactor: .79,
                   child: Container(
@@ -82,7 +111,7 @@ class _CheckersScreenState extends State<CheckersScreen> {
                   )),
           ));
       },
-    ));
+    )));
   }
   @override
   Widget build(BuildContext context) {
@@ -116,8 +145,9 @@ class _CheckersScreenState extends State<CheckersScreen> {
           FilledButton.icon(onPressed: reset, icon: const Icon(Icons.restart_alt),
             label: const Text('New game')),
           const SizedBox(height: 12),
-          const Text('English/American Checkers: captures are mandatory, '
-            'and multiple jumps must be completed. Kings move both ways.',
+          const Text('Tap a piece, then a highlighted square, or drag a piece '
+            'directly to a legal destination. Captures are mandatory; '
+            'multiple jumps must be completed. Kings move both ways.',
             textAlign: TextAlign.center),
         ]),
       ))),

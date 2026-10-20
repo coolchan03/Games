@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../common/game_kit.dart';
+import '../common/grid_board_touch_area.dart';
 import 'engine/ai/chess_ai.dart';
 import 'engine/ai/easy_ai.dart';
 import 'engine/ai/hard_ai.dart';
@@ -8,6 +9,10 @@ import 'engine/logic/san_converter.dart';
 import 'engine/models/chess_move.dart';
 import 'engine/models/chess_state.dart';
 import 'engine/models/enums.dart';
+
+/// Maps displayed 8x8 touch coordinates to chess board coordinates.
+int chessCellForDisplay(int displayCell, bool flipped) =>
+    flipped ? 63 - displayCell : displayCell;
 
 /// Chess using the MIT-licensed rules engine and AI from z7workbench/minigames.
 class ChessScreen extends StatefulWidget {
@@ -140,6 +145,49 @@ class _ChessScreenState extends State<ChessScreen> {
     });
   }
 
+  void _tapDisplayCell(int cell) {
+    final actual = chessCellForDisplay(cell, flipped);
+    tap(actual ~/ 8, actual % 8);
+  }
+
+  void _selectDisplayCell(int cell) {
+    if (over || thinking ||
+        (vsComputer && game.currentTurn == PieceColor.black)) return;
+    final actual = chessCellForDisplay(cell, flipped);
+    final row = actual ~/ 8, col = actual % 8;
+    final piece = game.pieceAt(row, col);
+    if (piece == null || piece.color != game.currentTurn) return;
+    final legal = game.getLegalMovesForSquare(row, col);
+    if (legal.isEmpty) return;
+    setState(() {
+      selRow = row;
+      selCol = col;
+      targets = legal;
+    });
+  }
+
+  Future<void> _dragDisplayCells(int sourceCell, int destinationCell) async {
+    if (over || thinking ||
+        (vsComputer && game.currentTurn == PieceColor.black)) return;
+    final from = chessCellForDisplay(sourceCell, flipped);
+    final to = chessCellForDisplay(destinationCell, flipped);
+    final fromRow = from ~/ 8, fromCol = from % 8;
+    final toRow = to ~/ 8, toCol = to % 8;
+    final moves = game.getLegalMovesForSquare(fromRow, fromCol)
+        .where((m) => m.toRow == toRow && m.toCol == toCol).toList();
+    if (moves.isEmpty) return;
+    var move = moves.first;
+    if (moves.length > 1 || move.promotionPiece != null) {
+      final choice = await askPromotion();
+      if (!mounted || choice == null) return;
+      move = moves.firstWhere(
+        (m) => m.promotionPiece == choice, orElse: () => moves.first,
+      );
+    }
+    if (!mounted) return;
+    await commit(move);
+  }
+
   void undo() {
     if (thinking || history.isEmpty) return;
     setState(() {
@@ -168,8 +216,9 @@ class _ChessScreenState extends State<ChessScreen> {
       completed: over && (!vsComputer || game.winner == PieceColor.white),
       title: 'Chess',
       onNewGame: newGame,
-      rules: 'Standard chess. Tap a piece to see its legal moves, then tap a '
-          'highlighted square. Castling, en passant, promotion, check, '
+      rules: 'Standard chess. Tap a piece to see legal destinations, then tap '
+          'a highlighted square, or drag a piece directly to its destination. '
+          'Castling, en passant, promotion, check, '
           'checkmate, stalemate, threefold repetition, the fifty-move rule '
           'and insufficient material are all enforced.\n\n'
           'Against the computer you play White. Easy plays casually; Medium '
@@ -187,7 +236,16 @@ class _ChessScreenState extends State<ChessScreen> {
         StatusBanner(status, highlight: over),
         AspectRatio(
           aspectRatio: 1,
-          child: GridView.builder(
+          child: GridBoardTouchArea(
+            key: const ValueKey('chess_touch_board'),
+            columns: 8,
+            rows: 8,
+            onTapCell: _tapDisplayCell,
+            onDragStartCell: _selectDisplayCell,
+            onDragCell: (from, to) {
+              _dragDisplayCells(from, to);
+            },
+            child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
             itemCount: 64,
             gridDelegate:
@@ -203,9 +261,8 @@ class _ChessScreenState extends State<ChessScreen> {
               final isLast = (game.lastMoveFromRow == r && game.lastMoveFromCol == c) ||
                   (game.lastMoveToRow == r && game.lastMoveToCol == c);
               final base = (r + c).isEven ? light : dark;
-              return GestureDetector(
-                onTap: () => tap(r, c),
-                child: Semantics(
+              return Semantics(
+                  onTap: () => tap(r, c),
                   label: '${ChessMove.colToFile(c)}${ChessMove.rowToRank(r)}'
                       '${piece == null ? '' : ' ${piece.color.name} ${piece.type.name}'}',
                   button: true,
@@ -257,9 +314,9 @@ class _ChessScreenState extends State<ChessScreen> {
                         ),
                     ]),
                   ),
-                ),
               );
             },
+          ),
           ),
         ),
         const SizedBox(height: 12),

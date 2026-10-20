@@ -49,6 +49,7 @@ class GridBoardTouchArea extends StatefulWidget {
 class _GridBoardTouchAreaState extends State<GridBoardTouchArea> {
   int? _dragFrom;
   Offset? _lastPoint;
+  Offset? _pointerDownPoint;
 
   @override
   Widget build(BuildContext context) {
@@ -61,16 +62,22 @@ class _GridBoardTouchAreaState extends State<GridBoardTouchArea> {
       void resetDrag() {
         _dragFrom = null;
         _lastPoint = null;
+        _pointerDownPoint = null;
       }
 
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTapUp: (details) {
           final cell = hit(details.localPosition);
+          resetDrag();
           if (cell != null) widget.onTapCell(cell);
         },
+        onTapCancel: resetDrag,
+        // Preserve the finger-down cell: panStart occurs after touch slop,
+        // which can already be in a neighboring square on narrow phones.
+        onPanDown: (details) => _pointerDownPoint = details.localPosition,
         onPanStart: (details) {
-          _dragFrom = hit(details.localPosition);
+          _dragFrom = hit(_pointerDownPoint ?? details.localPosition);
           _lastPoint = details.localPosition;
           if (_dragFrom != null) widget.onDragStartCell?.call(_dragFrom!);
         },

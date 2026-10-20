@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../common/game_kit.dart';
+import '../common/grid_board_touch_area.dart';
 import 'peg_solitaire_engine.dart';
 
 class PegSolitaireScreen extends StatefulWidget {
@@ -24,6 +25,22 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
     });
   }
 
+  void _selectDrag(int from) {
+    if (board.holes[from] && board.pegs[from] &&
+        board.targets(from).isNotEmpty && selected != from) {
+      setState(() => selected = from);
+    }
+  }
+
+  void _drag(int from, int to) {
+    if (!board.holes[from] || !board.holes[to] ||
+        !board.targets(from).contains(to)) return;
+    setState(() {
+      board.move(from, to);
+      selected = board.targets(to).isNotEmpty ? to : null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -43,7 +60,8 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
         board = PegBoard(european: european);
         selected = null;
       }),
-      rules: 'Jump a peg over a neighbouring peg into an empty hole straight '
+      rules: 'Tap a peg and a highlighted destination, or drag the peg directly '
+          'there. Jump over a neighbouring peg into an empty hole straight '
           'behind it (no diagonals); the jumped peg is removed. Try to finish '
           'with a single peg — ideally in the centre hole.',
       children: [
@@ -74,13 +92,27 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
         StatusBanner(status, highlight: board.stuck),
         AspectRatio(
           aspectRatio: 1,
-          child: GridView.builder(
+          child: GridBoardTouchArea(
+            key: const ValueKey('peg_solitaire_touch_board'),
+            columns: 7,
+            rows: 7,
+            onTapCell: (i) {
+              if (board.holes[i]) _tap(i);
+            },
+            onDragStartCell: _selectDrag,
+            onDragCell: _drag,
+            child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 7),
             itemCount: 49,
             itemBuilder: (context, i) {
               if (!board.holes[i]) return const SizedBox();
-              return GestureDetector(
+              return Semantics(
+                key: ValueKey('peg_solitaire_cell_$i'),
+                label: 'Hole ${i + 1}: ${board.pegs[i] ? 'peg' : 'empty'}',
+                hint: targets.contains(i) ? 'Legal destination' : null,
+                button: true,
+                selected: selected == i,
                 onTap: () => _tap(i),
                 child: Container(
                   margin: const EdgeInsets.all(6),
@@ -91,7 +123,11 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
                         : targets.contains(i)
                             ? colors.primaryContainer
                             : colors.surfaceContainerHighest,
-                    border: Border.all(color: colors.outline),
+                    border: Border.all(
+                      color: selected == i || targets.contains(i)
+                          ? colors.primary : colors.outline,
+                      width: selected == i || targets.contains(i) ? 3 : 1,
+                    ),
                     boxShadow: board.pegs[i]
                         ? const [BoxShadow(blurRadius: 3, offset: Offset(0, 2), color: Colors.black38)]
                         : null,
@@ -99,6 +135,7 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
                 ),
               );
             },
+          ),
           ),
         ),
       ],

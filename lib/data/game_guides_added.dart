@@ -37,10 +37,10 @@ const Map<String, GameGuide> addedGameGuides = {
   'checkers': GameGuide(
     title: 'Checkers',
     category: 'BOARD',
-    objective: 'Move diagonally on dark squares. Capture by jumping over enemy pieces into an empty square, taking another jump when required. Reach the far edge to crown a king. Win by capturing or blocking all opponent pieces.',
-    controls: 'Tap a piece or board location and then its destination, or use the game action buttons.',
-    walkthrough: ['Move diagonally on dark squares.', 'Capture by jumping over enemy pieces into an empty square, taking another jump when required.', 'Reach the far edge to crown a king.'],
-    strategies: ['Check the possible moves or options before committing.', 'Reopen this guide or the in-game Rules button whenever needed.'],
+    objective: 'Move diagonally across dark squares. Captures are compulsory, and a full multi-jump is played as one move. Reach the far edge to crown a king, which can move diagonally both ways. Win when the opponent has no legal moves.',
+    controls: 'Tap one of your movable pieces and a highlighted destination, or drag directly between the two squares. On a phone, you can use either gesture. Select 2-player mode for pass-and-play, or choose an AI difficulty.',
+    walkthrough: ['Pick a piece on your turn; only pieces with legal moves can be selected.', 'Move forward diagonally to an empty square; if a capture is available you must use one of the capturing moves.', 'For captures, select the final highlighted landing square; all jumped pieces are removed automatically.', 'Crown a piece by reaching the far edge; the side with no remaining legal moves loses.'],
+    strategies: ['Before every move, check for mandatory captures; a tempting quiet move might not be legal.', 'Keep pieces protecting each other and avoid exposing an unsupported piece to a jump.', 'Try to reach the back rank to earn a king, while blocking opponent promotion lanes.'],
   ),
   'mahjong_solitaire': GameGuide(
     title: 'Mahjong Solitaire',
@@ -317,10 +317,10 @@ const Map<String, GameGuide> addedGameGuides = {
   'peg_solitaire': GameGuide(
     title: 'Peg Solitaire',
     category: 'LOGIC',
-    objective: 'Jump a peg over a neighbouring peg into an empty hole straight behind it (no diagonals); the jumped peg is removed. Try to finish with a single peg — ideally in the centre hole.',
-    controls: 'Use the on-screen puzzle controls to enter an answer or select a move.',
-    walkthrough: ['Jump a peg over a neighbouring peg into an empty hole straight behind it (no diagonals); the jumped peg is removed.', 'Try to finish with a single peg — ideally in the centre hole.'],
-    strategies: ['Check the possible moves or options before committing.', 'Reopen this guide or the in-game Rules button whenever needed.'],
+    objective: 'Start with a full English (33-hole) or European (37-hole) board, except for the open center hole. Jump a peg over an adjacent peg into the empty hole exactly two spaces away, horizontally or vertically. The jumped peg disappears. Finish with only one peg; leaving it in the center is a perfect solution.',
+    controls: 'Tap a movable peg to reveal legal targets, then tap a highlighted empty hole, or drag the peg directly to that hole. Choose English or European layout at the top. Use Undo to take back the last jump.',
+    walkthrough: ['Select a peg with another peg next to it and an empty hole immediately beyond that neighbor.', 'Tap the destination or drag across both spaces; the jumped peg is removed.', 'Repeat until no jumps remain. The aim is a single peg, preferably in the middle hole.'],
+    strategies: ['Avoid leaving isolated edge pegs that cannot be reached by later jumps.', 'Work backwards from a hoped-for final peg position when choosing between multiple jumps.', 'Use Undo to revisit a branch when an early jump blocks the endgame.'],
   ),
   'snakes_and_ladders': GameGuide(
     title: 'Snakes and Ladders',
@@ -446,9 +446,9 @@ const Map<String, GameGuide> addedGameGuides = {
     title: 'Chess',
     category: 'BOARD',
     objective: 'Standard chess. Tap a piece to see its legal moves, then tap a highlighted square. On touchscreens, hold and drag a piece onto a legal square as an alternative. Castling, en passant, promotion, check, checkmate, stalemate, threefold repetition, the fifty-move rule and insufficient material are all enforced.\n\nAgainst the computer you play White. Easy plays casually; Medium and Hard run an alpha-beta search with more time on Hard.',
-    controls: 'Tap a piece to see its legal moves, then tap a highlighted square. On touchscreens, hold and drag a piece onto a legal square as an alternative.',
-    walkthrough: ['Tap a piece to see its legal moves, then tap a highlighted square.', 'On touchscreens, hold and drag a piece onto a legal square as an alternative.', 'Castling, en passant, promotion, check, checkmate, stalemate, threefold repetition, the fifty-move rule and insufficient material are all enforced.'],
-    strategies: ['Check the possible moves or options before committing.', 'Reopen this guide or the in-game Rules button whenever needed.'],
+    controls: 'Tap a piece and one of its highlighted destinations, or drag the piece directly to a legal square. Flip board changes the display orientation but not the rules. Undo reverses moves; 2 Players enables pass-and-play.',
+    walkthrough: ['Select one of your own pieces to highlight its legal moves; you may also drag it directly to its target.', 'Move toward checkmate by attacking the opposing king without leaving your own king in check.', 'Castling, en passant, promotion choices, checkmate, stalemate, repetition, the fifty-move rule and insufficient material are handled by the rules engine.', 'Choose an Easy, Medium or Hard computer opponent, or 2 Players for same-device play.'],
+    strategies: ['Develop knights and bishops and contest the center instead of moving only pawns.', 'Castle when safe and look for checks, captures and threats before committing.', 'Always inspect the opponent reply for undefended pieces; Undo is available for casual practice.'],
   ),
   'hearts': GameGuide(
     title: 'Hearts',
