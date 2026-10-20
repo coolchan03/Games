@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../providers/user_providers.dart';
 import 'nonogram_engine.dart';
+import 'nonogram_touch.dart';
 
 part 'nonogram_provider.g.dart';
 
@@ -58,6 +59,33 @@ class NonogramNotifier extends _$NonogramNotifier {
   Future<void> reset() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => _generateInitialState(state.value?.size ?? defaultSize));
+  }
+
+  /// Paint every cell in one atomic move after a completed board drag.
+  /// A cancelled or off-board drag is never sent here by the touch surface.
+  void paintCells(Iterable<int> indices, bool isMarkMode) {
+    if (!state.hasValue || state.value!.isSolved) return;
+    final currentState = state.value!;
+    final newGrid = paintNonogramCells(
+      currentState.grid,
+      indices,
+      value: isMarkMode ? 2 : 1,
+    );
+    if (identical(newGrid, currentState.grid)) return;
+
+    final solved = NonogramEngine.isCorrect(
+      newGrid,
+      currentState.rowClues,
+      currentState.colClues,
+    );
+    state = AsyncValue.data(currentState.copyWith(
+      grid: newGrid,
+      isSolved: solved,
+    ));
+    if (solved) {
+      ref.read(gameStreakNotifierProvider.notifier)
+          .completeGame('nonogram', xpAmount: 25);
+    }
   }
 
   void toggleCell(int r, int c, bool isMarkMode) {

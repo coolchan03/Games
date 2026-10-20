@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import "package:puzzle/l10n/app_localizations.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +9,8 @@ import '../../../../widgets/game_completion_dialog.dart';
 import '../../../../widgets/tangible.dart';
 import '../../../core/juice/game_scaffold.dart';
 import 'nonogram_provider.dart';
+import 'nonogram_touch.dart';
+import '../common/grid_board_touch_area.dart';
 
 class NonogramScreen extends ConsumerStatefulWidget {
   const NonogramScreen({super.key});
@@ -17,6 +21,20 @@ class NonogramScreen extends ConsumerStatefulWidget {
 
 class _NonogramScreenState extends ConsumerState<NonogramScreen> {
   bool _isMarkMode = false;
+
+  void _tapCell(int cell, int size) {
+    HapticFeedbackUtil.selectionClick();
+    ref.read(nonogramNotifierProvider.notifier)
+        .toggleCell(cell ~/ size, cell % size, _isMarkMode);
+  }
+
+  void _dragCells(int from, int to, int size) {
+    final cells = nonogramStrokeCells(from, to, size);
+    if (cells.length < 2) return;
+    HapticFeedbackUtil.selectionClick();
+    ref.read(nonogramNotifierProvider.notifier)
+        .paintCells(cells, _isMarkMode);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,37 +95,110 @@ class _NonogramScreenState extends ConsumerState<NonogramScreen> {
                 const SizedBox(height: DesignSystem.spaceMD),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceMD),
-                    child: Column(
-                      children: [
-                        // Column Clues Area
-                        Row(
-                          children: [
-                            const SizedBox(width: 40), // Row clues spacer
-                            for (int c = 0; c < nonogramState.size; c++)
-                              Expanded(child: _buildColClue(nonogramState.colClues[c])),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        // Grid + Row Clues Area
-                        Expanded(
-                          child: Column(
-                            children: [
-                              for (int r = 0; r < nonogramState.size; r++)
-                                Expanded(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: DesignSystem.spaceMD),
+                    child: LayoutBuilder(
+                      builder: (context, available) {
+                        const rowClueWidth = 48.0;
+                        const columnClueHeight = 48.0;
+                        final side = math.max(
+                          0.0,
+                          math.min(
+                            available.maxWidth - rowClueWidth,
+                            available.maxHeight - columnClueHeight,
+                          ),
+                        );
+                        if (side <= 0) return const SizedBox.shrink();
+
+                        return Center(
+                          child: SizedBox(
+                            width: rowClueWidth + side,
+                            height: columnClueHeight + side,
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: columnClueHeight,
                                   child: Row(
                                     children: [
-                                      _buildRowClue(nonogramState.rowClues[r]),
-                                      const SizedBox(width: 8),
-                                      for (int c = 0; c < nonogramState.size; c++)
-                                        Expanded(child: NonogramCell(key: ValueKey('nonogram_cell_${r}_$c'), row: r, col: c, isMarkMode: _isMarkMode)),
+                                      const SizedBox(width: rowClueWidth),
+                                      for (var c = 0;
+                                          c < nonogramState.size;
+                                          c++)
+                                        Expanded(
+                                          child: _buildColClue(
+                                              nonogramState.colClues[c]),
+                                        ),
                                     ],
                                   ),
                                 ),
-                            ],
+                                SizedBox(
+                                  height: side,
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: rowClueWidth,
+                                        child: Column(
+                                          children: [
+                                            for (var r = 0;
+                                                r < nonogramState.size;
+                                                r++)
+                                              Expanded(
+                                                child: _buildRowClue(
+                                                    nonogramState.rowClues[r]),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: side,
+                                        child: GridBoardTouchArea(
+                                          key: const ValueKey(
+                                              'nonogram_touch_board'),
+                                          columns: nonogramState.size,
+                                          rows: nonogramState.size,
+                                          onTapCell: (cell) =>
+                                              _tapCell(cell, nonogramState.size),
+                                          onDragCell: (from, to) => _dragCells(
+                                            from,
+                                            to,
+                                            nonogramState.size,
+                                          ),
+                                          child: Column(
+                                            children: [
+                                              for (var r = 0;
+                                                  r < nonogramState.size;
+                                                  r++)
+                                                Expanded(
+                                                  child: Row(
+                                                    children: [
+                                                      for (var c = 0;
+                                                          c < nonogramState.size;
+                                                          c++)
+                                                        Expanded(
+                                                          child: NonogramCell(
+                                                            key: ValueKey('nonogram_cell_' +
+                                                                r.toString() + '_' + c.toString()),
+                                                            row: r,
+                                                            col: c,
+                                                            isMarkMode:
+                                                                _isMarkMode,
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -268,32 +359,40 @@ class NonogramCell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final value = ref.watch(nonogramNotifierProvider.select((s) => s.value?.grid[row][col] ?? 0));
+    final value = ref.watch(nonogramNotifierProvider.select(
+        (s) => s.value?.grid[row][col] ?? 0));
+    final cellDescription =
+        value == 1 ? 'filled' : value == 2 ? 'marked empty' : 'unknown';
 
-    return Padding(
-      padding: const EdgeInsets.all(1),
-      child: TangibleContainer(
-        depth: value == 1 ? 0 : 2.0,
-        radius: 4,
-        padding: EdgeInsets.zero,
-        color: value == 1 ? DesignSystem.accentBerry : Theme.of(context).colorScheme.surface,
-        onTap: () {
-          HapticFeedbackUtil.lightImpact();
-          ref.read(nonogramNotifierProvider.notifier).toggleCell(row, col, isMarkMode);
-        },
-        onLongPress: () {
-          HapticFeedbackUtil.mediumImpact();
-          ref.read(nonogramNotifierProvider.notifier).toggleCell(row, col, isMarkMode);
-        },
-        child: Center(
-          child: value == 2
-              ? FittedBox(
-                  child: Icon(
-                    Icons.close_rounded,
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                )
-              : null,
+    // Normal finger interactions belong to the board surface so a slow
+    // drag does not toggle both the origin and its destination.
+    // Accessibility users retain per-cell activate actions.
+    return Semantics(
+      label: 'Row ' + (row + 1).toString() + ', column ' +
+          (col + 1).toString() + ', ' + cellDescription,
+      button: true,
+      onTap: () => ref.read(nonogramNotifierProvider.notifier)
+          .toggleCell(row, col, isMarkMode),
+      child: Padding(
+        padding: const EdgeInsets.all(1),
+        child: TangibleContainer(
+          depth: value == 1 ? 0 : 2.0,
+          radius: 4,
+          padding: EdgeInsets.zero,
+          color: value == 1
+              ? DesignSystem.accentBerry
+              : Theme.of(context).colorScheme.surface,
+          child: Center(
+            child: value == 2
+                ? FittedBox(
+                    child: Icon(
+                      Icons.close_rounded,
+                      color: Theme.of(context).colorScheme.onSurface
+                          .withValues(alpha: 0.7),
+                    ),
+                  )
+                : null,
+          ),
         ),
       ),
     );

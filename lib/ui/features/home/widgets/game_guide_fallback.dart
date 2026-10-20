@@ -5,6 +5,35 @@ import 'package:puzzle/data/game_metadata.dart';
 /// Preserve the original detailed guides; prevent newly registered titles
 /// from leading to a dead-end information screen.
 GameGuide guideForGame(GameMetadata game) {
+  // The generated original guide predates the board's separate fill/mark
+  // modes and describes touch gestures that are no longer accurate.
+  if (game.id == 'nonogram') {
+    return const GameGuide(
+      title: 'Nonogram',
+      category: 'LOGIC',
+      objective: 'Fill squares so every row and column matches its numbered '
+          'runs in order. Leave at least one empty square between runs. '
+          'Finish when all row and column clues are satisfied.',
+      controls: 'Choose FILL to shade or MARK to place an X on known empty '
+          'squares. Tap a square to toggle it in the selected mode; drag '
+          'across the board to paint a continuous stroke. Completed drags '
+          'paint without toggling existing matching squares.',
+      walkthrough: [
+        'Read each row and column clue as a sequence of filled runs.',
+        'Start with long runs: look for squares that must be filled no matter '
+            'where the run is placed.',
+        'Tap or drag in Fill mode to shade those squares.',
+        'Switch to Mark and cross out spaces that are definitely empty.',
+        'Repeat until every row and column run agrees with its clues.',
+      ],
+      strategies: [
+        'For two runs in one line, leave at least one space between them.',
+        'Complete a long line first, then use it to constrain crossing lines.',
+        'A cancelled or off-board drag changes no cells, so reposition '
+            'your finger instead of guessing.',
+      ],
+    );
+  }
   final existing = gameGuides[game.id] ?? addedGameGuides[game.id];
   if (existing != null) return existing;
   if (game.id == 'petits_chevaux') {

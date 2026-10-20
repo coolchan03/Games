@@ -237,9 +237,11 @@ class _GameScaffoldState extends ConsumerState<GameScaffold> {
         "Connectivity Rule: All unshaded cells must be connected to form a single continuous area.",
       ],
       'nonogram': [
-        "Goal: Shade cells in the grid to reveal a hidden pixel image.",
-        "Clue Rule: The numbers at the start of each row and column indicate the sizes of consecutive blocks of shaded cells.",
-        "Spacing Rule: There must be at least one empty cell separating consecutive blocks in a row or column.",
+        "Goal: Fill the correct squares of the grid so their horizontal and vertical runs match every clue.",
+        "Clue Rule: Each number describes a consecutive run of filled squares, read in order. Separate runs with at least one empty square.",
+        "Controls: Select FILL or MARK, then tap a square to toggle it. Drag across the board to paint a straight stroke in that mode without toggling cells twice.",
+        "A mark is a reminder that a square must stay empty. An outside or cancelled drag leaves the puzzle unchanged.",
+        "Tip: Overlapping long runs reveal guaranteed filled squares; cross out spaces between finished runs.",
       ],
       'skyscrapers': [
         "Goal: Fill the grid with numbers 1 to N representing skyscrapers of different heights.",
