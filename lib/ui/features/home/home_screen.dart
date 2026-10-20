@@ -34,6 +34,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   String _selectedCategory = "ALL";
   bool _isSearchVisible = true;
   bool _alphabetically = false;
+  GameBrowseSubset _browseSubset = GameBrowseSubset.all;
   late final TextEditingController _searchController;
   Timer? _debounce;
   Map<String, String>? _localizedTitlesCache;
@@ -72,7 +73,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         searchQuery: _searchQuery,
         selectedCategory: _selectedCategory,
         localizedTitles: localizedTitles));
-    final displayedGames = orderGameCatalog(filteredGames, localizedTitles,
+    final favoriteIds = ref.watch(userDataNotifierProvider.select(
+        (d) => d.favoriteGameIds ?? const <String>[]));
+    final recentIds = ref.watch(gameSessionNotifierProvider.select(
+        (session) => session.recentGameIds));
+    final browseGames = subsetGameCatalog(
+      filteredGames,
+      subset: _browseSubset,
+      favoriteIds: favoriteIds,
+      recentGameIds: recentIds,
+    );
+    final displayedGames = orderGameCatalog(browseGames, localizedTitles,
         alphabetically: _alphabetically);
 
     return Scaffold(
@@ -83,12 +94,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           _buildAppBar(theme, colorScheme, l10n),
-          SliverToBoxAdapter(
-            child: FavoritesSection(
-              selectedCategory: _selectedCategory,
-              searchQuery: _searchQuery,
+          if (_browseSubset == GameBrowseSubset.all &&
+              _searchQuery.isEmpty && _selectedCategory == 'ALL')
+            SliverToBoxAdapter(
+              child: FavoritesSection(
+                selectedCategory: _selectedCategory,
+                searchQuery: _searchQuery,
+              ),
             ),
-          ),
           SliverToBoxAdapter(
             child: _HomeFilterSection(
               isSearchVisible: _isSearchVisible,
@@ -109,6 +122,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   setState(() => _selectedCategory = value),
             ),
           ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(children: [
+                  FilterChip(
+                    key: const ValueKey('catalog_filter_all'),
+                    label: const Text('All games'),
+                    selected: _browseSubset == GameBrowseSubset.all,
+                    onSelected: (_) =>
+                        setState(() => _browseSubset = GameBrowseSubset.all),
+                  ),
+                  const SizedBox(width: 8),
+                  FilterChip(
+                    key: const ValueKey('catalog_filter_favorites'),
+                    avatar: const Icon(Icons.star_outline, size: 18),
+                    label: Text('Favorites (${favoriteIds.length})'),
+                    selected: _browseSubset == GameBrowseSubset.favorites,
+                    onSelected: (_) =>
+                        setState(() => _browseSubset = GameBrowseSubset.favorites),
+                  ),
+                  const SizedBox(width: 8),
+                  FilterChip(
+                    key: const ValueKey('catalog_filter_recent'),
+                    avatar: const Icon(Icons.history, size: 18),
+                    label: Text('Recent (${recentIds.length})'),
+                    selected: _browseSubset == GameBrowseSubset.recent,
+                    onSelected: (_) =>
+                        setState(() => _browseSubset = GameBrowseSubset.recent),
+                  ),
+                ]),
+              ),
+            ),
+          ),
           SliverToBoxAdapter(child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: Row(children: [
@@ -127,9 +175,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ]),
           )),
           displayedGames.isEmpty
-              ? const SliverFillRemaining(
+              ? SliverFillRemaining(
                   hasScrollBody: false,
-                  child: EmptyGamesState(),
+                  child: _browseSubset == GameBrowseSubset.all
+                      ? const EmptyGamesState()
+                      : Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.search_off_rounded, size: 40),
+                                const SizedBox(height: 12),
+                                Text(_browseSubset == GameBrowseSubset.recent
+                                    ? 'No recently played games match these filters.'
+                                    : 'No favorites match these filters.'),
+                                const SizedBox(height: 12),
+                                OutlinedButton(
+                                  onPressed: () => setState(() =>
+                                      _browseSubset = GameBrowseSubset.all),
+                                  child: const Text('Show all games'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                 )
               : _buildGameGrid(displayedGames),
         ],

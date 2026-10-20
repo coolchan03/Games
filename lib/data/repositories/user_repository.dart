@@ -8,6 +8,7 @@ class UserRepository {
   static const String gameStreakBoxName = 'game_streaks';
   static const String _metaBoxName = 'app_meta';
   static const String _versionKey = 'schema_version';
+  static const String _recentGameIdsKey = 'recent_game_ids';
   static const int _currentSchemaVersion = 1;
 
   Future<void> init() async {
@@ -121,10 +122,38 @@ class UserRepository {
     }
   }
 
+  /// Most recently launched games, stored offline without a new Hive adapter.
+  List<String> getRecentGameIds() {
+    try {
+      if (!Hive.isBoxOpen(_metaBoxName)) return const <String>[];
+      final value = Hive.box(_metaBoxName).get(_recentGameIdsKey);
+      if (value is! List) return const <String>[];
+      return value.whereType<String>().where((id) => id.isNotEmpty)
+          .take(20).toList();
+    } catch (e) {
+      debugPrint('getRecentGameIds error: $e');
+      return const <String>[];
+    }
+  }
+
+  Future<void> saveRecentGameIds(List<String> gameIds) async {
+    try {
+      if (!Hive.isBoxOpen(_metaBoxName)) return;
+      await Hive.box(_metaBoxName).put(
+          _recentGameIdsKey, gameIds.take(20).toList());
+    } catch (e) {
+      // Recent history is optional: never prevent a game from launching.
+      debugPrint('saveRecentGameIds error: $e');
+    }
+  }
+
   Future<void> clearAll() async {
     try {
       await Hive.box<UserData>(userDataBoxName).clear();
       await Hive.box<GameStreak>(gameStreakBoxName).clear();
+      if (Hive.isBoxOpen(_metaBoxName)) {
+        await Hive.box(_metaBoxName).delete(_recentGameIdsKey);
+      }
     } catch (e) {
       debugPrint('clearAll error: $e');
       rethrow;

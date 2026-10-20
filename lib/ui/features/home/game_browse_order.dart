@@ -17,3 +17,27 @@ List<GameMetadata> orderGameCatalog(
   });
   return sorted;
 }
+
+/// Optional fast filters applied after search, category and hidden-game rules.
+enum GameBrowseSubset { all, favorites, recent }
+
+List<GameMetadata> subsetGameCatalog(
+  List<GameMetadata> games, {
+  required GameBrowseSubset subset,
+  required Iterable<String> favoriteIds,
+  required List<String> recentGameIds,
+}) {
+  if (subset == GameBrowseSubset.all) return games;
+  if (subset == GameBrowseSubset.favorites) {
+    final favorites = favoriteIds.toSet();
+    return games.where((game) => favorites.contains(game.id)).toList();
+  }
+  final recentOrder = <String, int>{};
+  for (final id in recentGameIds) {
+    recentOrder.putIfAbsent(id, () => recentOrder.length);
+  }
+  final recent = games.where((game) => recentOrder.containsKey(game.id))
+      .toList();
+  recent.sort((a, b) => recentOrder[a.id]!.compareTo(recentOrder[b.id]!));
+  return recent;
+}
