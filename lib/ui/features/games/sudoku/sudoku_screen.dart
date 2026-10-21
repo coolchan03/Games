@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'sudoku_provider.dart';
 import 'sudoku_engine.dart';
+import '../common/campaign_progress.dart';
 import '../../../../../providers/user_providers.dart';
 import '../../../../../utils/design_system.dart';
 import '../../../../../utils/haptic_feedback.dart';
-import '../../../../widgets/game_completion_dialog.dart';
 import '../../../../widgets/tangible.dart';
 import '../../../core/juice/game_scaffold.dart';
 
@@ -30,20 +30,37 @@ class _SudokuScreenState extends ConsumerState<SudokuScreen> {
         HapticFeedbackUtil.victory();
         await ref.read(gameStreakNotifierProvider.notifier).completeGame('sudoku');
         if (!context.mounted) return;
-        showDialog(
+        final level = next.value!.levelNumber;
+        showDialog<void>(
           context: context,
           barrierDismissible: false,
-          builder: (context) => GameCompletionDialog(
-            title: l10n.wellDone.toUpperCase(),
-            message: l10n.completed,
-            onHome: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-            },
-            onPlayAgain: () {
-              ref.read(sudokuNotifierProvider.notifier).initGame();
-              Navigator.of(context).pop();
-            },
+          builder: (dialogContext) => AlertDialog(
+            title: Text('Sudoku level $level complete'),
+            content: Text(l10n.completed),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  Navigator.of(context).maybePop();
+                },
+                child: const Text('Home'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                  notifier.initGame();
+                },
+                child: const Text('Replay level'),
+              ),
+              if (level < SudokuEngine.campaignLevelCount)
+                FilledButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                    notifier.loadLevel(level + 1);
+                  },
+                  child: const Text('Next level'),
+                ),
+            ],
           ),
         );
       }
@@ -75,8 +92,9 @@ class _SudokuScreenState extends ConsumerState<SudokuScreen> {
           builder: (context, constraints) {
             return Column(
               children: [
+                _buildLevelPicker(sudokuState),
                 const Spacer(),
-                _buildGrid(sudokuState, notifier, constraints.maxHeight * 0.5),
+                _buildGrid(sudokuState, notifier, constraints.maxHeight * 0.49),
                 const Spacer(),
                 _buildNumberPad(sudokuState, notifier),
                 const SizedBox(height: DesignSystem.spaceLG),
@@ -84,6 +102,53 @@ class _SudokuScreenState extends ConsumerState<SudokuScreen> {
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildLevelPicker(SudokuState state) {
+    final level = state.levelNumber;
+    final completed = CampaignProgress.load('sudoku',
+        maxLevel: SudokuEngine.campaignLevelCount);
+    final notifier = ref.read(sudokuNotifierProvider.notifier);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceMD),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: 'Previous Sudoku level',
+            onPressed: level > 1
+                ? () => notifier.loadLevel(level - 1) : null,
+            icon: const Icon(Icons.chevron_left),
+          ),
+          Expanded(
+            child: DropdownButton<int>(
+              key: const ValueKey('sudoku_level_selector'),
+              value: level,
+              isExpanded: true,
+              items: [
+                for (var n = 1; n <= SudokuEngine.campaignLevelCount; n++)
+                  DropdownMenuItem(
+                    value: n,
+                    child: Text(
+                      '${completed.contains(n) ? '[Done] ' : ''}'
+                      'Level $n of 20 - ${SudokuEngine.cluesForLevel(n)} clues',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: (selected) {
+                if (selected != null) notifier.loadLevel(selected);
+              },
+            ),
+          ),
+          IconButton(
+            tooltip: 'Next Sudoku level',
+            onPressed: level < SudokuEngine.campaignLevelCount
+                ? () => notifier.loadLevel(level + 1) : null,
+            icon: const Icon(Icons.chevron_right),
+          ),
+        ],
       ),
     );
   }

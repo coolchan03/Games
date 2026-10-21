@@ -16,10 +16,12 @@ replayable rounds, local opponents, meaningful difficulty, or other variations.
 | Nonogram | 20 | 20 deterministic, unique-solution levels, 5x5 through 9x9 | twenty_level_campaign_test.dart |
 | Minesweeper | 20 | 20 seeded 10x8 boards, nine through 28 mines, first-reveal protection | minesweeper_campaign_test.dart |
 | Sokoban | 20 in each difficulty | Seeded maps for Easy, Medium and Hard; BFS push-solution validation for first 20 Easy levels and structural/distinctness checks for all 60 maps | sokoban_level_coverage_test.dart |
+| Sudoku | 20 | Seeded 9x9 puzzles, target clues decrease from 44 to 28, uniqueness-checked; active entries saved | sudoku_level_campaign_test.dart |
+| Classic Maze | 20 | Seeded connected 11x11-29x29 mazes; resumable player position, moves and breadcrumb trail | classic_maze_campaign_test.dart |
 
-All four campaigns have numbered progression and offline selected-level
+All six campaigns have numbered progression and offline selected-level
 persistence; completion is stored for each campaign (and per difficulty in
-Sokoban). In Minesweeper the first clicked square changes the protected mine
+Sokoban). Sudoku and Classic Maze also save unfinished active puzzle state. In Minesweeper the first clicked square changes the protected mine
 layout, so the test compares levels using a common starting square. Its
 generator ensures a safe opening but **does not guarantee no-guess solutions**.
 Sokoban Hard and Medium puzzles have structural tests but do not yet have a
@@ -39,10 +41,9 @@ The full 370-row per-game inventory is maintained at
 20 levels are verified or a documented replayable-game exemption is accepted.
 A "level" keyword hit alone is not proof of coverage.
 
-With these four candidate campaigns, 366 titles still require classification,
+With these six candidate campaigns, 364 titles still require classification,
 coverage testing or new progression. The highest priority unreviewed puzzle
-engines include Sudoku, the maze variants, Akari, Kakuro, Word Search and other
-deduction puzzles.
+engines include Akari, Kakuro, Word Search and other deduction puzzles.
 
 ## Follow-up tests and quality gates
 
@@ -50,8 +51,8 @@ deduction puzzles.
    landscape and portrait, tapping and long-pressing with Reveal/Flag.
 2. Complete the remaining Sokoban Medium and Hard reachability audit without
    letting exhaustive solvers stall CI.
-3. Implement Sudoku and maze campaigns with at least 20 reproducible levels,
-   unique solutions where needed, and offline save/resume of active puzzles.
+3. Validate the new Sudoku and Classic Maze campaigns in CI and on physical
+   Android and offline PWA installs, including active puzzle save/resume.
 4. Classify all competitive and free-play games as replayable rather than
    falsely numbering arbitrary matches.
 5. Verify actual PWA offline install, reload, update and Android persistence.

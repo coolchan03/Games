@@ -1,17 +1,21 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'classic_maze_engine.dart';
 import '../../../../providers/user_providers.dart';
+import '../common/campaign_progress.dart';
 
 part 'classic_maze_provider.g.dart';
 
 class ClassicMazeState {
   final List<List<int>> grid;
   final int size;
+  final int levelNumber;
   final int playerRow;
   final int playerCol;
   final int exitRow;
   final int exitCol;
-  final List<List<int>> visitedPath; // list of [r, c] for breadcrumbs trail
+  final List<List<int>> visitedPath;
   final int moves;
   final bool isVictory;
   final bool isLoading;
@@ -20,6 +24,7 @@ class ClassicMazeState {
   ClassicMazeState({
     required this.grid,
     required this.size,
+    required this.levelNumber,
     required this.playerRow,
     required this.playerCol,
     required this.exitRow,
@@ -32,29 +37,25 @@ class ClassicMazeState {
   });
 
   ClassicMazeState copyWith({
-    List<List<int>>? grid,
-    int? size,
     int? playerRow,
     int? playerCol,
-    int? exitRow,
-    int? exitCol,
     List<List<int>>? visitedPath,
     int? moves,
     bool? isVictory,
-    bool? isLoading,
     bool? autoMoveEnabled,
   }) {
     return ClassicMazeState(
-      grid: grid ?? this.grid,
-      size: size ?? this.size,
+      grid: grid,
+      size: size,
+      levelNumber: levelNumber,
       playerRow: playerRow ?? this.playerRow,
       playerCol: playerCol ?? this.playerCol,
-      exitRow: exitRow ?? this.exitRow,
-      exitCol: exitCol ?? this.exitCol,
+      exitRow: exitRow,
+      exitCol: exitCol,
       visitedPath: visitedPath ?? this.visitedPath,
       moves: moves ?? this.moves,
       isVictory: isVictory ?? this.isVictory,
-      isLoading: isLoading ?? this.isLoading,
+      isLoading: isLoading,
       autoMoveEnabled: autoMoveEnabled ?? this.autoMoveEnabled,
     );
   }
@@ -62,38 +63,86 @@ class ClassicMazeState {
 
 @riverpod
 class ClassicMazeNotifier extends _$ClassicMazeNotifier {
-  final _engine = ClassicMazeEngine();
-  static const int extremeHardSize = 35; // Extreme Hard Maze Size
-
   @override
   ClassicMazeState build() {
     return ClassicMazeState(
-      grid: [],
+      grid: const [],
       size: 0,
+      levelNumber: 1,
       playerRow: 0,
       playerCol: 0,
       exitRow: 0,
       exitCol: 0,
-      visitedPath: [],
+      visitedPath: const [],
       isLoading: true,
     );
   }
 
-  void initGame() {
-    final level = _engine.generateLevel(extremeHardSize);
-    state = ClassicMazeState(
+  /// Builds a deterministic maze, then validates the stored breadcrumb walk.
+  /// Corrupt or outdated progress must never position a player inside a wall.
+  ClassicMazeState _stateForLevel(int number) {
+    final level = ClassicMazeEngine.campaignLevel(number);
+    var path = <List<int>>[[level.startR, level.startC]];
+    var moves = 0;
+    final stored = CampaignProgress.loadActive('classic_maze', number,
+        maxLength: 6001);
+    if (stored != null && stored.length >= 2 &&
+        stored.first >= 0 && stored.first <= 100000) {
+      final candidate = <List<int>>[];
+      var valid = true;
+      for (final cellIndex in stored.skip(1)) {
+        final r = cellIndex ~/ level.size;
+        final c = cellIndex % level.size;
+        if (cellIndex < 0 || r >= level.size || c >= level.size ||
+            level.grid[r][c] != 0) {
+          valid = false;
+          break;
+        }
+        if (candidate.isNotEmpty) {
+          final last = candidate.last;
+          if ((last[0] - r).abs() + (last[1] - c).abs() != 1) {
+            valid = false;
+            break;
+          }
+        }
+        candidate.add([r, c]);
+      }
+      if (valid && candidate.isNotEmpty &&
+          candidate.first[0] == level.startR &&
+          candidate.first[1] == level.startC &&
+          stored.first >= candidate.length - 1 &&
+          !(candidate.last[0] == level.exitR &&
+            candidate.last[1] == level.exitC)) {
+        path = candidate;
+        moves = stored.first;
+      }
+    }
+    final last = path.last;
+    return ClassicMazeState(
       grid: level.grid,
       size: level.size,
-      playerRow: level.startR,
-      playerCol: level.startC,
+      levelNumber: number,
+      playerRow: last[0],
+      playerCol: last[1],
       exitRow: level.exitR,
       exitCol: level.exitC,
-      visitedPath: [[level.startR, level.startC]],
-      moves: 0,
+      visitedPath: path,
+      moves: moves,
       isVictory: false,
       isLoading: false,
       autoMoveEnabled: state.autoMoveEnabled,
     );
+  }
+
+  void initGame() {
+    loadLevel(CampaignProgress.selectedLevel(
+        'classic_maze', count: ClassicMazeEngine.campaignLevelCount));
+  }
+
+  void loadLevel(int level) {
+    if (level < 1 || level > ClassicMazeEngine.campaignLevelCount) return;
+    state = _stateForLevel(level);
+    unawaited(CampaignProgress.saveSelected('classic_maze', level));
   }
 
   void toggleAutoMove() {
@@ -102,87 +151,83 @@ class ClassicMazeNotifier extends _$ClassicMazeNotifier {
 
   bool movePlayer(int dr, int dc) {
     if (state.isVictory || state.isLoading) return false;
+    final current = state;
+    var nr = current.playerRow + dr;
+    var nc = current.playerCol + dc;
+    if (nr < 0 || nr >= current.size || nc < 0 || nc >= current.size ||
+        current.grid[nr][nc] == 1) return false;
 
-    int nr = state.playerRow + dr;
-    int nc = state.playerCol + dc;
-
-    // Check boundaries
-    if (nr < 0 || nr >= state.size || nc < 0 || nc >= state.size) return false;
-
-    // Check wall
-    if (state.grid[nr][nc] == 1) return false;
-
-    int prevR = state.playerRow;
-    int prevC = state.playerCol;
-    final newPath = List<List<int>>.from(state.visitedPath);
+    var previousR = current.playerRow;
+    var previousC = current.playerCol;
+    final path = [for (final cell in current.visitedPath) List<int>.of(cell)];
 
     void step(int r, int c) {
-      if (newPath.length > 1 &&
-          newPath[newPath.length - 2][0] == r &&
-          newPath[newPath.length - 2][1] == c) {
-        // Player is backtracking, remove the last cell from the trail
-        newPath.removeLast();
+      if (path.length > 1 &&
+          path[path.length - 2][0] == r &&
+          path[path.length - 2][1] == c) {
+        path.removeLast();
       } else {
-        // Add new position to trail
-        newPath.add([r, c]);
+        path.add([r, c]);
       }
     }
 
     step(nr, nc);
-    int movesAdded = 1;
-
-    if (state.autoMoveEnabled) {
-      while (nr != state.exitRow || nc != state.exitCol) {
-        // Find path neighbors of (nr, nc) other than (prevR, prevC)
+    var movesAdded = 1;
+    if (current.autoMoveEnabled) {
+      while (nr != current.exitRow || nc != current.exitCol) {
         final neighbors = <List<int>>[];
-        final dirs = [
-          [-1, 0],
-          [1, 0],
-          [0, -1],
-          [0, 1],
-        ];
-        for (final d in dirs) {
-          final tr = nr + d[0];
-          final tc = nc + d[1];
-          if (tr >= 0 && tr < state.size && tc >= 0 && tc < state.size) {
-            if (state.grid[tr][tc] == 0 && (tr != prevR || tc != prevC)) {
-              neighbors.add([tr, tc]);
-            }
+        for (final dir in const [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+          final r = nr + dir[0];
+          final c = nc + dir[1];
+          if (r >= 0 && r < current.size && c >= 0 && c < current.size &&
+              current.grid[r][c] == 0 &&
+              (r != previousR || c != previousC)) {
+            neighbors.add([r, c]);
           }
         }
-        if (neighbors.length == 1) {
-          // Exactly one way to go, continue sliding!
-          final next = neighbors.first;
-          prevR = nr;
-          prevC = nc;
-          nr = next[0];
-          nc = next[1];
-          step(nr, nc);
-          movesAdded++;
-        } else {
-          // Intersection or dead-end, stop sliding
-          break;
-        }
+        if (neighbors.length != 1) break;
+        final next = neighbors.first;
+        previousR = nr;
+        previousC = nc;
+        nr = next[0];
+        nc = next[1];
+        step(nr, nc);
+        movesAdded++;
       }
     }
 
-    state = state.copyWith(
+    final won = nr == current.exitRow && nc == current.exitCol;
+    state = current.copyWith(
       playerRow: nr,
       playerCol: nc,
-      visitedPath: newPath,
-      moves: state.moves + movesAdded,
+      visitedPath: path,
+      moves: current.moves + movesAdded,
+      isVictory: won,
     );
-
-    // Check victory
-    if (nr == state.exitRow && nc == state.exitCol) {
-      state = state.copyWith(isVictory: true);
-      ref.read(gameStreakNotifierProvider.notifier).completeGame('classic_maze', xpAmount: 25);
+    if (won) {
+      final completed = CampaignProgress.load(
+        'classic_maze', maxLevel: ClassicMazeEngine.campaignLevelCount,
+      )..add(current.levelNumber);
+      unawaited(CampaignProgress.save('classic_maze', completed));
+      unawaited(CampaignProgress.clearActive(
+          'classic_maze', current.levelNumber));
+      unawaited(ref.read(gameStreakNotifierProvider.notifier)
+          .completeGame('classic_maze', xpAmount: 25));
+    } else if (path.length <= 6000) {
+      unawaited(CampaignProgress.saveActive(
+        'classic_maze',
+        current.levelNumber,
+        [state.moves, for (final cell in path) cell[0] * current.size + cell[1]],
+      ));
     }
-
     return true;
   }
 
   void reset() {
-    initGame();
+    final level = state.isLoading ? CampaignProgress.selectedLevel(
+      'classic_maze', count: ClassicMazeEngine.campaignLevelCount,
+    ) : state.levelNumber;
+    unawaited(CampaignProgress.clearActive('classic_maze', level));
+    loadLevel(level);
   }
 }

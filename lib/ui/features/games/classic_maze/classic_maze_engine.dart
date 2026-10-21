@@ -19,7 +19,29 @@ class ClassicMazeLevel {
 }
 
 class ClassicMazeEngine {
-  final Random _random = Random();
+  ClassicMazeEngine({int? seed})
+      : _random = seed == null ? Random() : Random(seed);
+
+  static const int campaignLevelCount = 20;
+
+  static int sizeForLevel(int level) {
+    RangeError.checkValueInInterval(level, 1, campaignLevelCount, 'level');
+    // Alternate seeds within each size tier. A larger maze appears every
+    // other chapter, starting at 11x11 and ending at 29x29.
+    return 11 + ((level - 1) ~/ 2) * 2;
+  }
+
+  static int seedForLevel(int level) {
+    RangeError.checkValueInInterval(level, 1, campaignLevelCount, 'level');
+    return 73001 + level * 12973;
+  }
+
+  static ClassicMazeLevel campaignLevel(int level) {
+    return ClassicMazeEngine(seed: seedForLevel(level))
+        .generateLevel(sizeForLevel(level));
+  }
+
+  final Random _random;
 
   ClassicMazeLevel generateLevel(int size) {
     // Ensure size is odd to have clean corridors and walls

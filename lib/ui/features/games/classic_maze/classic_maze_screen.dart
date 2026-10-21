@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'classic_maze_provider.dart';
+import 'classic_maze_engine.dart';
+import '../common/campaign_progress.dart';
 import '../../../../utils/design_system.dart';
 import '../../../../utils/haptic_feedback.dart';
 import '../../../../widgets/tangible.dart';
-import '../../../../widgets/game_completion_dialog.dart';
 import '../../../core/juice/game_scaffold.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 
@@ -103,20 +104,36 @@ class _ClassicMazeScreenState extends ConsumerState<ClassicMazeScreen> {
     ref.listen<ClassicMazeState>(classicMazeNotifierProvider, (previous, next) {
       if (next.isVictory && !(previous?.isVictory ?? false)) {
         HapticFeedbackUtil.victory();
-        showDialog(
+        showDialog<void>(
           context: context,
           barrierDismissible: false,
-          builder: (dialogCtx) => GameCompletionDialog(
-            title: l10n.classicMazeWinTitle,
-            message: l10n.classicMazeWinMessage(next.moves),
-            onHome: () {
-              Navigator.of(dialogCtx).pop();
-              Navigator.of(context).pop();
-            },
-            onPlayAgain: () {
-              Navigator.of(dialogCtx).pop();
-              notifier.initGame();
-            },
+          builder: (dialogCtx) => AlertDialog(
+            title: Text('Level ${next.levelNumber} complete'),
+            content: Text(l10n.classicMazeWinMessage(next.moves)),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogCtx).pop();
+                  Navigator.of(context).maybePop();
+                },
+                child: const Text('Home'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogCtx).pop();
+                  notifier.reset();
+                },
+                child: const Text('Replay level'),
+              ),
+              if (next.levelNumber < ClassicMazeEngine.campaignLevelCount)
+                FilledButton(
+                  onPressed: () {
+                    Navigator.of(dialogCtx).pop();
+                    notifier.loadLevel(next.levelNumber + 1);
+                  },
+                  child: const Text('Next level'),
+                ),
+            ],
           ),
         );
       }
@@ -177,11 +194,14 @@ class _ClassicMazeScreenState extends ConsumerState<ClassicMazeScreen> {
               },
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final boardSize = math.min(constraints.maxWidth - 32, constraints.maxHeight * 0.52);
+                  final boardSize = math.min(constraints.maxWidth - 32, constraints.maxHeight * 0.46);
 
                   return Column(
                     children: [
                       const Spacer(),
+
+                      _buildLevelPicker(state),
+                      const SizedBox(height: DesignSystem.spaceSM),
 
                       // Stats Row
                       _buildStatsRow(state, l10n),
@@ -251,6 +271,55 @@ class _ClassicMazeScreenState extends ConsumerState<ClassicMazeScreen> {
                 },
               ),
             ),
+    );
+  }
+
+  Widget _buildLevelPicker(ClassicMazeState state) {
+    final selected = state.levelNumber;
+    final completed = CampaignProgress.load('classic_maze',
+        maxLevel: ClassicMazeEngine.campaignLevelCount);
+    final notifier = ref.read(classicMazeNotifierProvider.notifier);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceMD),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: 'Previous maze level',
+            onPressed: selected > 1
+                ? () => notifier.loadLevel(selected - 1) : null,
+            icon: const Icon(Icons.chevron_left),
+          ),
+          Expanded(
+            child: DropdownButton<int>(
+              key: const ValueKey('classic_maze_level_selector'),
+              isExpanded: true,
+              value: selected,
+              items: [
+                for (var level = 1;
+                    level <= ClassicMazeEngine.campaignLevelCount; level++)
+                  DropdownMenuItem(
+                    value: level,
+                    child: Text(
+                      '${completed.contains(level) ? '[Done] ' : ''}'
+                      'Level $level - ${ClassicMazeEngine.sizeForLevel(level)}x'
+                      '${ClassicMazeEngine.sizeForLevel(level)}',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: (level) {
+                if (level != null) notifier.loadLevel(level);
+              },
+            ),
+          ),
+          IconButton(
+            tooltip: 'Next maze level',
+            onPressed: selected < ClassicMazeEngine.campaignLevelCount
+                ? () => notifier.loadLevel(selected + 1) : null,
+            icon: const Icon(Icons.chevron_right),
+          ),
+        ],
+      ),
     );
   }
 

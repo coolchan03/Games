@@ -47,7 +47,7 @@ chess,not_yet_reviewed,unknown,1,0,0,"Needs manual classification as level-based
 chimp_test,not_yet_reviewed,unknown,1,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 chinese_checkers,not_yet_reviewed,unknown,1,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 choice_reaction_time,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
-classic_maze,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
+classic_maze,verified_minimum_20_by_tests,20,1,1,0,"20 deterministic connected mazes, 11x11-29x29; resumable routes"
 code_breaker,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 cognate_catch,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 collatz,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
@@ -308,7 +308,7 @@ story_builder,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as lev
 stroop_number_size,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 stroop_test,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 subitizing_rush,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
-sudoku,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
+sudoku,verified_minimum_20_by_tests,20,1,1,0,20 reproducible unique-solution puzzles; decreasing clue targets
 sum_pyramid,not_yet_reviewed,unknown,1,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 sum_snake,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 switch_task,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"

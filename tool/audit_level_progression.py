@@ -35,6 +35,16 @@ VERIFIED = {
         GAMES / "sokoban" / "sokoban_engine.dart",
         r"static SokobanLevel generate",
     ),
+    "sudoku": (
+        "20", "20 reproducible unique-solution puzzles; decreasing clue targets",
+        GAMES / "sudoku" / "sudoku_engine.dart",
+        r"campaignLevelCount\s*=\s*20",
+    ),
+    "classic_maze": (
+        "20", "20 deterministic connected mazes, 11x11-29x29; resumable routes",
+        GAMES / "classic_maze" / "classic_maze_engine.dart",
+        r"campaignLevelCount\s*=\s*20",
+    ),
 }
 
 

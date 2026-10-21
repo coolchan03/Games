@@ -1,8 +1,64 @@
 import 'dart:math';
 
+class SudokuCampaignPuzzle {
+  final List<List<int>> initial;
+  final List<List<int>> solution;
+  final int level;
+  final int clues;
+
+  SudokuCampaignPuzzle({
+    required this.initial,
+    required this.solution,
+    required this.level,
+    required this.clues,
+  });
+}
+
 class SudokuEngine {
+  SudokuEngine({int? seed})
+      : _random = seed == null ? Random() : Random(seed);
+
+  final Random _random;
+  static const int campaignLevelCount = 20;
   static const int size = 9;
   static const int boxSize = 3;
+
+  static int cluesForLevel(int level) {
+    RangeError.checkValueInInterval(level, 1, campaignLevelCount, 'level');
+    return 44 - ((level - 1) * 16 ~/ 19);
+  }
+
+  static SudokuCampaignPuzzle generateCampaignPuzzle(int level) {
+    final engine = SudokuEngine(seed: 9017 + 5573 * level);
+    final solved = engine.generateBoard();
+    final initial = engine.createPuzzle(solved, cluesForLevel(level));
+    return SudokuCampaignPuzzle(
+      initial: initial,
+      solution: solved,
+      level: level,
+      clues: initial.expand((row) => row).where((n) => n != 0).length,
+    );
+  }
+
+  /// Counts up to [limit] solutions, so uniqueness checks terminate early.
+  static int countSolutions(List<List<int>> puzzle, {int limit = 2}) {
+    if (limit < 1 || puzzle.length != 9 ||
+        puzzle.any((row) => row.length != 9 ||
+            row.any((value) => value < 0 || value > 9))) return 0;
+    final copy = [for (final row in puzzle) List<int>.from(row)];
+    for (var r = 0; r < 9; r++) {
+      for (var c = 0; c < 9; c++) {
+        final value = copy[r][c];
+        if (value == 0) continue;
+        copy[r][c] = 0;
+        final valid = isValid(copy, r, c, value);
+        copy[r][c] = value;
+        if (!valid) return 0;
+      }
+    }
+    final count = SudokuEngine()._solve(copy, 0);
+    return count > limit ? limit : count;
+  }
 
   List<List<int>> generateBoard() {
     List<List<int>> board = List.generate(size, (_) => List.filled(size, 0));
@@ -24,7 +80,7 @@ class SudokuEngine {
     for (int row = 0; row < size; row++) {
       for (int col = 0; col < size; col++) {
         if (board[row][col] == 0) {
-          List<int> numbers = List.generate(size, (i) => i + 1)..shuffle();
+          List<int> numbers = List.generate(size, (i) => i + 1)..shuffle(_random);
           for (int num in numbers) {
             if (_isValid(board, row, col, num)) {
               board[row][col] = num;
@@ -69,14 +125,13 @@ class SudokuEngine {
     int toRemove = totalCells - clues;
     toRemove = toRemove.clamp(0, totalCells - 17);
 
-    Random random = Random();
     List<List<int>> candidates = [];
     for (int r = 0; r < size; r++) {
       for (int c = 0; c < size; c++) {
         candidates.add([r, c]);
       }
     }
-    candidates.shuffle(random);
+    candidates.shuffle(_random);
 
     int removed = 0;
     for (var candidate in candidates) {
