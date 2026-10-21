@@ -28,6 +28,12 @@ mysteries, powered by reusable open-source logic rather than embedded mini-apps.
    color-independent cues; optional sound/haptics; hints and rules; auto-save/resume.
 10. **Respect licensing** — preserve GPLv3 foundation and notices from all copied FOSS.
     Prefer directly reusable Dart logic; port from JavaScript/Kotlin/C# only as required.
+11. **Meaningful depth, not just game count** — every level-based puzzle should
+    have at least 20 distinct, playable levels, with increasing challenge,
+    validated solutions and locally saved progress. Replayable card, board,
+    dice and reaction games are reviewed for meaningful replay modes instead
+    of being padded with 20 arbitrary numbered matches. See
+    docs/LEVEL_COVERAGE_AUDIT_20261020.md and the 370-row coverage inventory.
 
 ## Target game categories
 - Board and strategy: Chess, Checkers, Reversi, Mancala/Oware, Connect Four,

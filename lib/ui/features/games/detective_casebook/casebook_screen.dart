@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import '../common/game_kit.dart';
+import '../common/campaign_progress.dart';
 import 'casebook_engine.dart';
 
 class DetectiveCasebookScreen extends StatefulWidget {
@@ -10,23 +12,30 @@ class DetectiveCasebookScreen extends StatefulWidget {
   State<DetectiveCasebookScreen> createState() => _DetectiveScreenState();
 }
 class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
-  int caseIndex = 0, hints = 0;
+  int caseIndex = CampaignProgress.selectedLevel(
+    'detective_casebook', count: DetectiveCasebook.campaignCount,
+  ) - 1;
+  int hints = 0;
   int? accusation;
   bool solved = false;
   String? message;
   String notebookTab = 'Rooms';
   final Set<int> checked = {};
   final Map<String,int> notes = {};
+  final Set<int> completedCampaign =
+      CampaignProgress.load('detective_casebook', maxLevel: DetectiveCasebook.campaignCount);
   DetectiveCase? generated;
   CaseDifficulty generatedDifficulty = CaseDifficulty.easy;
-  DetectiveCase get game => generated ?? DetectiveCasebook.cases[caseIndex];
+  DetectiveCase get game => generated ?? DetectiveCasebook.campaignCase(caseIndex);
   void _reset() {
     hints=0;accusation=null;solved=false;message=null;
     checked.clear();notes.clear();
   }
-  void selectCase(int n) => setState(() {
-    caseIndex=n;generated=null;_reset();
-  });
+  void selectCase(int n) {
+    if (n < 0 || n >= DetectiveCasebook.campaignCount) return;
+    setState(() { caseIndex=n;generated=null;_reset(); });
+    unawaited(CampaignProgress.saveSelected('detective_casebook', n + 1));
+  }
   void dailyCase() => setState(() {
     final now=DateTime.now();
     final seed=now.year*10000+now.month*100+now.day;
@@ -42,7 +51,14 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
     if(accusation==null)return;
     setState((){
       solved=game.accuse(game.suspects[accusation!]);
-      if(solved)reportCompletion(context,'detective_casebook');
+      if(solved){
+        reportCompletion(context,'detective_casebook');
+        if (generated == null) {
+          completedCampaign.add(caseIndex + 1);
+          unawaited(CampaignProgress.save(
+              'detective_casebook', completedCampaign));
+        }
+      }
       message=solved?'Case closed! Your conclusion fits every clue.'
         :'That accusation does not fit the evidence. Try another suspect.';
     });
@@ -130,15 +146,40 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
             'checked by a solver to have exactly one solution. Hard cases '
             'contain no direct statements of where anyone was.'),
           const SizedBox(height:12),
+          Row(children: [
+            IconButton(
+              tooltip: 'Previous case',
+              onPressed: generated == null && caseIndex > 0
+                  ? () => selectCase(caseIndex - 1) : null,
+              icon: const Icon(Icons.chevron_left),
+            ),
+            Expanded(child: Text(
+              generated == null
+                  ? 'Campaign case ${caseIndex + 1} of ${DetectiveCasebook.campaignCount}'
+                  : 'Daily or random mystery',
+              key: const ValueKey('detective_campaign_status'),
+              textAlign: TextAlign.center,
+            )),
+            IconButton(
+              tooltip: 'Next case',
+              onPressed: generated == null &&
+                      caseIndex < DetectiveCasebook.campaignCount - 1
+                  ? () => selectCase(caseIndex + 1) : null,
+              icon: const Icon(Icons.chevron_right),
+            ),
+          ]),
+          Text('${completedCampaign.length} / ${DetectiveCasebook.campaignCount} campaign cases solved',
+            textAlign: TextAlign.center),
           DropdownButton<int>(
             isExpanded:true,value:generated==null?caseIndex:-1,
             items:[
               if(generated!=null)DropdownMenuItem(value:-1,
                 child:Text(generated!.title,overflow:TextOverflow.ellipsis)),
-              for(var i=0;i<DetectiveCasebook.cases.length;i++)
+              for(var i=0;i<DetectiveCasebook.campaignCount;i++)
                 DropdownMenuItem(value:i,child:Text(
-                  'Case ${i+1}: ${DetectiveCasebook.cases[i].title}'
-                  '${DetectiveCasebook.cases[i].difficulty==CaseDifficulty.hard?' (hard)':''}',
+                  '${completedCampaign.contains(i+1)?'[Solved] ':''}Case ${i+1}: '
+                  '${DetectiveCasebook.campaignTitle(i)}'
+                  '${i >= 16 ? ' (hard)' : ''}',
                   overflow:TextOverflow.ellipsis))],
             onChanged:(v){if(v!=null&&v>=0)selectCase(v);}),
           Wrap(spacing:8,runSpacing:8,crossAxisAlignment:WrapCrossAlignment.center,children:[
@@ -198,6 +239,16 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
             label:const Text('Submit accusation')),
           if(message!=null)Padding(padding:const EdgeInsets.only(top:12),
             child:Text(message!,style:Theme.of(context).textTheme.titleSmall)),
+          if (solved && generated == null &&
+              caseIndex < DetectiveCasebook.campaignCount - 1)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: FilledButton.icon(
+                onPressed: () => selectCase(caseIndex + 1),
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text('Next campaign case'),
+              ),
+            ),
           if(hints>0)Padding(padding:const EdgeInsets.symmetric(vertical:12),
             child:Text(hint)),
           Wrap(spacing:8,children:[

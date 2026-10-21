@@ -237,7 +237,7 @@ class _GameScaffoldState extends ConsumerState<GameScaffold> {
         "Connectivity Rule: All unshaded cells must be connected to form a single continuous area.",
       ],
       'nonogram': [
-        "Goal: Fill the correct squares of the grid so their horizontal and vertical runs match every clue.",
+        "Goal: Clear 20 uniquely solvable levels with increasing board sizes from 5x5 to 9x9. Fill squares so their horizontal and vertical runs match every clue.",
         "Clue Rule: Each number describes a consecutive run of filled squares, read in order. Separate runs with at least one empty square.",
         "Controls: Select FILL or MARK, then tap a square to toggle it. Drag across the board to paint a straight stroke in that mode without toggling cells twice.",
         "A mark is a reminder that a square must stay empty. An outside or cancelled drag leaves the puzzle unchanged.",

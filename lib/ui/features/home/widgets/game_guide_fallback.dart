@@ -13,11 +13,11 @@ GameGuide guideForGame(GameMetadata game) {
       category: 'LOGIC',
       objective: 'Fill squares so every row and column matches its numbered '
           'runs in order. Leave at least one empty square between runs. '
-          'Finish when all row and column clues are satisfied.',
+          'Complete all 20 numbered, uniquely solvable levels; the board grows from 5x5 to 9x9.',
       controls: 'Choose FILL to shade or MARK to place an X on known empty '
           'squares. Tap a square to toggle it in the selected mode; drag '
           'across the board to paint a continuous stroke. Completed drags '
-          'paint without toggling existing matching squares.',
+          'paint without toggling existing matching squares. Select any numbered level, or use Next Level after finishing one.',
       walkthrough: [
         'Read each row and column clue as a sequence of filled runs.',
         'Start with long runs: look for squares that must be filled no matter '

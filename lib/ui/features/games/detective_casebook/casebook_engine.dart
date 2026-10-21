@@ -308,11 +308,41 @@ class DetectiveCasebook {
     ),
   ];
 
+  /// A 20-case offline campaign. The first 12 chapters are authored and the
+  /// final eight use fixed seeds and distinct locations. Every generated
+  /// chapter goes through the same uniqueness-checked logic solver.
+  static const int campaignCount = 20;
+  static final Map<int, DetectiveCase> _campaignCache = {};
+
+  static String campaignTitle(int index) {
+    RangeError.checkValueInInterval(index, 0, campaignCount - 1, 'index');
+    if (index < cases.length) return cases[index].title;
+    return _themes[index - cases.length].crime;
+  }
+
+  static DetectiveCase campaignCase(int index) {
+    RangeError.checkValueInInterval(index, 0, campaignCount - 1, 'index');
+    if (index < cases.length) return cases[index];
+    return _campaignCache.putIfAbsent(index, () {
+      final chapter = index - cases.length;
+      return generate(
+        130001 + chapter * 577,
+        themeIndex: chapter,
+        difficulty: chapter < 4 ? CaseDifficulty.easy : CaseDifficulty.hard,
+      );
+    });
+  }
+
   /// A generated case. The same [seed] always produces the same case, so it
   /// can serve as a shared daily puzzle.
-  static DetectiveCase generate(int seed, {CaseDifficulty difficulty = CaseDifficulty.easy}) {
+  static DetectiveCase generate(int seed, {
+    CaseDifficulty difficulty = CaseDifficulty.easy,
+    int? themeIndex,
+  }) {
     final rng = Random(seed);
-    final theme = _themes[rng.nextInt(_themes.length)];
+    final theme = _themes[themeIndex == null
+        ? rng.nextInt(_themes.length)
+        : themeIndex % _themes.length];
     final first = _firstNames.toList()..shuffle(rng);
     final last = _lastNames.toList()..shuffle(rng);
     final suspects = [for (var i = 0; i < 4; i++) '${first[i]} ${last[i]}'];

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../providers/user_providers.dart';
+import '../common/campaign_progress.dart';
 import 'nonogram_engine.dart';
 import 'nonogram_touch.dart';
 
@@ -12,6 +15,7 @@ class NonogramState {
   final List<List<int>> colClues;
   final bool isSolved;
   final int size;
+  final int levelNumber;
 
   NonogramState({
     required this.grid,
@@ -19,6 +23,7 @@ class NonogramState {
     required this.colClues,
     this.isSolved = false,
     this.size = 5,
+    this.levelNumber = 1,
   });
 
   NonogramState copyWith({
@@ -31,34 +36,48 @@ class NonogramState {
       colClues: colClues,
       isSolved: isSolved ?? this.isSolved,
       size: size,
+      levelNumber: levelNumber,
     );
   }
 }
 
 @riverpod
 class NonogramNotifier extends _$NonogramNotifier {
-  static const int defaultSize = 8; // Increased for more challenge
+  int _requestSerial = 0;
 
   @override
   Future<NonogramState> build() async {
-    return _generateInitialState(defaultSize);
+    return _generateInitialState(CampaignProgress.selectedLevel(
+      'nonogram',
+      count: NonogramEngine.campaignLevelCount,
+    ));
   }
 
-  Future<NonogramState> _generateInitialState(int size) async {
-    // Generate puzzle in background isolate
-    final puzzle = await compute(NonogramEngine.generatePuzzleWrapper, size);
-    
+  Future<NonogramState> _generateInitialState(int level) async {
+    // Unique, reproducible clue sets are generated off the UI isolate.
+    final puzzle = await compute(NonogramEngine.generateCampaignPuzzle, level);
+    final size = NonogramEngine.sizeForLevel(level);
     return NonogramState(
       grid: List.generate(size, (_) => List.filled(size, 0)),
       rowClues: puzzle.rowClues,
       colClues: puzzle.colClues,
       size: size,
+      levelNumber: level,
     );
   }
 
-  Future<void> reset() async {
+  Future<void> reset() => loadLevel(state.value?.levelNumber ?? 1);
+
+  Future<void> loadLevel(int level) async {
+    if (level < 1 || level > NonogramEngine.campaignLevelCount) return;
+    final serial = ++_requestSerial;
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _generateInitialState(state.value?.size ?? defaultSize));
+    final next = await AsyncValue.guard(() => _generateInitialState(level));
+    if (serial != _requestSerial) return;
+    state = next;
+    if (next.hasValue) {
+      unawaited(CampaignProgress.saveSelected('nonogram', level));
+    }
   }
 
   /// Paint every cell in one atomic move after a completed board drag.

@@ -11,7 +11,97 @@ class NonogramPuzzle {
 }
 
 class NonogramEngine {
-  final Random _random = Random();
+  NonogramEngine({int? seed})
+      : _random = seed == null ? Random() : Random(seed);
+
+  final Random _random;
+
+  /// Twenty reproducible campaign levels, starting on a 5x5 board and
+  /// growing to 9x9. Do not count a random restart as a new level.
+  static const int campaignLevelCount = 20;
+
+  static int sizeForLevel(int level) {
+    RangeError.checkValueInInterval(level, 1, campaignLevelCount, 'level');
+    return 5 + (level - 1) ~/ 4;
+  }
+
+  /// Called from an isolate so uniqueness checking cannot stall the UI.
+  static NonogramPuzzle generateCampaignPuzzle(int level) {
+    final size = sizeForLevel(level);
+    for (var attempt = 0; attempt < 180; attempt++) {
+      final puzzle = NonogramEngine(
+        seed: 87001 + level * 7919 + attempt * 313,
+      ).generatePuzzle(size);
+      if (countSolutions(puzzle, size, limit: 2) == 1) return puzzle;
+    }
+    throw StateError('Unable to produce a uniquely solvable nonogram: $level');
+  }
+
+  /// Counts solutions only up to [limit], making a uniqueness check cheap.
+  /// Candidate lines obey clue runs and required spaces between blocks.
+  static int countSolutions(NonogramPuzzle puzzle, int size, {int limit = 2}) {
+    if (size < 1 || size > 12 || puzzle.rowClues.length != size ||
+        puzzle.colClues.length != size || limit < 1) return 0;
+    final rowOptions = [
+      for (final row in puzzle.rowClues) _lineOptions(row, size),
+    ];
+    final initialCols = [
+      for (final column in puzzle.colClues) _lineOptions(column, size),
+    ];
+    if (rowOptions.any((choices) => choices.isEmpty) ||
+        initialCols.any((choices) => choices.isEmpty)) return 0;
+
+    var solutions = 0;
+    void visit(int row, List<List<int>> columns) {
+      if (solutions >= limit) return;
+      if (row == size) {
+        solutions++;
+        return;
+      }
+      for (final mask in rowOptions[row]) {
+        final narrowed = <List<int>>[];
+        var possible = true;
+        for (var column = 0; column < size; column++) {
+          final bit = (mask >> column) & 1;
+          final choices = columns[column].where(
+            (candidate) => ((candidate >> row) & 1) == bit,
+          ).toList();
+          if (choices.isEmpty) {
+            possible = false;
+            break;
+          }
+          narrowed.add(choices);
+        }
+        if (possible) visit(row + 1, narrowed);
+        if (solutions >= limit) break;
+      }
+    }
+    visit(0, initialCols);
+    return solutions;
+  }
+
+  static List<int> _lineOptions(List<int> clues, int size) {
+    if (clues.any((n) => n < 0)) return const [];
+    final runs = clues.where((n) => n > 0).toList();
+    if (runs.isEmpty) return [0];
+    final result = <int>[];
+    void place(int runIndex, int first, int mask) {
+      if (runIndex == runs.length) {
+        result.add(mask);
+        return;
+      }
+      final length = runs[runIndex];
+      final rest = runs.skip(runIndex + 1).fold<int>(0, (a, b) => a + b)
+          + (runs.length - runIndex - 1);
+      final last = size - length - rest;
+      for (var at = first; at <= last; at++) {
+        place(runIndex + 1, at + length + 1,
+            mask | (((1 << length) - 1) << at));
+      }
+    }
+    place(0, 0, 0);
+    return result;
+  }
 
   NonogramPuzzle generatePuzzle(int size) {
     // 1. Generate a random grid

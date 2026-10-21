@@ -53,10 +53,10 @@ const Map<String, GameGuide> addedGameGuides = {
   'detective_casebook': GameGuide(
     title: 'Detective Casebook',
     category: 'LOGIC',
-    objective: 'Read the clues, inspect alibis and timelines, and determine who committed the crime. Mark deductions before accusing a suspect; use hints when stuck. Each generated case is checked for a unique solution.',
-    controls: 'Use the on-screen puzzle controls to enter an answer or select a move.',
-    walkthrough: ['Read the clues, inspect alibis and timelines, and determine who committed the crime.', 'Mark deductions before accusing a suspect; use hints when stuck.', 'Each generated case is checked for a unique solution.'],
-    strategies: ['Check the possible moves or options before committing.', 'Reopen this guide or the in-game Rules button whenever needed.'],
+    objective: 'Solve 20 distinct offline mystery chapters, including murders, sabotage, and theft. Each case contains witness clues with exactly one consistent culprit. Daily and random cases remain available separately.',
+    controls: 'Choose a numbered case from the selector or use the previous/next arrows. Read and check off clues, expand the deduction notebook, cross out suspects or room/time/object combinations, select a suspect, and tap Submit accusation.',
+    walkthrough: ['Use the campaign selector to pick one of 20 cases; the original 12 are preserved and eight fixed-seed cases add more investigations.', 'Compare each witness clue against the Rooms, Times, and Objects notebook grids. Mark impossible combinations with X and known matches with checkmarks.', 'When one suspect fits the evidence, select them and submit the accusation. Correct solutions save a completed-case marker locally.', 'Use Next campaign case after solving. You can replay completed cases, or try Daily and Random modes for additional unique mysteries.'],
+    strategies: ['Eliminate impossible room, time, and object combinations before you guess a culprit.', 'Treat clues about earlier/later arrivals as constraints across multiple people.', 'Reserve hints for the last few contradictions; revealing an answer is not recorded as a completed case.'],
   ),
   'goose_game': GameGuide(
     title: 'Game of the Goose',

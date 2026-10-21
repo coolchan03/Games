@@ -152,7 +152,12 @@ class UserRepository {
       await Hive.box<UserData>(userDataBoxName).clear();
       await Hive.box<GameStreak>(gameStreakBoxName).clear();
       if (Hive.isBoxOpen(_metaBoxName)) {
-        await Hive.box(_metaBoxName).delete(_recentGameIdsKey);
+        final metaBox = Hive.box(_metaBoxName);
+        await metaBox.delete(_recentGameIdsKey);
+        final campaignKeys = metaBox.keys.where((key) => key is String &&
+            (key.startsWith('completed_campaign_levels_v1_') ||
+             key.startsWith('selected_campaign_level_v1_'))).toList();
+        await metaBox.deleteAll(campaignKeys);
       }
     } catch (e) {
       debugPrint('clearAll error: $e');

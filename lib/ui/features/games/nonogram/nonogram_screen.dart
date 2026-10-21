@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import "package:puzzle/l10n/app_localizations.dart";
@@ -5,10 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../utils/design_system.dart';
 import '../../../../utils/haptic_feedback.dart';
-import '../../../../widgets/game_completion_dialog.dart';
+import '../common/campaign_progress.dart';
 import '../../../../widgets/tangible.dart';
 import '../../../core/juice/game_scaffold.dart';
 import 'nonogram_provider.dart';
+import 'nonogram_engine.dart';
 import 'nonogram_touch.dart';
 import '../common/grid_board_touch_area.dart';
 
@@ -21,6 +23,48 @@ class NonogramScreen extends ConsumerStatefulWidget {
 
 class _NonogramScreenState extends ConsumerState<NonogramScreen> {
   bool _isMarkMode = false;
+  final Set<int> _completedLevels = CampaignProgress.load(
+    'nonogram', maxLevel: NonogramEngine.campaignLevelCount,
+  );
+
+  void _levelFinished(int level) {
+    _completedLevels.add(level);
+    unawaited(CampaignProgress.save('nonogram', _completedLevels));
+    HapticFeedbackUtil.victory();
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('Level $level complete!'),
+        content: Text('You solved level $level of '
+            '${NonogramEngine.campaignLevelCount}.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              Navigator.of(context).maybePop();
+            },
+            child: const Text('Home'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              ref.read(nonogramNotifierProvider.notifier).reset();
+            },
+            child: const Text('Replay'),
+          ),
+          if (level < NonogramEngine.campaignLevelCount)
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                ref.read(nonogramNotifierProvider.notifier)
+                    .loadLevel(level + 1);
+              },
+              child: const Text('Next level'),
+            ),
+        ],
+      ),
+    );
+  }
 
   void _tapCell(int cell, int size) {
     HapticFeedbackUtil.selectionClick();
@@ -43,24 +87,9 @@ class _NonogramScreenState extends ConsumerState<NonogramScreen> {
     final state = ref.watch(nonogramNotifierProvider);
 
     ref.listen(nonogramNotifierProvider, (previous, next) {
-      if (next.hasValue && next.value!.isSolved && !(previous?.value?.isSolved ?? false)) {
-        HapticFeedbackUtil.victory();
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => GameCompletionDialog(
-            title: l10n.nonogramWin.toUpperCase(),
-            message: l10n.completed,
-            onHome: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-            },
-            onPlayAgain: () {
-              ref.read(nonogramNotifierProvider.notifier).reset();
-              Navigator.of(context).pop();
-            },
-          ),
-        );
+      if (next.hasValue && next.value!.isSolved &&
+          !(previous?.value?.isSolved ?? false)) {
+        _levelFinished(next.value!.levelNumber);
       }
     });
 
@@ -92,7 +121,9 @@ class _NonogramScreenState extends ConsumerState<NonogramScreen> {
               children: [
                 const SizedBox(height: DesignSystem.spaceSM),
                 _buildStatusHeader(nonogramState),
-                const SizedBox(height: DesignSystem.spaceMD),
+                const SizedBox(height: DesignSystem.spaceSM),
+                _buildLevelPicker(nonogramState),
+                const SizedBox(height: DesignSystem.spaceSM),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -209,6 +240,55 @@ class _NonogramScreenState extends ConsumerState<NonogramScreen> {
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildLevelPicker(NonogramState state) {
+    final notifier = ref.read(nonogramNotifierProvider.notifier);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceMD),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: 'Previous level',
+            onPressed: state.levelNumber > 1
+                ? () => notifier.loadLevel(state.levelNumber - 1)
+                : null,
+            icon: const Icon(Icons.chevron_left),
+          ),
+          Expanded(
+            child: DropdownButton<int>(
+              key: const ValueKey('nonogram_level_selector'),
+              isExpanded: true,
+              value: state.levelNumber,
+              items: [
+                for (var level = 1;
+                    level <= NonogramEngine.campaignLevelCount;
+                    level++)
+                  DropdownMenuItem(
+                    value: level,
+                    child: Text(
+                      '${_completedLevels.contains(level) ? '[Done] ' : ''}'
+                      'Level $level - ${NonogramEngine.sizeForLevel(level)}x'
+                      '${NonogramEngine.sizeForLevel(level)}',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: (level) {
+                if (level != null) notifier.loadLevel(level);
+              },
+            ),
+          ),
+          IconButton(
+            tooltip: 'Next level',
+            onPressed: state.levelNumber < NonogramEngine.campaignLevelCount
+                ? () => notifier.loadLevel(state.levelNumber + 1)
+                : null,
+            icon: const Icon(Icons.chevron_right),
+          ),
+        ],
       ),
     );
   }
