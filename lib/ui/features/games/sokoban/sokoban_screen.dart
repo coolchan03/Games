@@ -120,7 +120,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
           'Easy, Medium or Hard; use the arrows to explore more levels. '
           'Completion markers are saved offline separately per difficulty. '
           'Levels are generated backwards from solved positions. '
-          'Z or Backspace undoes a move.'
+          'Z or Backspace undoes a move.',
       children: [
         SegmentedButton<int>(
           segments: const [
