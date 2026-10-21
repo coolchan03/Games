@@ -4,11 +4,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 import 'package:puzzle/ui/features/games/common/campaign_progress.dart';
 import 'package:puzzle/ui/features/games/sudoku/sudoku_engine.dart';
 import 'package:puzzle/ui/features/games/sudoku/sudoku_provider.dart';
 import 'package:puzzle/ui/features/games/sudoku/sudoku_screen.dart';
+
+/// Layout tests exercise the real screen and navigation without invoking the
+/// expensive isolate-backed generator. Engine uniqueness and provider
+/// persistence are covered by independent tests above.
+SudokuState _layoutFixture(int level) {
+  final solved = List.generate(9, (r) =>
+      List.generate(9, (c) => ((r * 3 + r ~/ 3 + c) % 9) + 1));
+  final initial = [for (final row in solved) List<int>.from(row)];
+  initial[0][0] = 0;
+  return SudokuState(
+    initialBoard: initial.map((r) => r.lock).toIList(),
+    currentBoard: initial.map((r) => r.lock).toIList(),
+    solvedBoard: solved.map((r) => r.lock).toIList(),
+    levelNumber: level,
+  );
+}
+
+class _LayoutSudokuNotifier extends SudokuNotifier {
+  @override
+  Future<SudokuState> build() async => _layoutFixture(1);
+
+  @override
+  Future<void> loadLevel(int level) async {
+    state = AsyncValue.data(_layoutFixture(level));
+  }
+}
 
 void main() {
   test('Sudoku campaign creates 20 distinct unique-solution levels', () {
@@ -117,18 +144,10 @@ void main() {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
-    final container = ProviderContainer();
-    final keepAlive = container.listen(
-        sudokuNotifierProvider, (previous, next) {});
-    addTearDown(() {
-      keepAlive.close();
-      container.dispose();
-    });
-    // Allow the real isolate-backed generator to complete outside fake async.
-    await tester.runAsync(
-        () async => container.read(sudokuNotifierProvider.future));
-    await tester.pumpWidget(UncontrolledProviderScope(
-      container: container,
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        sudokuNotifierProvider.overrideWith(_LayoutSudokuNotifier.new),
+      ],
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -136,12 +155,11 @@ void main() {
       ),
     ));
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
     expect(find.byKey(const ValueKey('sudoku_level_selector')),
         findsOneWidget);
     expect(find.textContaining('Level 1 of 20'), findsOneWidget);
     await tester.tap(find.byTooltip('Next Sudoku level'));
-    await tester.runAsync(
-        () async => container.read(sudokuNotifierProvider.future));
     await tester.pump();
     expect(find.textContaining('Level 2 of 20'), findsOneWidget);
     expect(tester.takeException(), isNull);
