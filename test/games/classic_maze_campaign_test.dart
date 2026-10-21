@@ -77,6 +77,8 @@ void main() {
     try {
       Hive.init(directory.path);
       await Hive.openBox('app_meta');
+      final initialKeepAlive = initialContainer.listen(
+          classicMazeNotifierProvider, (previous, next) {});
       final notifier = initialContainer.read(classicMazeNotifierProvider.notifier);
       notifier.loadLevel(7);
       final maze = initialContainer.read(classicMazeNotifierProvider);
@@ -91,8 +93,11 @@ void main() {
       expect(CampaignProgress.selectedLevel('classic_maze', count: 20), 7);
       expect(CampaignProgress.loadActive('classic_maze', 7,
           maxLength: 6001), hasLength(3));
+      initialKeepAlive.close();
       initialContainer.dispose();
       final restoredContainer = ProviderContainer();
+      final restoredKeepAlive = restoredContainer.listen(
+          classicMazeNotifierProvider, (previous, next) {});
       try {
         final restoreNotifier = restoredContainer.read(
             classicMazeNotifierProvider.notifier);
@@ -110,6 +115,7 @@ void main() {
         expect(clean.playerRow, 1);
         expect(clean.playerCol, 1);
       } finally {
+        restoredKeepAlive.close();
         restoredContainer.dispose();
       }
     } finally {

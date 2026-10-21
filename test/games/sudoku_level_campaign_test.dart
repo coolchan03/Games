@@ -58,6 +58,8 @@ void main() {
     try {
       Hive.init(directory.path);
       await Hive.openBox('app_meta');
+      final firstKeepAlive = firstContainer.listen(
+          sudokuNotifierProvider, (previous, next) {});
       final first = await firstContainer.read(sudokuNotifierProvider.future);
       final original = first.initialBoard;
       var emptyR = -1;
@@ -82,14 +84,18 @@ void main() {
       final firstValue = firstContainer.read(sudokuNotifierProvider).value!;
       expect(firstValue.currentBoard[emptyR][emptyC], value);
 
+      firstKeepAlive.close();
       firstContainer.dispose();
       final second = ProviderContainer();
+      final secondKeepAlive = second.listen(
+          sudokuNotifierProvider, (previous, next) {});
       try {
         final restored = await second.read(sudokuNotifierProvider.future);
         expect(restored.levelNumber, 1);
         expect(restored.currentBoard[emptyR][emptyC], value);
         expect(restored.initialBoard[emptyR][emptyC], 0);
       } finally {
+        secondKeepAlive.close();
         second.dispose();
       }
 
@@ -111,19 +117,32 @@ void main() {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(ProviderScope(
+    final container = ProviderContainer();
+    final keepAlive = container.listen(
+        sudokuNotifierProvider, (previous, next) {});
+    addTearDown(() {
+      keepAlive.close();
+      container.dispose();
+    });
+    // Allow the real isolate-backed generator to complete outside fake async.
+    await tester.runAsync(
+        () async => container.read(sudokuNotifierProvider.future));
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
       child: MaterialApp(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: const SudokuScreen(),
       ),
     ));
-    await tester.pumpAndSettle(const Duration(milliseconds: 300));
+    await tester.pump();
     expect(find.byKey(const ValueKey('sudoku_level_selector')),
         findsOneWidget);
     expect(find.textContaining('Level 1 of 20'), findsOneWidget);
     await tester.tap(find.byTooltip('Next Sudoku level'));
-    await tester.pumpAndSettle(const Duration(milliseconds: 300));
+    await tester.runAsync(
+        () async => container.read(sudokuNotifierProvider.future));
+    await tester.pump();
     expect(find.textContaining('Level 2 of 20'), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, timeout: const Timeout(Duration(minutes: 2)));
