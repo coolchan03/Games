@@ -25,6 +25,16 @@ VERIFIED = {
         GAMES / "nonogram" / "nonogram_engine.dart",
         r"campaignLevelCount\s*=\s*20",
     ),
+    "minesweeper": (
+        "20", "20 seeded 10x8 minefields with safe first reveal, 9-28 mines",
+        GAMES / "minesweeper" / "minesweeper_engine.dart",
+        r"campaignLevelCount\s*=\s*20",
+    ),
+    "sokoban": (
+        "20", "20 seeded levels per difficulty; easy push-path BFS and all layouts tested",
+        GAMES / "sokoban" / "sokoban_engine.dart",
+        r"static SokobanLevel generate",
+    ),
 }
 
 
@@ -49,10 +59,6 @@ def audit():
                 raise RuntimeError(f"Verified level count missing for {game}")
             status = "verified_minimum_20_by_tests"
             levels = count
-        elif game == "sokoban":
-            status = "numbered_generator_needs_20_level_validation"
-            levels = "unbounded-seeded-candidate"
-            detail = "Level number advances; 20 distinct, solvable levels not yet regression tested"
         else:
             status = "not_yet_reviewed"
             levels = "unknown"

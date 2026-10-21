@@ -2,48 +2,58 @@
 
 Updated: 2026-10-20
 
-The catalog contains 370 game screens. The question is not whether the game
-can restart: **a level-based game needs at least 20 genuinely distinct,
-playable, testable levels**. Every level must be completable, progression should
-scale where reasonable, and offline progress should survive reopening the app.
-Board/card games, reflex drills, and infinite-score games may instead use
-repeatable rounds, AI difficulties, and meaningful variations.
+The catalog contains 370 game screens. A level-based game should have
+**at least 20 distinct, playable, testable levels**. Levels should be
+completable, meaningful, and increasing in challenge, with offline progression.
+Competitive board/card games and reaction drills may instead qualify via
+replayable rounds, local opponents, meaningful difficulty, or other variations.
 
-## Verified / in-progress contracts
+## Campaigns covered by automated tests
 
-| Game | Minimum | Mechanism | Evidence |
+| Game | Minimum | Mechanism | Test |
 | --- | ---: | --- | --- |
-| Detective Casebook | 20 | 12 authored cases + 8 fixed-seed, solver-checked generated mysteries | casebook_engine.dart, twenty_level_campaign_test.dart |
-| Nonogram | 20 | deterministic puzzles; unique-solution search; levels 1-20 grow from 5x5 to 9x9 | nonogram_engine.dart, twenty_level_campaign_test.dart |
-| Sokoban | unbounded candidate | indexed seed, Easy/Medium/Hard | MUST still verify first 20 maps are distinct, solvable, and responsive |
+| Detective Casebook | 20 | 12 authored + 8 fixed-seed, solver-checked mysteries | twenty_level_campaign_test.dart |
+| Nonogram | 20 | 20 deterministic, unique-solution levels, 5x5 through 9x9 | twenty_level_campaign_test.dart |
+| Minesweeper | 20 | 20 seeded 10x8 boards, nine through 28 mines, first-reveal protection | minesweeper_campaign_test.dart |
+| Sokoban | 20 in each difficulty | Seeded maps for Easy, Medium and Hard; BFS push-solution validation for first 20 Easy levels and structural/distinctness checks for all 60 maps | sokoban_level_coverage_test.dart |
 
-The two 20-level implementations still require passing CI in the release
-candidate before they can be considered delivered. The existing board game
-catalog does not automatically satisfy this milestone.
+All four campaigns have numbered progression and offline selected-level
+persistence; completion is stored for each campaign (and per difficulty in
+Sokoban). In Minesweeper the first clicked square changes the protected mine
+layout, so the test compares levels using a common starting square. Its
+generator ensures a safe opening but **does not guarantee no-guess solutions**.
+Sokoban Hard and Medium puzzles have structural tests but do not yet have a
+complete automated reachability proof for all 20 of those variations.
 
-The full 370-row inventory is in **LEVEL_COVERAGE_AUDIT_20261020.csv**.
-Generate it again with:
+These source changes need to pass CI and physical device QA before release
+certification. Do not conflate a source-code scan with gameplay testing.
 
-`python tool/audit_level_progression.py --csv docs/LEVEL_COVERAGE_AUDIT_20261020.csv`
+## Full inventory
 
-`--strict` deliberately fails until the catalog has been completely reviewed
-and either the 20-level standard is verified or a justified non-level-based
-classification is documented. A "level" string in source code is only a clue,
-not proof of 20 levels.
+The full 370-row per-game inventory is maintained at
+**docs/LEVEL_COVERAGE_AUDIT_20261020.csv**. Re-run with:
 
-## Next priority
+\`python tool/audit_level_progression.py --csv docs/LEVEL_COVERAGE_AUDIT_20261020.csv\`
 
-1. Inspect all logic, deduction, maze and solitaire puzzle engines for actual
-   level counts and repeated levels, beginning with Minesweeper, maze variants,
-   Sudoku, Akari, Kakuro, Word Search, and the Simon Tatham puzzles.
-2. For finite games, build at least 20 genuinely different puzzles with level
-   selection, safe win state and persistence. For random generators, test a
-   stable sample of at least 20 seeds and prove validity and uniqueness where
-   relevant.
-3. Classify competitive board/card games separately as replayable, with
-   meaningful local opponents, match variations and difficulty settings.
-4. Add end-to-end phone and Android interaction checks, including offline
-   reopening, progress retention, difficulty progression and UI accessibility.
+\`--strict\` intentionally fails until every game has been examined and either
+20 levels are verified or a documented replayable-game exemption is accepted.
+A "level" keyword hit alone is not proof of coverage.
 
-Do not turn the preliminary 58 "level" keyword hits into a claim of verified
-coverage. Manual and engine-level examination remains required for 368 games.
+With these four candidate campaigns, 366 titles still require classification,
+coverage testing or new progression. The highest priority unreviewed puzzle
+engines include Sudoku, the maze variants, Akari, Kakuro, Word Search and other
+deduction puzzles.
+
+## Follow-up tests and quality gates
+
+1. Confirm Minesweeper 20-level gameplay on Android, including narrow phone
+   landscape and portrait, tapping and long-pressing with Reveal/Flag.
+2. Complete the remaining Sokoban Medium and Hard reachability audit without
+   letting exhaustive solvers stall CI.
+3. Implement Sudoku and maze campaigns with at least 20 reproducible levels,
+   unique solutions where needed, and offline save/resume of active puzzles.
+4. Classify all competitive and free-play games as replayable rather than
+   falsely numbering arbitrary matches.
+5. Verify actual PWA offline install, reload, update and Android persistence.
+
+No new games or external multiplayer services are needed for this phase.

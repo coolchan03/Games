@@ -47,33 +47,64 @@ class MinesweeperEngine {
   final int rows;
   final int cols;
   final int mineCount;
-  final Random _random = Random();
+  /// Every chapter has a distinct deterministic seed and a slightly
+  /// larger mine count. These are replayable challenges, not random restarts.
+  static const int campaignLevelCount = 20;
+
+  static int minesForLevel(int level) {
+    RangeError.checkValueInInterval(level, 1, campaignLevelCount, 'level');
+    return 8 + level; // 9 on level 1, 28 on level 20.
+  }
+
+  static int seedForLevel(int level) {
+    RangeError.checkValueInInterval(level, 1, campaignLevelCount, 'level');
+    return 33017 + level * 7919;
+  }
+
+  final int? seed;
 
   MinesweeperEngine({
     this.rows = 10,
     this.cols = 8,
     this.mineCount = 12,
-  });
+    this.seed,
+  }) {
+    if (rows < 1 || cols < 1 || mineCount < 0 || mineCount >= rows * cols) {
+      throw ArgumentError('Invalid Minesweeper board size or mine count');
+    }
+  }
 
   List<List<MinesweeperCell>> generateBoard({int? startRow, int? startCol}) {
-    List<List<bool>> mineLocations = List.generate(rows, (_) => List.filled(cols, false));
-    int minesPlaced = 0;
-
-    // Place mines randomly, avoiding the starting cell and its neighbors if provided
-    while (minesPlaced < mineCount) {
-      int r = _random.nextInt(rows);
-      int c = _random.nextInt(cols);
-
-      if (mineLocations[r][c]) continue;
-      
-      if (startRow != null && startCol != null) {
-        // Avoid 3x3 area around start
-        if ((r - startRow).abs() <= 1 && (c - startCol).abs() <= 1) continue;
-      }
-
-      mineLocations[r][c] = true;
-      minesPlaced++;
+    if ((startRow == null) != (startCol == null)) {
+      throw ArgumentError('Both safe-start coordinates are required');
     }
+    if (startRow != null &&
+        (startRow < 0 || startRow >= rows ||
+            startCol! < 0 || startCol >= cols)) {
+      throw RangeError('Safe first move must be inside the board');
+    }
+
+    // A fixed seed together with a first-click coordinate always reproduces
+    // the exact same hidden mine layout after an app restart.
+    final random = seed == null
+        ? Random()
+        : Random(seed! + (startRow ?? -1) * 131 + (startCol ?? -1) * 17);
+    final available = <int>[
+      for (var r = 0; r < rows; r++)
+        for (var c = 0; c < cols; c++)
+          if (startRow == null ||
+              (r - startRow).abs() > 1 || (c - startCol!).abs() > 1)
+            r * cols + c,
+    ];
+    if (mineCount > available.length) {
+      throw ArgumentError('Too many mines to protect the first 3x3 area');
+    }
+    available.shuffle(random);
+    final mines = available.take(mineCount).toSet();
+    final mineLocations = List<List<bool>>.generate(
+      rows,
+      (r) => List<bool>.generate(cols, (c) => mines.contains(r * cols + c)),
+    );
 
     List<List<MinesweeperCell>> board = List.generate(rows, (r) {
       return List.generate(cols, (c) {

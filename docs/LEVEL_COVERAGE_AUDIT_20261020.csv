@@ -187,7 +187,7 @@ mental_abacus,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as lev
 mental_calendar,not_yet_reviewed,unknown,0,0,1,"Needs manual classification as level-based or replayable, then a gameplay test"
 mental_mapping,not_yet_reviewed,unknown,0,1,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 mental_rotation,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
-minesweeper,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
+minesweeper,verified_minimum_20_by_tests,20,1,1,0,"20 seeded 10x8 minefields with safe first reveal, 9-28 mines"
 mirror_image,not_yet_reviewed,unknown,1,1,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 mirror_maze,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 mirror_tracing,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
@@ -291,7 +291,7 @@ skyscrapers,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level
 slide_puzzle,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 slitherlink,not_yet_reviewed,unknown,1,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 snakes_and_ladders,not_yet_reviewed,unknown,1,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
-sokoban,numbered_generator_needs_20_level_validation,unbounded-seeded-candidate,1,1,1,"Level number advances; 20 distinct, solvable levels not yet regression tested"
+sokoban,verified_minimum_20_by_tests,20,1,1,1,20 seeded levels per difficulty; easy push-path BFS and all layouts tested
 sopt,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 source_monitoring,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 spades,not_yet_reviewed,unknown,1,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"

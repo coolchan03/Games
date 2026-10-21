@@ -1,7 +1,7 @@
 import "package:puzzle/l10n/app_localizations.dart";
+import '../common/campaign_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../widgets/game_completion_dialog.dart';
 import '../../../../utils/design_system.dart';
 import '../../../../utils/haptic_feedback.dart';
 import '../../../../widgets/tangible.dart';
@@ -53,15 +53,66 @@ class _MinesweeperScreenState extends ConsumerState<MinesweeperScreen> {
           return Column(
             children: [
               const SizedBox(height: DesignSystem.spaceSM),
+              _buildLevelPicker(state),
+              const SizedBox(height: DesignSystem.spaceSM),
               _buildHeader(state),
               const Spacer(),
-              _buildBoard(state, notifier, constraints.maxHeight * 0.55),
+              _buildBoard(state, notifier, constraints.maxHeight * 0.57),
               const Spacer(),
               _buildControls(),
               const SizedBox(height: DesignSystem.spaceLG),
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildLevelPicker(MinesweeperState state) {
+    final completed = CampaignProgress.load(
+      'minesweeper', maxLevel: MinesweeperEngine.campaignLevelCount,
+    );
+    final notifier = ref.read(minesweeperNotifierProvider.notifier);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceLG),
+      child: Row(
+        children: [
+          IconButton(
+            tooltip: 'Previous Minesweeper level',
+            onPressed: state.levelNumber > 1
+                ? () => notifier.loadLevel(state.levelNumber - 1) : null,
+            icon: const Icon(Icons.chevron_left),
+          ),
+          Expanded(
+            child: DropdownButton<int>(
+              key: const ValueKey('minesweeper_level_selector'),
+              isExpanded: true,
+              value: state.levelNumber,
+              items: [
+                for (var level = 1;
+                    level <= MinesweeperEngine.campaignLevelCount;
+                    level++)
+                  DropdownMenuItem(
+                    value: level,
+                    child: Text(
+                      '${completed.contains(level) ? '[Done] ' : ''}'
+                      'Level $level of 20 - ${MinesweeperEngine.minesForLevel(level)} mines',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: (level) {
+                if (level != null) notifier.loadLevel(level);
+              },
+            ),
+          ),
+          IconButton(
+            tooltip: 'Next Minesweeper level',
+            onPressed: state.levelNumber < MinesweeperEngine.campaignLevelCount
+                ? () => notifier.loadLevel(state.levelNumber + 1) : null,
+            icon: const Icon(Icons.chevron_right),
+          ),
+        ],
       ),
     );
   }
@@ -230,42 +281,41 @@ class _MinesweeperScreenState extends ConsumerState<MinesweeperScreen> {
   }
 
   void _showGameOverDialog(BuildContext context, bool isWon) {
-    final l10n = AppLocalizations.of(context)!;
-    if (isWon) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => GameCompletionDialog(
-          onHome: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-          },
-          onPlayAgain: () {
-            ref.read(minesweeperNotifierProvider.notifier).reset();
-            Navigator.of(context).pop();
-          },
-          title: l10n.minesweeperWin.toUpperCase(),
-          message: l10n.completed,
-        ),
-      );
-      return;
-    }
-
-    showDialog(
+    final level = ref.read(minesweeperNotifierProvider).levelNumber;
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => GameCompletionDialog(
-        isVictory: false,
-        onHome: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).pop();
-        },
-        onPlayAgain: () {
-          ref.read(minesweeperNotifierProvider.notifier).reset();
-          Navigator.of(context).pop();
-        },
-        title: l10n.gameOver.toUpperCase(),
-        message: l10n.timeUp,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(isWon ? 'Level $level cleared!' : 'Mine hit!'),
+        content: Text(isWon
+            ? 'You cleared the ${MinesweeperEngine.minesForLevel(level)} mines '
+              'challenge. Your completion is saved offline.'
+            : 'Try level $level again. Your first revealed square is safe.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              Navigator.of(context).maybePop();
+            },
+            child: const Text('Home'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              ref.read(minesweeperNotifierProvider.notifier).reset();
+            },
+            child: Text(isWon ? 'Replay level' : 'Retry level'),
+          ),
+          if (isWon && level < MinesweeperEngine.campaignLevelCount)
+            FilledButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                ref.read(minesweeperNotifierProvider.notifier)
+                    .loadLevel(level + 1);
+              },
+              child: const Text('Next level'),
+            ),
+        ],
       ),
     );
   }

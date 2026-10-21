@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../common/game_kit.dart';
+import '../common/campaign_progress.dart';
 import '../common/grid_board_touch_area.dart';
 import 'sokoban_engine.dart';
 
@@ -23,7 +26,7 @@ class SokobanScreen extends StatefulWidget {
 }
 
 class _SokobanScreenState extends State<SokobanScreen> {
-  int levelNumber = 1;
+  int levelNumber = CampaignProgress.selectedLevel('sokoban', count: 20);
   int difficulty = 1;
   late SokobanGame game = _load();
   final focus = FocusNode();
@@ -39,7 +42,32 @@ class _SokobanScreenState extends State<SokobanScreen> {
     super.dispose();
   }
 
-  void _step(int d) => setState(() => game.step(d));
+  void _setLevel(int level) {
+    if (level < 1) return;
+    setState(() {
+      levelNumber = level;
+      game = _load();
+    });
+    if (level <= 20) {
+      unawaited(CampaignProgress.saveSelected('sokoban', level));
+    }
+  }
+
+  Set<int> _completedForDifficulty() =>
+      CampaignProgress.load('sokoban_$difficulty');
+
+  void _recordSolved() {
+    if (!game.solved) return;
+    final completed = _completedForDifficulty();
+    if (completed.add(levelNumber)) {
+      unawaited(CampaignProgress.save('sokoban_$difficulty', completed));
+    }
+  }
+
+  void _step(int d) => setState(() {
+    game.step(d);
+    _recordSolved();
+  });
 
   void _tapCell(int i) {
     final w = game.level.w;
@@ -52,6 +80,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
       } else {
         game.walkTo(i);
       }
+      _recordSolved();
     });
   }
 
@@ -77,6 +106,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final lvl = game.level;
+    final completedLevels = _completedForDifficulty();
     return GameScaffold(
       gameId: 'sokoban',
       completed: game.solved,
@@ -86,8 +116,11 @@ class _SokobanScreenState extends State<SokobanScreen> {
           'at a time and never pull. Tap a square next to you (or use the '
           'arrows / keyboard) to step, or tap any open square to walk there. '
           'Swipe across the board to take one step in that direction. '
-          'Every level is generated backwards from the solution, so all of '
-          'them can be solved. Z or Backspace undoes a move.',
+          'The first 20 numbered levels are available from the selector on '
+          'Easy, Medium or Hard; use the arrows to explore more levels. '
+          'Completion markers are saved offline separately per difficulty. '
+          'Levels are generated backwards from solved positions. '
+          'Z or Backspace undoes a move.'
       children: [
         SegmentedButton<int>(
           segments: const [
@@ -102,11 +135,33 @@ class _SokobanScreenState extends State<SokobanScreen> {
           }),
         ),
         Row(children: [
+          const SizedBox(width: 8),
+          const Text('First 20 levels:'),
+          const SizedBox(width: 8),
+          Expanded(child: DropdownButton<int>(
+            key: const ValueKey('sokoban_level_selector'),
+            isExpanded: true,
+            value: levelNumber <= 20 ? levelNumber : null,
+            hint: Text('Level $levelNumber'),
+            items: [
+              for (var n = 1; n <= 20; n++)
+                DropdownMenuItem<int>(
+                  value: n,
+                  child: Text(
+                    '${completedLevels.contains(n) ? '[Done] ' : ''}Level $n',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+            onChanged: (level) {
+              if (level != null) _setLevel(level);
+            },
+          )),
+          const SizedBox(width: 8),
+        ]),
+        Row(children: [
           IconButton(
-            onPressed: levelNumber > 1 ? () => setState(() {
-              levelNumber--;
-              game = _load();
-            }) : null,
+            onPressed: levelNumber > 1 ? () => _setLevel(levelNumber - 1) : null,
             icon: const Icon(Icons.chevron_left),
           ),
           Expanded(
@@ -118,10 +173,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
             ),
           ),
           IconButton(
-            onPressed: () => setState(() {
-              levelNumber++;
-              game = _load();
-            }),
+            onPressed: () => _setLevel(levelNumber + 1),
             icon: const Icon(Icons.chevron_right),
           ),
         ]),
@@ -191,10 +243,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
         ]),
         if (game.solved)
           FilledButton(
-            onPressed: () => setState(() {
-              levelNumber++;
-              game = _load();
-            }),
+            onPressed: () => _setLevel(levelNumber + 1),
             child: const Text('Next level'),
           ),
       ],

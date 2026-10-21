@@ -2761,17 +2761,19 @@ const Map<String, GameGuide> gameGuides = {
   "minesweeper": GameGuide(
     title: "Minesweeper",
     category: "LOGIC",
-    objective: "Clear the board without detonating any hidden mines, using numbered clues that indicate adjacent mines.",
-    controls: "Tap a tile to reveal it. Long-press to flag a suspected mine.",
+    objective: "Clear every safe square without revealing a mine. Work through 20 reproducible levels with 9 to 28 mines, or replay earlier levels. Higher levels have more mines.",
+    controls: "Use the level picker or arrows to select a level. Select Reveal then tap a square to uncover it; select Flag to mark a suspected mine. Long-press a square to flag or unflag it. Retry reproduces the same level and first-click arrangement.",
     walkthrough: const [
-      "Step 1: Tap a random tile to open up a starting area.",
-      "Step 2: Look at the numbers; a '1' means exactly one mine is adjacent to it.",
-      "Step 3: Long-press to place a flag where you are certain a mine exists.",
-      "Step 4: Safely tap all non-mine tiles to complete the level.",
+      "Step 1: Choose one of 20 levels. Each level has a fixed seed and a different mine layout.",
+      "Step 2: Reveal any square to begin; the first opened square and its adjacent 3x3 area are mine-free.",
+      "Step 3: Each number shows how many mines touch that square, including diagonals.",
+      "Step 4: Mark suspected mines with Flag mode or a long-press. Return to Reveal mode to open safe squares.",
+      "Step 5: Reveal every non-mine square to win. Your completion is saved and Next Level advances.",
     ],
     strategies: const [
-      "If a '1' touches only one unrevealed tile, that tile MUST be a mine.",
-      "Once you've flagged the correct number of mines around a number, all its other adjacent tiles are safe.",
+      "If a '1' touches only one hidden square, that square must be a mine.",
+      "When the number of neighboring flags matches a clue, its remaining unmarked neighbors are safe only if those flags are correct.",
+      "A replay uses the same seed, but choosing a different first square changes the protected opening. Higher levels may require careful guesses.",
     ],
   ),
   "mirror_image": GameGuide(
