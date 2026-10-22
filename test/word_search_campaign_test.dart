@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:puzzle/ui/features/games/word_search/word_search_engine.dart';
 import 'package:puzzle/ui/features/games/word_search/word_search_provider.dart';
@@ -27,6 +30,39 @@ void main() {
       final signature = board.grid.map((row) => row.join()).join('|');
       expect(again.grid.map((row) => row.join()).join('|'), signature);
       expect(fingerprints.add(signature), isTrue, reason: 'Duplicate board at level $level');
+    }
+  });
+
+  test('save, reload and restart an active Word Search level', () async {
+    final directory = await Directory.systemTemp.createTemp('games_word_search_');
+    Hive.init(directory.path);
+    await Hive.openBox('app_meta');
+    final first = ProviderContainer();
+    try {
+      final notifier = first.read(wordSearchNotifierProvider.notifier);
+      await notifier.loadLevel(1);
+      final word = first.read(wordSearchNotifierProvider).board!.words.first;
+      final path = word.positions;
+      notifier.startSelection(path.first.x, path.first.y);
+      notifier.updateSelection(path.last.x, path.last.y);
+      await notifier.endSelection();
+      await notifier.flushProgress();
+      expect(first.read(wordSearchNotifierProvider).foundWords, contains(word.word));
+      final second = ProviderContainer();
+      try {
+        await second.read(wordSearchNotifierProvider.notifier).initGame();
+        final resumed = second.read(wordSearchNotifierProvider);
+        expect(resumed.foundWords, contains(word.word));
+        expect(resumed.board!.words.first.isFound, isTrue);
+        await second.read(wordSearchNotifierProvider.notifier).restartLevel();
+        expect(second.read(wordSearchNotifierProvider).foundWords, isEmpty);
+      } finally {
+        second.dispose();
+      }
+    } finally {
+      first.dispose();
+      await Hive.close();
+      await directory.delete(recursive: true);
     }
   });
 
