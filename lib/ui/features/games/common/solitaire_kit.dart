@@ -133,21 +133,24 @@ class CardColumn extends StatelessWidget {
       maxSimultaneousDrags: 1,
       feedback: Material(
         color: Colors.transparent,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CardView(card: card.card, width: width, selected: true),
-            if (count > 1)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.black87,
-                  borderRadius: BorderRadius.circular(8),
+        child: SizedBox(
+          width: width,
+          height: width * 1.4 + (count.clamp(1, 7) - 1) * width * .22,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              for (var offset = 0; offset < count.clamp(1, 7); offset++)
+                Positioned(
+                  top: offset * width * .22,
+                  left: 0,
+                  child: CardView(
+                    card: cards[i + offset].card,
+                    width: width,
+                    selected: offset == 0,
+                  ),
                 ),
-                child: Text('$count cards',
-                    style: const TextStyle(color: Colors.white, fontSize: 12)),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
       childWhenDragging: Opacity(opacity: .35, child: face),
