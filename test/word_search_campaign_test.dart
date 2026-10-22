@@ -38,6 +38,9 @@ void main() {
     Hive.init(directory.path);
     await Hive.openBox('app_meta');
     final first = ProviderContainer();
+    final firstKeepAlive = first.listen(
+      wordSearchNotifierProvider, (previous, next) {},
+    );
     try {
       final notifier = first.read(wordSearchNotifierProvider.notifier);
       await notifier.loadLevel(1);
@@ -49,6 +52,9 @@ void main() {
       await notifier.flushProgress();
       expect(first.read(wordSearchNotifierProvider).foundWords, contains(word.word));
       final second = ProviderContainer();
+      final secondKeepAlive = second.listen(
+        wordSearchNotifierProvider, (previous, next) {},
+      );
       try {
         await second.read(wordSearchNotifierProvider.notifier).initGame();
         final resumed = second.read(wordSearchNotifierProvider);
@@ -57,9 +63,11 @@ void main() {
         await second.read(wordSearchNotifierProvider.notifier).restartLevel();
         expect(second.read(wordSearchNotifierProvider).foundWords, isEmpty);
       } finally {
+        secondKeepAlive.close();
         second.dispose();
       }
     } finally {
+      firstKeepAlive.close();
       first.dispose();
       await Hive.close();
       await directory.delete(recursive: true);
