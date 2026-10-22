@@ -108,7 +108,8 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
           'in alternating colours. The four free cells each hold one card.\n\n'
           'You can move a run of cards at once if there is enough free space: '
           '(free cells + 1) × 2 for each empty column. Deals are numbered '
-          'like the classic Windows game — nearly all are solvable.',
+          'like the classic Windows game — nearly all are solvable. '
+          'Drag cards or valid descending stacks onto an eligible destination.',
       children: [
         Row(children: [
           Expanded(

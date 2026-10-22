@@ -78,7 +78,8 @@ class _SpiderScreenState extends State<SpiderScreen> {
           'only runs of the same suit move together. Complete a King-to-Ace '
           'run in one suit to clear it; clear all eight to win.\n\nTap the '
           'stock to deal one card onto every column (all columns must have '
-          'at least one card). Choose 1, 2 or 4 suits for difficulty.',
+          'at least one card). Choose 1, 2 or 4 suits for difficulty. '
+          'Drag a same-suit descending run to another column, or tap it.',
       children: [
         Row(children: [
           Expanded(

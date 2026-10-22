@@ -100,7 +100,8 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
           'column. Tap the stock to turn cards over; when it runs out, tap '
           'again to recycle the waste.\n\nTap a card to send it to the best '
           'spot automatically. If there is none it is selected — then tap '
-          'where it should go.',
+          'where it should go. Drag a face-up card or valid stack directly '
+          'to its destination. A dead end is shown when no useful moves remain.',
       children: [
         Row(children: [
           Expanded(
