@@ -43,6 +43,16 @@ class _SpiderScreenState extends State<SpiderScreen> {
     });
   }
 
+  void _drop(Object source, int target) {
+    if (source is! (int, int)) return;
+    setState(() {
+      if (game.move(source.$1, source.$2, target)) {
+        selected = null;
+        note = null;
+      }
+    });
+  }
+
   void _tapEmpty(int col) {
     if (selected == null) return;
     setState(() {
@@ -53,11 +63,13 @@ class _SpiderScreenState extends State<SpiderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final compactLandscape = size.width > size.height && size.height < 650;
     return GameScaffold(
       gameId: 'spider',
       completed: game.won,
       title: 'Spider',
-      maxWidth: 820,
+      maxWidth: compactLandscape ? 1120 : 820,
       onNewGame: () => setState(() {
         game = SpiderGame(suits: suits);
         selected = null;
@@ -96,11 +108,13 @@ class _SpiderScreenState extends State<SpiderScreen> {
         StatusBanner(
           game.won
               ? 'You won! Score ${game.score}'
-              : note ?? 'Runs ${game.completed}/8 · Score ${game.score} · Moves ${game.moves}',
-          highlight: game.won,
+              : game.noMovesLeft
+                  ? 'No moves left - undo or start a new deal'
+                  : note ?? 'Runs ${game.completed}/8, Score ${game.score}, Moves ${game.moves}',
+          highlight: game.won || game.noMovesLeft,
         ),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 10, gap: 3, maxW: 64);
+          final w = columnWidth(box.maxWidth - 16, 10, gap: 3, maxW: compactLandscape ? 78 : 64);
           return Felt(
             child: Column(children: [
               Row(
@@ -111,7 +125,13 @@ class _SpiderScreenState extends State<SpiderScreen> {
                     CardColumn(
                       cards: game.tableau[t],
                       width: w,
-                      maxHeight: w * 9,
+                      maxHeight: compactLandscape
+                          ? (size.height * .6).clamp(w * 2.2, w * 5)
+                          : w * 9,
+                      dragDataAt: (i) => i >= game.runStart(t) ? (t, i) : null,
+                      canAccept: (source) => source is (int, int) &&
+                          game.canMove(source.$1, source.$2, t),
+                      onAccept: (source) => _drop(source, t),
                       selectedFrom: selected?.$1 == t ? selected!.$2 : null,
                       onTapCard: (i) => _tap(t, i),
                       onTapEmpty: () => _tapEmpty(t),

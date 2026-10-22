@@ -53,6 +53,9 @@ class _GolfSolitaireScreenState extends State<GolfSolitaireScreen> {
                       cards: [for (final card in game.columns[c]) SCard(card, up: true)],
                       width: w,
                       highlight: game.canPlay(c),
+                      dragDataAt: (index) =>
+                          index == game.columns[c].length - 1 && game.canPlay(c)
+                              ? c : null,
                       onTapCard: (_) => setState(() => game.play(c)),
                     ),
                 ],
@@ -67,7 +70,15 @@ class _GolfSolitaireScreenState extends State<GolfSolitaireScreen> {
                   onTap: () => setState(game.draw),
                 ),
                 const SizedBox(width: 16),
-                CardView(card: game.waste.last, width: w * 1.3),
+                PileSlot(
+                  top: game.waste.last,
+                  width: w * 1.3,
+                  canAccept: (source) => source is int &&
+                      source >= 0 && source < game.columns.length &&
+                      game.canPlay(source),
+                  onAccept: (source) =>
+                      setState(() => game.play(source as int)),
+                ),
               ]),
             ]),
           );

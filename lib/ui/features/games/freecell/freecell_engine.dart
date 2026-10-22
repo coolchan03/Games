@@ -148,6 +148,35 @@ class FreeCellGame {
     return true;
   }
 
+  /// Detect actual legal transfers without mutating the deal.
+  bool get noMovesLeft {
+    if (won) return false;
+    final sources = <FRef>[
+      for (var c = 0; c < cells.length; c++)
+        if (cells[c] != null) FRef(FPile.cell, c),
+      for (var f = 0; f < foundations.length; f++)
+        if (foundations[f].isNotEmpty) FRef(FPile.foundation, f),
+      for (var t = 0; t < tableau.length; t++)
+        for (var i = 0; i < tableau[t].length; i++)
+          FRef(FPile.tableau, t, i),
+    ];
+    for (final from in sources) {
+      for (var c = 0; c < cells.length; c++) {
+        if (canMove(from, FRef(FPile.cell, c))) return false;
+      }
+      for (var f = 0; f < foundations.length; f++) {
+        if (canMove(from, FRef(FPile.foundation, f))) return false;
+      }
+      for (var t = 0; t < tableau.length; t++) {
+        if (!canMove(from, FRef(FPile.tableau, t))) continue;
+        if (tableau[t].isEmpty &&
+            from.pile == FPile.tableau && from.card == 0) continue;
+        return false;
+      }
+    }
+    return true;
+  }
+
   FRef? autoTarget(FRef from) {
     final cards = _cards(from);
     if (cards.isEmpty) return null;

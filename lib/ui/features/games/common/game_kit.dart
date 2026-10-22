@@ -82,8 +82,14 @@ class GameScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final display = MediaQuery.sizeOf(context);
+    final compactLandscape =
+        display.width > display.height && display.height < 650;
     final content = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: compactLandscape ? 8 : 16,
+        vertical: compactLandscape ? 6 : 12,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -92,6 +98,7 @@ class GameScaffold extends StatelessWidget {
     );
     final scaffold = Scaffold(
       appBar: AppBar(
+        toolbarHeight: compactLandscape ? 44 : null,
         title: Text(title),
         actions: [
           IconButton(
@@ -110,7 +117,9 @@ class GameScaffold extends StatelessWidget {
         child: Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxWidth),
+            constraints: BoxConstraints(
+              maxWidth: compactLandscape ? display.width : maxWidth,
+            ),
             child: scrollable ? SingleChildScrollView(child: content) : content,
           ),
         ),

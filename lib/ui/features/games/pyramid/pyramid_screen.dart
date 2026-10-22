@@ -32,6 +32,50 @@ class _PyramidScreenState extends State<PyramidScreen> {
     });
   }
 
+  Widget _pyramidCard(int index, double width) {
+    final card = game.cardAt(index)!;
+    final free = game.isFree(index);
+    final face = CardView(
+      card: card,
+      width: width,
+      dimmed: !free,
+      selected: selected == index,
+      onTap: () => _tap(index),
+    );
+    final source = free
+        ? Draggable<Object>(
+            data: index,
+            feedback: Material(
+              color: Colors.transparent,
+              child: CardView(card: card, width: width, selected: true),
+            ),
+            childWhenDragging: Opacity(opacity: .35, child: face),
+            child: face,
+          )
+        : face;
+    return DragTarget<Object>(
+      onWillAcceptWithDetails: (details) {
+        final from = details.data;
+        return from is int && from != index && game.isFree(from) && free &&
+            aceLow(game.cardAt(from)!) + aceLow(card) == 13;
+      },
+      onAcceptWithDetails: (details) => setState(() {
+        if (game.remove(details.data as int, index)) selected = null;
+      }),
+      builder: (context, candidates, rejected) => DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: candidates.isNotEmpty
+                ? Theme.of(context).colorScheme.primary
+                : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: source,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final left = game.pyramid.where((c) => c != null).length;
@@ -84,13 +128,7 @@ class _PyramidScreenState extends State<PyramidScreen> {
                         Positioned(
                           top: r * h * .5,
                           left: (6 - r) * (w + 2) / 2 + c * (w + 2),
-                          child: CardView(
-                            card: game.pyramid[PyramidGame.indexOf(r, c)],
-                            width: w,
-                            dimmed: !game.exposed(r, c),
-                            selected: selected == PyramidGame.indexOf(r, c),
-                            onTap: () => _tap(PyramidGame.indexOf(r, c)),
-                          ),
+                          child: _pyramidCard(PyramidGame.indexOf(r, c), w),
                         ),
                 ]),
               ),
@@ -112,6 +150,15 @@ class _PyramidScreenState extends State<PyramidScreen> {
                   top: game.waste.isEmpty ? null : game.waste.last,
                   width: w * 1.2,
                   selected: selected == -1,
+                  dragData: game.waste.isEmpty ? null : -1,
+                  canAccept: (source) => source is int &&
+                      source >= 0 && game.isFree(source) &&
+                      game.waste.isNotEmpty &&
+                      aceLow(game.cardAt(source)!) +
+                          aceLow(game.waste.last) == 13,
+                  onAccept: (source) => setState(() {
+                    if (game.remove(source as int, -1)) selected = null;
+                  }),
                   onTap: () => _tap(-1),
                 ),
               ]),

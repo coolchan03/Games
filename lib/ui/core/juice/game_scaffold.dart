@@ -66,6 +66,10 @@ class _GameScaffoldState extends ConsumerState<GameScaffold> {
     final colorScheme = theme.colorScheme;
     final mediaQuery = MediaQuery.of(context);
     final isMobile = DesignSystem.isMobile(context);
+    // Landscape phones can exceed the portrait mobile breakpoint while
+    // retaining a short viewport. Never squeeze their boards to ~300 px.
+    final compactLandscape = mediaQuery.size.width > mediaQuery.size.height &&
+        mediaQuery.size.shortestSide < 650;
     
     // Calculate a responsive max width.
     // For games, we don't want the board to be wider than the available height
@@ -78,7 +82,7 @@ class _GameScaffoldState extends ConsumerState<GameScaffold> {
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isMobile ? double.infinity : math.max(400.0, responsiveMaxWidth)),
+            constraints: BoxConstraints(maxWidth: (isMobile || compactLandscape) ? double.infinity : math.max(400.0, responsiveMaxWidth)),
             child: Column(
               children: [
                 _buildAppBar(context),
@@ -92,7 +96,7 @@ class _GameScaffoldState extends ConsumerState<GameScaffold> {
           ? SafeArea(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: isMobile ? double.infinity : math.max(400.0, responsiveMaxWidth)),
+                  constraints: BoxConstraints(maxWidth: (isMobile || compactLandscape) ? double.infinity : math.max(400.0, responsiveMaxWidth)),
                   child: widget.bottomNavigationBar,
                 ),
               ),

@@ -108,6 +108,21 @@ class SpiderGame {
     return sameSuit ?? any ?? empty;
   }
 
+  bool get noMovesLeft {
+    if (won || canDeal) return false;
+    for (var from = 0; from < tableau.length; from++) {
+      for (var index = runStart(from); index < tableau[from].length; index++) {
+        for (var to = 0; to < tableau.length; to++) {
+          if (!canMove(from, index, to)) continue;
+          // Relocating a whole column to a blank column alone is not progress.
+          if (index == 0 && tableau[to].isEmpty) continue;
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   bool get canDeal => stock.isNotEmpty && tableau.every((t) => t.isNotEmpty);
 
   bool deal() {

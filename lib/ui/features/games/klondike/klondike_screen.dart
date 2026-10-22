@@ -51,6 +51,31 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
     });
   }
 
+  void _drop(KRef from, KRef to) {
+    setState(() {
+      if (game.move(from, to)) selected = null;
+    });
+  }
+
+  Widget _wasteCard(int k, double width) {
+    final face = CardView(
+      card: game.waste[game.waste.length - 1 - k].card,
+      width: width,
+      selected: k == 0 && selected?.pile == KPile.waste,
+      onTap: k == 0 ? () => _tapSource(const KRef(KPile.waste)) : null,
+    );
+    if (k != 0) return face;
+    return Draggable<Object>(
+      data: const KRef(KPile.waste),
+      feedback: Material(
+        color: Colors.transparent,
+        child: CardView(card: game.waste.last.card, width: width, selected: true),
+      ),
+      childWhenDragging: Opacity(opacity: .35, child: face),
+      child: face,
+    );
+  }
+
   void _tapTarget(KRef to) {
     if (selected == null) return;
     setState(() {
@@ -61,12 +86,14 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final compactLandscape = size.width > size.height && size.height < 650;
     return GameScaffold(
       gameId: 'klondike',
       completed: game.won,
       title: 'Klondike',
       onNewGame: _newGame,
-      maxWidth: 720,
+      maxWidth: compactLandscape ? 1040 : 720,
       rules: 'Build four foundations up by suit from Ace to King. In the seven '
           'columns, build down in alternating colours (red on black). Any '
           'face-up run can move as a unit, and only a King may fill an empty '
@@ -97,11 +124,15 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
           ),
         ]),
         StatusBanner(
-          game.won ? 'You won in ${game.moves} moves!' : 'Moves: ${game.moves}',
-          highlight: game.won,
+          game.won
+              ? 'You won in ${game.moves} moves!'
+              : game.noMovesLeft
+                  ? 'No moves left - undo or start a new deal'
+                  : 'Moves: ${game.moves}',
+          highlight: game.won || game.noMovesLeft,
         ),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 7);
+          final w = columnWidth(box.maxWidth - 16, 7, maxW: compactLandscape ? 96 : 72);
           return Felt(
             child: Column(children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -128,12 +159,7 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
                                   : 0) *
                               w *
                               .35,
-                          child: CardView(
-                            card: game.waste[game.waste.length - 1 - k].card,
-                            width: w,
-                            selected: k == 0 && selected?.pile == KPile.waste,
-                            onTap: k == 0 ? () => _tapSource(const KRef(KPile.waste)) : null,
-                          ),
+                          child: _wasteCard(k, w),
                         ),
                   ].reversed.toList()),
                 ),
@@ -143,6 +169,12 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
                     width: w,
                     label: 'A',
                     selected: selected == KRef(KPile.foundation, f),
+                    dragData: game.foundations[f].isNotEmpty
+                        ? KRef(KPile.foundation, f) : null,
+                    canAccept: (source) => source is KRef &&
+                        game.canMove(source, KRef(KPile.foundation, f)),
+                    onAccept: (source) =>
+                        _drop(source as KRef, KRef(KPile.foundation, f)),
                     onTap: () => selected != null
                         ? _tapTarget(KRef(KPile.foundation, f))
                         : game.foundations[f].isEmpty
@@ -159,7 +191,15 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
                     CardColumn(
                       cards: game.tableau[t],
                       width: w,
-                      maxHeight: w * 7,
+                      maxHeight: compactLandscape
+                          ? (size.height * .58).clamp(w * 2.2, w * 5)
+                          : w * 7,
+                      dragDataAt: (i) => game.tableau[t][i].up
+                          ? KRef(KPile.tableau, t, i) : null,
+                      canAccept: (source) => source is KRef &&
+                          game.canMove(source, KRef(KPile.tableau, t)),
+                      onAccept: (source) =>
+                          _drop(source as KRef, KRef(KPile.tableau, t)),
                       selectedFrom: selected?.pile == KPile.tableau && selected?.index == t
                           ? selected!.card
                           : null,

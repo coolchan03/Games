@@ -70,6 +70,17 @@ class AcesUpGame {
     return false;
   }
 
+  bool canMoveToEmpty(int from, int to) =>
+      from >= 0 && from < 4 && to >= 0 && to < 4 &&
+      from != to && piles[from].length > 1 && piles[to].isEmpty;
+
+  bool moveToEmpty(int from, int to) {
+    if (!canMoveToEmpty(from, to)) return false;
+    _save();
+    piles[to].add(piles[from].removeLast());
+    return true;
+  }
+
   bool get won => stock.isEmpty && piles.every((p) => p.length == 1 && p.first.rank == Rank.ace);
   bool get stuck =>
       stock.isEmpty && !won && !List.generate(4, (i) => i).any((i) => canDiscard(i) || (piles[i].length > 1 && piles.any((p) => p.isEmpty)));
@@ -123,6 +134,14 @@ class _AcesUpScreenState extends State<AcesUpScreen> {
                     width: w,
                     maxHeight: w * 6,
                     highlight: game.canDiscard(i),
+                    dragDataAt: (k) =>
+                        k == game.piles[i].length - 1 &&
+                                game.piles[i].length > 1
+                            ? i : null,
+                    canAccept: (source) => source is int &&
+                        game.canMoveToEmpty(source, i),
+                    onAccept: (source) =>
+                        setState(() => game.moveToEmpty(source as int, i)),
                     onTapCard: (k) => k == game.piles[i].length - 1 ? setState(() => game.tap(i)) : null,
                   ),
                 GestureDetector(

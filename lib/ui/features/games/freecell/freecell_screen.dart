@@ -57,6 +57,12 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
     });
   }
 
+  void _drop(FRef from, FRef to) {
+    setState(() {
+      if (game.move(from, to)) _after();
+    });
+  }
+
   void _tapTarget(FRef to) {
     if (selected == null) return;
     setState(() {
@@ -89,11 +95,13 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
+    final compactLandscape = size.width > size.height && size.height < 650;
     return GameScaffold(
       gameId: 'freecell',
       completed: game.won,
       title: 'FreeCell',
-      maxWidth: 760,
+      maxWidth: compactLandscape ? 1060 : 760,
       onNewGame: () => setState(() => _deal(rng.nextInt(32000) + 1)),
       rules: 'All 52 cards are dealt face up into eight columns. Build the '
           'four foundations up by suit from Ace to King. Columns build down '
@@ -105,8 +113,12 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
         Row(children: [
           Expanded(
             child: StatusBanner(
-              game.won ? 'Solved deal #${game.number} in ${game.moves} moves!' : 'Deal #${game.number} · Moves ${game.moves}',
-              highlight: game.won,
+              game.won
+                  ? 'Solved deal #${game.number} in ${game.moves} moves!'
+                  : game.noMovesLeft
+                      ? 'No moves left - undo or choose a new deal'
+                      : 'Deal #${game.number}, Moves ${game.moves}',
+              highlight: game.won || game.noMovesLeft,
             ),
           ),
           IconButton(tooltip: 'Choose deal', onPressed: _chooseNumber, icon: const Icon(Icons.tag)),
@@ -120,7 +132,7 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
           ),
         ]),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 8);
+          final w = columnWidth(box.maxWidth - 16, 8, maxW: compactLandscape ? 90 : 72);
           return Felt(
             child: Column(children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -129,6 +141,10 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
                     top: game.cells[c]?.card,
                     width: w,
                     selected: selected == FRef(FPile.cell, c),
+                    dragData: game.cells[c] != null ? FRef(FPile.cell, c) : null,
+                    canAccept: (source) => source is FRef &&
+                        game.canMove(source, FRef(FPile.cell, c)),
+                    onAccept: (source) => _drop(source as FRef, FRef(FPile.cell, c)),
                     onTap: () => game.cells[c] == null
                         ? _tapTarget(FRef(FPile.cell, c))
                         : _tapSource(FRef(FPile.cell, c)),
@@ -138,7 +154,17 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
                     top: game.foundations[f].isEmpty ? null : game.foundations[f].last.card,
                     width: w,
                     label: 'A',
-                    onTap: () => _tapTarget(FRef(FPile.foundation, f)),
+                    dragData: game.foundations[f].isNotEmpty
+                        ? FRef(FPile.foundation, f) : null,
+                    canAccept: (source) => source is FRef &&
+                        game.canMove(source, FRef(FPile.foundation, f)),
+                    onAccept: (source) =>
+                        _drop(source as FRef, FRef(FPile.foundation, f)),
+                    onTap: () => selected != null
+                        ? _tapTarget(FRef(FPile.foundation, f))
+                        : game.foundations[f].isNotEmpty
+                            ? _tapSource(FRef(FPile.foundation, f))
+                            : null,
                   ),
               ]),
               const SizedBox(height: 10),
@@ -150,7 +176,14 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
                     CardColumn(
                       cards: game.tableau[t],
                       width: w,
-                      maxHeight: w * 7.5,
+                      maxHeight: compactLandscape
+                          ? (size.height * .58).clamp(w * 2.2, w * 5)
+                          : w * 7.5,
+                      dragDataAt: (i) => FRef(FPile.tableau, t, i),
+                      canAccept: (source) => source is FRef &&
+                          game.canMove(source, FRef(FPile.tableau, t)),
+                      onAccept: (source) =>
+                          _drop(source as FRef, FRef(FPile.tableau, t)),
                       selectedFrom: selected?.pile == FPile.tableau && selected?.index == t
                           ? selected!.card
                           : null,

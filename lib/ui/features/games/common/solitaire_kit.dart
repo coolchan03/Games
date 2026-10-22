@@ -33,6 +33,9 @@ class CardColumn extends StatelessWidget {
     this.selectedFrom,
     this.onTapCard,
     this.onTapEmpty,
+    this.dragDataAt,
+    this.canAccept,
+    this.onAccept,
     this.maxHeight,
     this.highlight = false,
   });
@@ -42,6 +45,10 @@ class CardColumn extends StatelessWidget {
   final int? selectedFrom;
   final void Function(int index)? onTapCard;
   final VoidCallback? onTapEmpty;
+  /// Returns a draggable source for a face-up card or a movable suffix.
+  final Object? Function(int index)? dragDataAt;
+  final bool Function(Object source)? canAccept;
+  final void Function(Object source)? onAccept;
   final double? maxHeight;
   final bool highlight;
 
@@ -67,7 +74,7 @@ class CardColumn extends StatelessWidget {
       y += cards[i].up ? upStep : downStep;
     }
     final total = cards.isEmpty ? h : tops.last + h;
-    return GestureDetector(
+    final column = GestureDetector(
       onTap: cards.isEmpty ? onTapEmpty : null,
       child: SizedBox(
         width: width,
@@ -86,16 +93,65 @@ class CardColumn extends StatelessWidget {
           for (var i = 0; i < cards.length; i++)
             Positioned(
               top: tops[i],
-              child: CardView(
-                card: cards[i].card,
-                faceDown: !cards[i].up,
-                width: width,
-                selected: selectedFrom != null && i >= selectedFrom!,
-                onTap: onTapCard == null ? null : () => onTapCard!(i),
-              ),
+              child: _dragCard(i),
+
             ),
         ]),
       ),
+    );
+    if (canAccept == null) return column;
+    return DragTarget<Object>(
+      onWillAcceptWithDetails: (details) => canAccept!(details.data),
+      onAcceptWithDetails: (details) => onAccept?.call(details.data),
+      builder: (context, candidate, rejected) => DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: candidate.isNotEmpty ? colors.primary : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: column,
+      ),
+    );
+  }
+
+  Widget _dragCard(int i) {
+    final card = cards[i];
+    final face = CardView(
+      card: card.card,
+      faceDown: !card.up,
+      width: width,
+      selected: selectedFrom != null && i >= selectedFrom!,
+      onTap: onTapCard == null ? null : () => onTapCard!(i),
+    );
+    final source = card.up ? dragDataAt?.call(i) : null;
+    if (source == null) return face;
+    final count = cards.length - i;
+    return Draggable<Object>(
+      data: source,
+      maxSimultaneousDrags: 1,
+      feedback: Material(
+        color: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CardView(card: card.card, width: width, selected: true),
+            if (count > 1)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.black87,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text('$count cards',
+                    style: const TextStyle(color: Colors.white, fontSize: 12)),
+              ),
+          ],
+        ),
+      ),
+      childWhenDragging: Opacity(opacity: .35, child: face),
+      child: face,
     );
   }
 }
@@ -111,6 +167,9 @@ class PileSlot extends StatelessWidget {
     this.label,
     this.onTap,
     this.count,
+    this.dragData,
+    this.canAccept,
+    this.onAccept,
   });
 
   final PlayingCard? top;
@@ -120,11 +179,14 @@ class PileSlot extends StatelessWidget {
   final String? label;
   final VoidCallback? onTap;
   final int? count;
+  final Object? dragData;
+  final bool Function(Object source)? canAccept;
+  final void Function(Object source)? onAccept;
 
   @override
   Widget build(BuildContext context) {
     final h = width * 1.4;
-    return GestureDetector(
+    final slot = GestureDetector(
       onTap: onTap,
       child: SizedBox(
         width: width,
@@ -143,8 +205,7 @@ class PileSlot extends StatelessWidget {
                   style: TextStyle(color: Colors.white54, fontSize: width * .32)),
             )
           else
-            CardView(
-                card: top, faceDown: faceDown, width: width, selected: selected, onTap: onTap),
+            _dragTop(),
           if (count != null && count! > 0)
             Positioned(
               right: 2,
@@ -159,6 +220,41 @@ class PileSlot extends StatelessWidget {
             ),
         ]),
       ),
+    );
+    if (canAccept == null) return slot;
+    return DragTarget<Object>(
+      onWillAcceptWithDetails: (details) => canAccept!(details.data),
+      onAcceptWithDetails: (details) => onAccept?.call(details.data),
+      builder: (context, candidate, rejected) => DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: candidate.isNotEmpty
+                ? Theme.of(context).colorScheme.primary
+                : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: slot,
+      ),
+    );
+  }
+
+  Widget _dragTop() {
+    final face = CardView(
+      card: top, faceDown: faceDown, width: width,
+      selected: selected, onTap: onTap,
+    );
+    if (top == null || faceDown || dragData == null) return face;
+    return Draggable<Object>(
+      data: dragData!,
+      maxSimultaneousDrags: 1,
+      feedback: Material(
+        color: Colors.transparent,
+        child: CardView(card: top, width: width, selected: true),
+      ),
+      childWhenDragging: Opacity(opacity: .35, child: face),
+      child: face,
     );
   }
 }

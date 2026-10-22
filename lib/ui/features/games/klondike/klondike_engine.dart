@@ -185,6 +185,49 @@ class KlondikeGame {
     return empty;
   }
 
+  /// A dead end means no legal card transfer is possible, even after
+  /// turning over or recycling the stock. Inspecting all stock/waste cards
+  /// avoids incorrectly calling a position stuck before a useful draw.
+  /// This is a conservative check, not a solver for eventual winnability.
+  bool get noMovesLeft {
+    if (won) return false;
+    final sources = <KRef>[
+      if (waste.isNotEmpty) const KRef(KPile.waste),
+      for (var f = 0; f < foundations.length; f++)
+        if (foundations[f].isNotEmpty) KRef(KPile.foundation, f),
+      for (var t = 0; t < tableau.length; t++)
+        for (var i = 0; i < tableau[t].length; i++)
+          if (tableau[t][i].up) KRef(KPile.tableau, t, i),
+    ];
+    for (final source in sources) {
+      for (var f = 0; f < foundations.length; f++) {
+        if (canMove(source, KRef(KPile.foundation, f))) return false;
+      }
+      for (var t = 0; t < tableau.length; t++) {
+        if (!canMove(source, KRef(KPile.tableau, t))) continue;
+        // Moving a whole King column to an empty column has no benefit.
+        if (tableau[t].isEmpty &&
+            source.pile == KPile.tableau && source.card == 0) {
+          continue;
+        }
+        return false;
+      }
+    }
+    for (final card in [...stock, ...waste]) {
+      for (final pile in foundations) {
+        if (pile.isEmpty ? card.value == 1 :
+            pile.last.suit == card.suit &&
+                pile.last.value == card.value - 1) return false;
+      }
+      for (final pile in tableau) {
+        if (pile.isEmpty ? card.value == 13 :
+            pile.last.up && pile.last.red != card.red &&
+                pile.last.value == card.value + 1) return false;
+      }
+    }
+    return true;
+  }
+
   /// Moves every card that can safely go to the foundations.
   int autoFinish() {
     var count = 0;
