@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../common/card_view.dart';
 import '../common/game_kit.dart';
 import '../common/solitaire_kit.dart';
 import 'golf_engine.dart';
