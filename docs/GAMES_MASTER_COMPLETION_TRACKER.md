@@ -6,7 +6,7 @@ Updated 2026-10-22. Machine-readable source: `docs/GAMES_MASTER_COMPLETION_TRACK
 
 {'NOT_REVIEWED': 348, 'NEEDS_IMPLEMENTATION': 0, 'IMPLEMENTED_UNVERIFIED': 21, 'TEST_FAILED': 0, 'VERIFIED': 0, 'BLOCKED': 1}
 
-The six legacy 20-level campaigns (Detective Casebook, Nonogram, Minesweeper, Sokoban, Sudoku, Classic Maze) have reported level coverage but are not yet certified end-to-end. Word Search has 20 generated candidates on a separate branch, but its Windows screen file is currently inaccessible and the original audit fails with PermissionError. This is a blocker rather than a reason to delete/reset the file.
+The six legacy 20-level campaigns (Detective Casebook, Nonogram, Minesweeper, Sokoban, Sudoku, Classic Maze) have reported level coverage but are not yet certified end-to-end. Word Search has 40 generated candidates on the integrated branch, but its Windows screen file is currently inaccessible and the original audit fails with PermissionError. This is a blocker rather than a reason to delete/reset the file.
 
 Six solitaire titles have web/Android CI-verified implementation changes on main at `fb47744`, including drag handling, dead-end messaging where applicable, and landscape improvements. Physical device testing remains pending. GitHub CI success does not equal every game being gameplay-verified.
 

@@ -87,7 +87,7 @@ class _WordSearchScreenState extends ConsumerState<WordSearchScreen> {
           IconButton(tooltip: 'Previous level', onPressed: state.levelNumber > 1
               ? () => notifier.loadLevel(state.levelNumber - 1) : null,
               icon: const Icon(Icons.chevron_left)),
-          Expanded(child: Text('Level ${state.levelNumber}/20 - ${WordSearchEngine.campaignThemes[state.levelNumber - 1]}',
+          Expanded(child: Text('Level ${state.levelNumber}/${WordSearchEngine.campaignLevelCount} - ${WordSearchEngine.campaignThemes[state.levelNumber - 1]}',
               textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis)),
           IconButton(tooltip: 'Next level', onPressed: state.levelNumber < WordSearchEngine.campaignLevelCount
               ? () => notifier.loadLevel(state.levelNumber + 1) : null,
@@ -95,7 +95,7 @@ class _WordSearchScreenState extends ConsumerState<WordSearchScreen> {
           IconButton(tooltip: 'Restart level', onPressed: () => notifier.restartLevel(),
               icon: const Icon(Icons.restart_alt)),
         ]),
-        Text('${completed.length}/20 completed'),
+        Text('${completed.length}/${WordSearchEngine.campaignLevelCount} completed'),
         SizedBox(height: 42, child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: WordSearchEngine.campaignLevelCount,

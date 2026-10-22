@@ -6,11 +6,11 @@ import 'package:puzzle/ui/features/games/word_search/word_search_engine.dart';
 import 'package:puzzle/ui/features/games/word_search/word_search_provider.dart';
 
 void main() {
-  test('all 20 seeded word search levels have valid placements', () {
+  test('all 40 seeded word search levels have valid placements', () {
     final fingerprints = <String>{};
-    expect(WordSearchEngine.campaignThemes.length, 20);
-    expect(WordSearchEngine.campaignWordBanks.length, 20);
-    for (var level = 1; level <= 20; level++) {
+    expect(WordSearchEngine.campaignThemes.length, 40);
+    expect(WordSearchEngine.campaignWordBanks.length, 40);
+    for (var level = 1; level <= 40; level++) {
       final board = WordSearchEngine.generateCampaignBoard(level);
       expect(board.words.length, WordSearchEngine.wordsForLevel(level));
       expect(board.grid.length, board.size);
@@ -76,7 +76,7 @@ void main() {
 
   test('invalid campaign levels and off-path selections are rejected', () {
     expect(() => WordSearchEngine.generateCampaignBoard(0), throwsRangeError);
-    expect(() => WordSearchEngine.generateCampaignBoard(21), throwsRangeError);
+    expect(() => WordSearchEngine.generateCampaignBoard(41), throwsRangeError);
     final word = WordSearchEngine.generateCampaignBoard(1).words.first;
     expect(WordSearchNotifier.matchesPlacedPath([], word.positions), isFalse);
   });

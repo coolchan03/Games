@@ -26,13 +26,34 @@ class WordSearchBoard {
 
 class WordSearchEngine {
   static const int boardSize = 10;
-  static const int campaignLevelCount = 20;
+  static const int campaignLevelCount = 40;
 
   static const campaignThemes = <String>[
     'Detective Files', 'Space', 'Ocean', 'Garden', 'Ancient World',
     'Music', 'Forest', 'Science', 'Kitchen', 'Puzzles',
     'Weather', 'Architecture', 'Railway', 'Desert', 'Secret Codes',
     'Winter', 'Museum', 'Mystery', 'Astronomy', 'Reasoning',
+    'Shopping',
+    'Desserts',
+    'Coffee Shop',
+    'Clothing',
+    'Bakery',
+    'Beach Day',
+    'Pets',
+    'Carnival',
+    'Movies',
+    'Breakfast',
+    'Flowers',
+    'Camping',
+    'School',
+    'Fruit Stand',
+    'Vegetables',
+    'Candy',
+    'Travel',
+    'Bookstore',
+    'Halloween',
+    'Board Games',
+
   ];
 
   // Authored, offline vocabulary: the same level never changes on reopening.
@@ -57,6 +78,27 @@ class WordSearchEngine {
     ['FORENSIC', 'SUSPECT', 'FINGER', 'PRINT', 'DOSSIER', 'EVIDENCE', 'SECRET', 'INQUEST', 'ALIBI', 'TRIAL'],
     ['SATURN', 'JUPITER', 'MERCURY', 'NEPTUNE', 'URANUS', 'VENUS', 'ECLIPSE', 'COSMOS', 'GRAVITY', 'SUNSPOT'],
     ['CONTRAST', 'ANALYZE', 'DEDUCE', 'PREMISE', 'LOGICAL', 'THEOREM', 'OUTCOME', 'PATTERN', 'ABSTRACT', 'PROBLEM'],
+    ['MARKET', 'BASKET', 'WALLET', 'RECEIPT', 'CASHIER', 'SHOPPER', 'COUPON', 'AISLE', 'STORES', 'PRICE'],
+    ['COOKIE', 'BROWNIE', 'CUPCAKE', 'PUDDING', 'SUNDAE', 'CUSTARD', 'GELATO', 'FUDGE', 'MOUSSE', 'DONUT'],
+    ['LATTE', 'ESPRESSO', 'BEANS', 'ROASTER', 'BARISTA', 'CREAM', 'BREWED', 'MOCHA', 'MUFFIN', 'SUGAR'],
+    ['JACKET', 'SWEATER', 'SCARF', 'SKIRT', 'BLOUSE', 'DENIM', 'COTTON', 'BUTTON', 'SLEEVE', 'POCKET'],
+    ['BAGEL', 'PRETZEL', 'BRIOCHE', 'BISCUIT', 'MUFFIN', 'PASTRY', 'ROLLING', 'DOUGH', 'YEAST', 'BREAD'],
+    ['TOWEL', 'SANDALS', 'SUNHAT', 'SHELLS', 'SEASIDE', 'WAVES', 'PICNIC', 'BUCKET', 'SAND', 'SWIM'],
+    ['KITTEN', 'PUPPY', 'HAMSTER', 'RABBIT', 'COLLAR', 'LEASH', 'TREATS', 'CUDDLE', 'GROOMER', 'PARROT'],
+    ['CAROUSEL', 'TICKET', 'PRIZES', 'COTTON', 'POPCORN', 'BALLOON', 'RIDES', 'CLOWN', 'BOOTHS', 'FERRIS'],
+    ['CINEMA', 'SCREEN', 'ACTOR', 'DIRECTOR', 'FILMING', 'TRAILER', 'COMEDY', 'DRAMA', 'CREDITS', 'TICKET'],
+    ['PANCAKE', 'WAFFLE', 'TOAST', 'CEREAL', 'OMELET', 'BACON', 'BAGEL', 'YOGURT', 'BUTTER', 'SYRUP'],
+    ['TULIPS', 'DAISIES', 'PEONY', 'ORCHID', 'ROSES', 'LILIES', 'VIOLET', 'BLOSSOM', 'PETALS', 'PANSY'],
+    ['TENT', 'CAMPFIRE', 'TRAILS', 'HIKING', 'COMPASS', 'CANOE', 'FOREST', 'CABIN', 'LANTERN', 'SLEEP'],
+    ['PENCIL', 'ERASER', 'LESSON', 'TEACHER', 'STUDENT', 'NOTEBOOK', 'LIBRARY', 'LUNCH', 'RECESS', 'DESKS'],
+    ['BANANA', 'APPLE', 'CHERRY', 'MANGO', 'PAPAYA', 'ORANGE', 'PEACH', 'LEMON', 'GRAPES', 'MELON'],
+    ['CARROT', 'POTATO', 'TOMATO', 'TURNIP', 'CELERY', 'PEPPER', 'RADISH', 'ONION', 'SQUASH', 'BEETS'],
+    ['TOFFEE', 'CARAMEL', 'GUMMY', 'NOUGAT', 'MINTS', 'SWEETS', 'TAFFY', 'BONBON', 'LICORICE', 'LOLLIPOP'],
+    ['PASSPORT', 'LUGGAGE', 'HOTEL', 'AIRPORT', 'TICKET', 'SUITCASE', 'JOURNEY', 'TOURIST', 'MAPS', 'TRAIN'],
+    ['NOVELS', 'AUTHOR', 'CHAPTER', 'BOOKS', 'PAPER', 'COVER', 'SHELF', 'READER', 'GENRE', 'POETRY'],
+    ['PUMPKIN', 'GHOST', 'WITCHES', 'CANDY', 'COSTUME', 'HAUNTED', 'SPOOKY', 'MONSTER', 'SHADOW', 'COBWEB'],
+    ['DICE', 'TOKEN', 'PLAYER', 'STRATEGY', 'PUZZLE', 'CARDS', 'PIECES', 'SCORE', 'BOARD', 'WINNER'],
+
   ];
 
   static int wordsForLevel(int level) {
