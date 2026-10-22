@@ -363,7 +363,7 @@ word_ladder_step,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as 
 word_mastermind,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 word_pair_associate_memory,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 word_scramble,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
-word_search,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
+word_search,not_yet_reviewed,unknown,1,1,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 word_snake_trail,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 word_surge,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
 word_wheel,not_yet_reviewed,unknown,0,0,0,"Needs manual classification as level-based or replayable, then a gameplay test"
