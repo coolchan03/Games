@@ -21,6 +21,27 @@ class PegBoard {
 
   int get remaining => pegs.where((p) => p).length;
 
+  /// Only occupied holes are stored, never the shape or undo references.
+  List<int> snapshot() => [for (final occupied in pegs) occupied ? 1 : 0];
+
+  bool restore(List<int> data) {
+    if (data.length != 49 || data.any((v) => v != 0 && v != 1)) {
+      return false;
+    }
+    for (var i = 0; i < 49; i++) {
+      if (data[i] == 1 && !holes[i]) return false;
+    }
+    final count = data.where((v) => v == 1).length;
+    if (count < 1 || count > holes.where((h) => h).length - 1) {
+      return false;
+    }
+    for (var i = 0; i < 49; i++) {
+      pegs[i] = data[i] == 1;
+    }
+    history.clear();
+    return true;
+  }
+
   /// Jump over [over] into [to]; null if illegal.
   (int, int)? _jump(int from, int to) {
     final fr = from ~/ 7, fc = from % 7, tr = to ~/ 7, tc = to % 7;

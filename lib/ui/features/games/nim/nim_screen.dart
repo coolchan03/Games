@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 
 /// Nim: take any number of objects from one row. In the normal game the
@@ -12,6 +14,19 @@ class NimGame {
   final List<int> rows;
   final bool misere;
   int turn = 0;
+
+  List<int> snapshot() => [turn, ...rows];
+
+  static NimGame? restore(List<int> saved, {required bool misere}) {
+    if (saved.length != 5 || saved.first < 0 || saved.first > 1) return null;
+    const initial = [1, 3, 5, 7];
+    for (var i = 0; i < 4; i++) {
+      if (saved[i + 1] < 0 || saved[i + 1] > initial[i]) return null;
+    }
+    final game = NimGame(saved.skip(1).toList(), misere: misere);
+    game.turn = saved.first;
+    return game;
+  }
 
   bool get over => rows.every((r) => r == 0);
 
@@ -62,34 +77,83 @@ class _NimScreenState extends State<NimScreen> {
   bool misere = false;
   bool vsComputer = true;
   AiLevel level = AiLevel.medium;
-  late NimGame game = _create();
+  late NimGame game = _restoreOrStart();
   (int, int)? pick; // (row, count from the right)
   bool thinking = false;
+  int _generation = 0;
 
   NimGame _create() => NimGame([1, 3, 5, 7], misere: misere);
 
-  void _newGame() => setState(() {
-        game = _create();
-        pick = null;
-        thinking = false;
+  NimGame _restoreOrStart() {
+    final saved = CampaignProgress.loadActive('nim', 1, maxLength: 8);
+    if (saved != null && saved.length == 8 &&
+        (saved[0] == 0 || saved[0] == 1) &&
+        (saved[1] == 0 || saved[1] == 1) &&
+        saved[2] >= 0 && saved[2] < AiLevel.values.length) {
+      final restored = NimGame.restore(saved.skip(3).toList(),
+        misere: saved[0] == 1);
+      if (restored != null) {
+        misere = saved[0] == 1;
+        vsComputer = saved[1] == 1;
+        level = AiLevel.values[saved[2]];
+        return restored;
+      }
+    }
+    return _create();
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive('nim', 1, [
+    misere ? 1 : 0, vsComputer ? 1 : 0, level.index,
+    ...game.snapshot(),
+  ]));
+
+  @override
+  void initState() {
+    super.initState();
+    if (vsComputer && game.turn == 1 && !game.over) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_computerTurn(_generation));
       });
+    }
+  }
+
+  void _newGame() {
+    setState(() {
+      _generation++;
+      game = _create();
+      pick = null;
+      thinking = false;
+    });
+    _save();
+  }
 
   Future<void> _take() async {
     final p = pick;
-    if (p == null) return;
+    if (p == null || thinking || game.over ||
+        p.$1 < 0 || p.$1 >= game.rows.length ||
+        p.$2 < 1 || p.$2 > game.rows[p.$1]) return;
+    final generation = _generation;
+    if (vsComputer && game.turn != 0) return;
     setState(() {
       game.take(p.$1, p.$2);
       pick = null;
     });
-    if (!vsComputer || game.over) return;
+    _save();
+    if (vsComputer && !game.over) await _computerTurn(generation);
+  }
+
+  Future<void> _computerTurn(int generation) async {
+    if (thinking || !vsComputer || game.turn != 1 || game.over) return;
     setState(() => thinking = true);
     await Future<void>.delayed(const Duration(milliseconds: 700));
-    if (!mounted) return;
+    if (!mounted || generation != _generation || !vsComputer || game.over ||
+        game.turn != 1) return;
     setState(() {
       final (r, n) = game.bestMove(rng, level.index);
       game.take(r, n);
       thinking = false;
     });
+    _save();
   }
 
   @override
@@ -139,7 +203,8 @@ class _NimScreenState extends State<NimScreen> {
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               for (var k = 0; k < game.rows[r]; k++)
                 GestureDetector(
-                  onTap: thinking || game.over ? null : () => setState(() => pick = (r, game.rows[r] - k)),
+                  onTap: thinking || game.over || (vsComputer && game.turn == 1)
+                      ? null : () => setState(() => pick = (r, game.rows[r] - k)),
                   child: Container(
                     width: 18,
                     height: 64,
@@ -157,7 +222,7 @@ class _NimScreenState extends State<NimScreen> {
           ),
         const SizedBox(height: 8),
         FilledButton(
-          onPressed: pick == null || thinking ? null : _take,
+          onPressed: pick == null || thinking || game.over ? null : _take,
           child: Text(pick == null ? 'Take' : 'Take ${pick!.$2} from row ${pick!.$1 + 1}'),
         ),
       ],

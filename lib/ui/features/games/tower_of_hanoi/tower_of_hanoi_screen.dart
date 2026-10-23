@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 import '../common/grid_board_touch_area.dart';
 
@@ -10,16 +12,44 @@ class HanoiGame {
   final int discs;
   final List<List<int>> pegs;
   int moves = 0;
+  final List<(int, int)> history = [];
+
+  /// Each disc has a peg index; peg lists are rebuilt in descending order.
+  List<int> snapshot() => [
+    moves,
+    for (var d = 1; d <= discs; d++)
+      pegs.indexWhere((peg) => peg.contains(d)),
+  ];
+
+  bool restore(List<int> data) {
+    if (data.length != discs + 1 || data[0] < 0 ||
+        data.skip(1).any((peg) => peg < 0 || peg > 2)) return false;
+    for (final peg in pegs) { peg.clear(); }
+    for (var d = discs; d >= 1; d--) { pegs[data[d]].add(d); }
+    moves = data.first;
+    history.clear();
+    return true;
+  }
+
+  bool get canUndo => history.isNotEmpty;
+  void undo() {
+    if (!canUndo) return;
+    final (from, to) = history.removeLast();
+    pegs[from].add(pegs[to].removeLast());
+    moves--;
+  }
 
   int get optimal => (1 << discs) - 1;
   bool get solved => pegs[2].length == discs;
 
-  bool canMove(int from, int to) =>
-      from != to && pegs[from].isNotEmpty && (pegs[to].isEmpty || pegs[to].last > pegs[from].last);
+  bool canMove(int from, int to) => from >= 0 && from < 3 &&
+      to >= 0 && to < 3 && from != to && pegs[from].isNotEmpty &&
+      (pegs[to].isEmpty || pegs[to].last > pegs[from].last);
 
   bool move(int from, int to) {
     if (!canMove(from, to)) return false;
     pegs[to].add(pegs[from].removeLast());
+    history.add((from, to));
     moves++;
     return true;
   }
@@ -69,10 +99,33 @@ class TowerOfHanoiScreen extends StatefulWidget {
 }
 
 class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
-  int discs = 4;
-  late HanoiGame game = HanoiGame(discs);
+  int discs = CampaignProgress.selectedLevel('tower_of_hanoi', count: 6) + 2;
+  late HanoiGame game = _load();
   int? from;
   (int, int)? hint;
+
+  HanoiGame _load() {
+    final result = HanoiGame(discs);
+    final saved = CampaignProgress.loadActive('tower_of_hanoi', discs,
+      maxLength: discs + 1);
+    if (saved != null) result.restore(saved);
+    return result;
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+    'tower_of_hanoi', discs, game.snapshot(),
+  ));
+
+  void _restart() {
+    setState(() { game = HanoiGame(discs); from = null; hint = null; });
+    _save();
+  }
+
+  void _undo() {
+    if (!game.canUndo) return;
+    setState(() { game.undo(); from = null; hint = null; });
+    _save();
+  }
 
   void _tap(int peg) {
     setState(() {
@@ -83,6 +136,7 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
         from = null;
       } else if (game.canMove(from!, peg)) {
         game.move(from!, peg);
+        _save();
         from = null;
       } else if (game.pegs[peg].isNotEmpty) {
         from = peg;
@@ -101,6 +155,7 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
     if (!game.canMove(origin, destination)) return;
     setState(() {
       game.move(origin, destination);
+      _save();
       from = null;
       hint = null;
     });
@@ -116,10 +171,7 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
       gameId: 'tower_of_hanoi',
       completed: game.solved,
       title: 'Tower of Hanoi',
-      onNewGame: () => setState(() {
-        game = HanoiGame(discs);
-        from = null;
-      }),
+      onNewGame: _restart,
       rules: 'Move the whole tower from the left peg to the right peg. Move '
           'one disc at a time, and never place a larger disc on a smaller one. '
           'The minimum number of moves is 2ⁿ − 1.',
@@ -127,11 +179,15 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
         SegmentedButton<int>(
           segments: [for (final n in const [3, 4, 5, 6, 7, 8]) ButtonSegment(value: n, label: Text('$n'))],
           selected: {discs},
-          onSelectionChanged: (s) => setState(() {
-            discs = s.first;
-            game = HanoiGame(discs);
-            from = null;
-          }),
+          onSelectionChanged: (s) {
+            setState(() {
+              discs = s.first;
+              game = _load();
+              from = null;
+              hint = null;
+            });
+            unawaited(CampaignProgress.saveSelected('tower_of_hanoi', discs - 2));
+          },
         ),
         StatusBanner(status, highlight: game.solved),
         SizedBox(
@@ -188,11 +244,17 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
           }),
         ),
         const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: game.solved ? null : () => setState(() => hint = game.hint()),
-          icon: const Icon(Icons.lightbulb_outline),
-          label: Text(hint == null ? 'Hint' : 'Move peg ${hint!.$1 + 1} → peg ${hint!.$2 + 1}'),
-        ),
+        Wrap(spacing: 8, runSpacing: 8, alignment: WrapAlignment.center, children: [
+          OutlinedButton.icon(
+            onPressed: game.canUndo ? _undo : null,
+            icon: const Icon(Icons.undo), label: const Text('Undo'),
+          ),
+          OutlinedButton.icon(
+            onPressed: game.solved ? null : () => setState(() => hint = game.hint()),
+            icon: const Icon(Icons.lightbulb_outline),
+            label: Text(hint == null ? 'Hint' : 'Move peg ${hint!.$1 + 1} → peg ${hint!.$2 + 1}'),
+          ),
+        ]),
       ],
     );
   }

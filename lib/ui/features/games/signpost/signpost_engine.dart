@@ -133,12 +133,33 @@ class SignpostGame {
   SignpostGame(this.puzzle);
   final SignpostPuzzle puzzle;
   late final List<int?> next = List.filled(puzzle.n, null);
+  final List<List<int?>> _history = [];
 
-  bool canLink(int a, int b) =>
-      a != b && puzzle.arrows[a] >= 0 && puzzle.ray(a, puzzle.arrows[a]).contains(b);
+  bool canLink(int a, int b) {
+    if (a < 0 || b < 0 || a >= puzzle.n || b >= puzzle.n || a == b ||
+        puzzle.arrows[a] < 0 ||
+        !puzzle.ray(a, puzzle.arrows[a]).contains(b)) return false;
+    // The first clue cannot have a predecessor; two adjacent clue cells
+    // must also have consecutive numbers.
+    if (puzzle.clues[b] == 0) return false;
+    final fromClue = puzzle.clues[a], toClue = puzzle.clues[b];
+    if (fromClue != null && toClue != null && toClue != fromClue + 1) {
+      return false;
+    }
+    if (next[a] == b) return true;
+    // Never allow an arrow chain to close into a cycle.
+    final visited = <int>{};
+    int? cursor = b;
+    while (cursor != null) {
+      if (cursor == a || !visited.add(cursor)) return false;
+      cursor = next[cursor];
+    }
+    return true;
+  }
 
   void link(int a, int b) {
-    if (!canLink(a, b)) return;
+    if (!canLink(a, b) || next[a] == b) return;
+    _history.add(List<int?>.of(next));
     // Remove any existing link into b.
     for (var i = 0; i < next.length; i++) {
       if (next[i] == b) next[i] = null;
@@ -146,7 +167,42 @@ class SignpostGame {
     next[a] = b;
   }
 
-  void unlink(int a) => next[a] = null;
+  void unlink(int a) {
+    if (a < 0 || a >= puzzle.n || next[a] == null) return;
+    _history.add(List<int?>.of(next));
+    next[a] = null;
+  }
+
+  bool get canUndo => _history.isNotEmpty;
+  void undo() {
+    if (!canUndo) return;
+    next.setAll(0, _history.removeLast());
+  }
+
+  void clearLinks() {
+    if (next.every((link) => link == null)) return;
+    _history.add(List<int?>.of(next));
+    next.fillRange(0, next.length, null);
+  }
+
+  List<int> snapshot() => [for (final link in next) link ?? -1];
+
+  /// Reject malformed or cyclic offline saves without damaging the game.
+  bool restore(List<int> links) {
+    if (links.length != puzzle.n) return false;
+    final previous = List<int?>.of(next);
+    next.fillRange(0, next.length, null);
+    for (var i = 0; i < links.length; i++) {
+      if (links[i] == -1) continue;
+      if (!canLink(i, links[i]) || next.contains(links[i])) {
+        next.setAll(0, previous);
+        return false;
+      }
+      next[i] = links[i];
+    }
+    _history.clear();
+    return true;
+  }
 
   int? prev(int b) {
     for (var i = 0; i < next.length; i++) {
@@ -183,19 +239,31 @@ class SignpostGame {
   }
 
   bool get solved {
-    final nums = numbers();
-    for (var i = 0; i < puzzle.n; i++) {
-      if (nums[i] == null) return false;
+    // Number labels alone are not sufficient. Every square must belong to
+    // one actual, directed chain from the numbered start to the final star.
+    final start = puzzle.clues.entries
+        .where((entry) => entry.value == 0)
+        .map((entry) => entry.key)
+        .firstOrNull;
+    if (start == null) return false;
+    final visited = <int>{};
+    var cell = start;
+    for (var position = 0; position < puzzle.n; position++) {
+      if (!visited.add(cell)) return false;
+      final given = puzzle.clues[cell];
+      if (given != null && given != position) return false;
+      if (position == puzzle.n - 1) {
+        return next[cell] == null && puzzle.arrows[cell] == -1 &&
+            visited.length == puzzle.n;
+      }
+      final following = next[cell];
+      if (following == null || following < 0 || following >= puzzle.n ||
+          puzzle.arrows[cell] < 0 ||
+          !puzzle.ray(cell, puzzle.arrows[cell]).contains(following)) {
+        return false;
+      }
+      cell = following;
     }
-    final order = List<int?>.filled(puzzle.n, null);
-    for (var i = 0; i < puzzle.n; i++) {
-      final k = nums[i]!;
-      if (k < 0 || k >= puzzle.n || order[k] != null) return false;
-      order[k] = i;
-    }
-    for (final e in puzzle.clues.entries) {
-      if (nums[e.key] != e.value) return false;
-    }
-    return true;
+    return false;
   }
 }

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 import '../common/grid_board_touch_area.dart';
 import 'peg_solitaire_engine.dart';
@@ -11,14 +14,36 @@ class PegSolitaireScreen extends StatefulWidget {
 }
 
 class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
-  bool european = false;
-  late PegBoard board = PegBoard(european: european);
+  bool european = CampaignProgress.selectedLevel(
+    'peg_solitaire', count: 2) == 2;
+  late PegBoard board = _load();
   int? selected;
+
+  int get _layoutIndex => european ? 2 : 1;
+
+  PegBoard _load() {
+    final fresh = PegBoard(european: european);
+    final saved = CampaignProgress.loadActive(
+      'peg_solitaire', _layoutIndex, maxLength: 49,
+    );
+    if (saved != null) fresh.restore(saved);
+    return fresh;
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+    'peg_solitaire', _layoutIndex, board.snapshot(),
+  ));
+
+  void _restart() {
+    setState(() { board = PegBoard(european: european); selected = null; });
+    _save();
+  }
 
   void _tap(int i) {
     setState(() {
       if (selected != null && board.move(selected!, i)) {
         selected = board.targets(i).isNotEmpty ? i : null;
+        _save();
         return;
       }
       selected = board.pegs[i] && board.targets(i).isNotEmpty ? i : null;
@@ -38,6 +63,7 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
     setState(() {
       board.move(from, to);
       selected = board.targets(to).isNotEmpty ? to : null;
+      _save();
     });
   }
 
@@ -56,10 +82,7 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
       gameId: 'peg_solitaire',
       completed: board.remaining == 1,
       title: 'Peg Solitaire',
-      onNewGame: () => setState(() {
-        board = PegBoard(european: european);
-        selected = null;
-      }),
+      onNewGame: _restart,
       rules: 'Tap a peg and a highlighted destination, or drag the peg directly '
           'there. Jump over a neighbouring peg into an empty hole straight '
           'behind it (no diagonals); the jumped peg is removed. Try to finish '
@@ -73,11 +96,16 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
                 ButtonSegment(value: true, label: Text('European 37')),
               ],
               selected: {european},
-              onSelectionChanged: (s) => setState(() {
-                european = s.first;
-                board = PegBoard(european: european);
-                selected = null;
-              }),
+              onSelectionChanged: (s) {
+                setState(() {
+                  european = s.first;
+                  board = _load();
+                  selected = null;
+                });
+                unawaited(CampaignProgress.saveSelected(
+                  'peg_solitaire', _layoutIndex,
+                ));
+              },
             ),
           ),
           IconButton.filledTonal(
@@ -85,6 +113,7 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
             onPressed: board.history.isEmpty ? null : () => setState(() {
               board.undo();
               selected = null;
+              _save();
             }),
             icon: const Icon(Icons.undo),
           ),

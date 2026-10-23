@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 import 'signpost_engine.dart';
 
@@ -12,34 +14,66 @@ class SignpostScreen extends StatefulWidget {
 }
 
 class _SignpostScreenState extends State<SignpostScreen> {
-  int size = 4;
-  late SignpostGame game = SignpostGame(SignpostPuzzle(w: size, h: size));
+  int size = CampaignProgress.selectedLevel('signpost', count: 3) + 3;
+  late int seed;
+  late SignpostGame game = _load();
   int? from;
+
+  SignpostGame _load({bool fresh = false}) {
+    final raw = fresh ? null : CampaignProgress.loadActive('signpost', size,
+      maxLength: size * size + 1);
+    seed = raw != null && raw.length == size * size + 1 && raw.first >= 0
+        ? raw.first : Random().nextInt(0x7fffffff);
+    final result = SignpostGame(SignpostPuzzle(
+      w: size, h: size, random: Random(seed),
+    ));
+    if (raw != null && raw.length == size * size + 1) {
+      result.restore(raw.skip(1).toList());
+    }
+    return result;
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+    'signpost', size, [seed, ...game.snapshot()],
+  ));
+
+  void _undo() {
+    if (!game.canUndo) return;
+    setState(() { game.undo(); from = null; });
+    _save();
+  }
 
   static const _icons = [
     Icons.north, Icons.north_east, Icons.east, Icons.south_east,
     Icons.south, Icons.south_west, Icons.west, Icons.north_west,
   ];
 
-  void _newGame() => setState(() {
-        game = SignpostGame(SignpostPuzzle(w: size, h: size));
-        from = null;
-      });
+  void _newGame() {
+    setState(() {
+      game = _load(fresh: true);
+      from = null;
+    });
+    _save();
+  }
 
   void _tap(int cell) {
+    var changed = false;
     setState(() {
       if (from == null) {
         if (game.puzzle.arrows[cell] >= 0) from = cell;
       } else if (from == cell) {
+        changed = game.next[cell] != null;
         game.unlink(cell);
         from = null;
       } else if (game.canLink(from!, cell)) {
+        changed = game.next[from!] != cell;
         game.link(from!, cell);
         from = null;
       } else {
         from = game.puzzle.arrows[cell] >= 0 ? cell : null;
       }
     });
+    if (changed) _save();
   }
 
   @override
@@ -48,7 +82,8 @@ class _SignpostScreenState extends State<SignpostScreen> {
     final p = game.puzzle;
     final nums = game.numbers();
     final solved = game.solved;
-    final targets = from == null ? <int>{} : p.ray(from!, p.arrows[from!]).toSet();
+    final targets = from == null ? <int>{} :
+        {for (var i = 0; i < p.n; i++) if (game.canLink(from!, i)) i};
     // Colour unnumbered chains so they are easy to follow.
     final chainColour = <int, Color>{};
     final palette = [Colors.teal, Colors.orange, Colors.purple, Colors.brown, Colors.pink, Colors.indigo];
@@ -81,8 +116,12 @@ class _SignpostScreenState extends State<SignpostScreen> {
           segments: [for (final s in const [4, 5, 6]) ButtonSegment(value: s, label: Text('$s×$s'))],
           selected: {size},
           onSelectionChanged: (s) {
-            size = s.first;
-            _newGame();
+            setState(() {
+              size = s.first;
+              game = _load();
+              from = null;
+            });
+            unawaited(CampaignProgress.saveSelected('signpost', size - 3));
           },
         ),
         StatusBanner(solved ? 'Solved!' : from == null ? 'Tap a square to start a link' : 'Now tap a highlighted square', highlight: solved),
@@ -142,14 +181,20 @@ class _SignpostScreenState extends State<SignpostScreen> {
           }),
         ),
         const SizedBox(height: 8),
-        OutlinedButton(
-          onPressed: () => setState(() {
-            for (var i = 0; i < p.n; i++) {
-              game.next[i] = null;
-            }
-            from = null;
-          }),
-          child: const Text('Clear all links'),
+        Wrap(spacing: 8, runSpacing: 8, alignment: WrapAlignment.center,
+          children: [
+            OutlinedButton.icon(
+              onPressed: game.canUndo ? _undo : null,
+              icon: const Icon(Icons.undo), label: const Text('Undo'),
+            ),
+            OutlinedButton(
+              onPressed: () {
+                setState(() { game.clearLinks(); from = null; });
+                _save();
+              },
+              child: const Text('Clear all links'),
+            ),
+          ],
         ),
       ],
     );
