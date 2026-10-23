@@ -70,6 +70,29 @@ class CodeBreakerGame {
     return true;
   }
 
+  /// Versioned by the caller's Hive key. Only integer primitives are stored.
+  List<int> snapshot() => [
+    ...secret,
+    guesses.length,
+    for (final guess in guesses) ...guess,
+  ];
+
+  /// Reject corrupted or obsolete saves instead of loading an impossible game.
+  static CodeBreakerGame? restore(CodeBreakerMode mode, List<int> data) {
+    if (data.length < mode.length + 1) return null;
+    final count = data[mode.length];
+    if (count < 0 || count > mode.maxGuesses ||
+        data.length != mode.length + 1 + count * mode.length) return null;
+    final secret = data.take(mode.length).toList();
+    final game = CodeBreakerGame(mode, secret: secret);
+    if (!game.isValid(secret)) return null;
+    for (var i = 0; i < count; i++) {
+      final start = mode.length + 1 + i * mode.length;
+      if (!game.submit(data.sublist(start, start + mode.length))) return null;
+    }
+    return game;
+  }
+
   /// All codes still consistent with every clue so far (enumerated lazily).
   Iterable<List<int>> consistentCodes() sync* {
     final code = List.filled(mode.length, 0);

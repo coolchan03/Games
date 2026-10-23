@@ -128,6 +128,46 @@ class LayeredBoard {
   int get remaining => tiles.where((t) => t != null).length;
   bool get won => remaining == 0;
 
+  /// Save the current faces, including removed slots, without saving a
+  /// generator seed that would produce a different deal on the next launch.
+  List<int> snapshot() => [
+    shuffles,
+    for (final tile in tiles) tile?.index ?? -1,
+  ];
+
+  /// Validate offline saves before applying them to a board. Undo history
+  /// starts empty after reopening; newly played matches can still be undone.
+  bool restore(List<int> data) {
+    if (data.length != layout.slots.length + 1 || data.first < 0) return false;
+    final values = MahjongTile.values;
+    final next = <MahjongTile?>[];
+    final counts = <MahjongTile, int>{};
+    for (final value in data.skip(1)) {
+      if (value < -1 || value >= values.length) return false;
+      final tile = value < 0 ? null : values[value];
+      next.add(tile);
+      if (tile != null) counts[tile] = (counts[tile] ?? 0) + 1;
+    }
+    var flowers = 0, seasons = 0;
+    for (final entry in counts.entries) {
+      if (isFlower(entry.key)) {
+        if (entry.value > 1) return false;
+        flowers += entry.value;
+      } else if (isSeason(entry.key)) {
+        if (entry.value > 1) return false;
+        seasons += entry.value;
+      } else if (entry.value > 4 || entry.value.isOdd) {
+        return false;
+      }
+    }
+    if (flowers.isOdd || seasons.isOdd) return false;
+    tiles = next;
+    shuffles = data.first;
+    history.clear();
+    solution = [];
+    return true;
+  }
+
   Set<int> get _present => {for (var i = 0; i < tiles.length; i++) if (tiles[i] != null) i};
 
   bool isFree(int i) => tiles[i] != null && _freeIn(i, _present);

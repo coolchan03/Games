@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 import 'code_breaker_engine.dart';
 
@@ -21,7 +24,9 @@ class CodeBreakerScreen extends StatefulWidget {
 }
 
 class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
-  CodeBreakerMode mode = CodeBreakerMode.easy;
+  CodeBreakerMode mode = CodeBreakerMode.all[
+    CampaignProgress.selectedLevel('code_breaker', count: CodeBreakerMode.all.length) - 1,
+  ];
   late CodeBreakerGame game;
   late List<int?> current;
   int cursor = 0;
@@ -30,7 +35,17 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
   @override
   void initState() {
     super.initState();
-    _newGame();
+    _restoreOrStart();
+  }
+
+  int get _modeNumber => CodeBreakerMode.all.indexOf(mode) + 1;
+
+  void _save() {
+    unawaited(CampaignProgress.saveActive('code_breaker', _modeNumber, [
+      ...game.snapshot(),
+      ...current.map((symbol) => symbol ?? -1),
+      cursor,
+    ]));
   }
 
   void _newGame() {
@@ -38,6 +53,32 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
     current = List.filled(mode.length, null);
     cursor = 0;
     message = null;
+    _save();
+  }
+
+  void _restoreOrStart() {
+    final length = mode.length;
+    final raw = CampaignProgress.loadActive('code_breaker', _modeNumber,
+      maxLength: length * (mode.maxGuesses + 2) + 2);
+    if (raw != null && raw.length >= 2 * length + 2) {
+      final count = raw[length];
+      final end = length + 1 + count * length;
+      if (count >= 0 && count <= mode.maxGuesses &&
+          raw.length == end + length + 1) {
+        final restored = CodeBreakerGame.restore(mode, raw.sublist(0, end));
+        final draft = raw.sublist(end, end + length);
+        final savedCursor = raw.last;
+        if (restored != null && draft.every((s) => s == -1 || (s >= 0 && s < mode.symbols)) &&
+            savedCursor >= 0 && savedCursor < length) {
+          game = restored;
+          current = [for (final s in draft) s == -1 ? null : s];
+          cursor = savedCursor;
+          message = null;
+          return;
+        }
+      }
+    }
+    _newGame();
   }
 
   void _pick(int symbol) {
@@ -48,6 +89,7 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
       cursor = next == -1 ? cursor : next;
       message = null;
     });
+    _save();
   }
 
   void _submit() {
@@ -62,6 +104,7 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
       current = List.filled(mode.length, null);
       cursor = 0;
     });
+    _save();
   }
 
   void _hint() {
@@ -71,6 +114,7 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
       current = List<int?>.from(h);
       message = 'This code fits every clue so far.';
     });
+    _save();
   }
 
   Widget _peg(int? s, {double size = 30, bool selected = false, VoidCallback? onTap}) {
@@ -130,17 +174,21 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
           'repeats. Classic: 4 pegs, 6 colours, repeats allowed. Hard: 5 '
           'pegs, 8 colours, repeats allowed. The hint fills in a code that '
           'is consistent with all clues so far.\n\nBased on Hit & Blow from '
-          'z7workbench/minigames (MIT).',
+          'z7workbench/minigames (MIT). Unfinished codes resume offline '
+          'separately for each difficulty.',
       children: [
         SegmentedButton<CodeBreakerMode>(
           segments: [
             for (final m in CodeBreakerMode.all) ButtonSegment(value: m, label: Text(m.name)),
           ],
           selected: {mode},
-          onSelectionChanged: (s) => setState(() {
-            mode = s.first;
-            _newGame();
-          }),
+          onSelectionChanged: (s) {
+            setState(() {
+              mode = s.first;
+              _restoreOrStart();
+            });
+            unawaited(CampaignProgress.saveSelected('code_breaker', _modeNumber));
+          },
         ),
         StatusBanner(status, highlight: game.over),
         for (var g = 0; g < game.guesses.length; g++)
@@ -162,7 +210,10 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
               _peg(current[i],
                   size: 40,
                   selected: i == cursor,
-                  onTap: () => setState(() => cursor = i)),
+                  onTap: () {
+                    setState(() => cursor = i);
+                    _save();
+                  }),
           ]),
           const SizedBox(height: 8),
           Wrap(alignment: WrapAlignment.center, children: [
@@ -179,10 +230,13 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
                 icon: const Icon(Icons.lightbulb_outline),
                 label: const Text('Hint')),
             TextButton(
-                onPressed: () => setState(() {
-                      current = List.filled(mode.length, null);
-                      cursor = 0;
-                    }),
+                onPressed: () {
+                  setState(() {
+                    current = List.filled(mode.length, null);
+                    cursor = 0;
+                  });
+                  _save();
+                },
                 child: const Text('Clear')),
           ]),
         ],

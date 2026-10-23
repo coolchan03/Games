@@ -27,13 +27,40 @@ class SokobanScreen extends StatefulWidget {
 
 class _SokobanScreenState extends State<SokobanScreen> {
   int levelNumber = CampaignProgress.selectedLevel('sokoban', count: 20);
-  int difficulty = 1;
+  // Stored as 1=Medium, 2=Easy, 3=Hard to preserve the old Medium default.
+  int difficulty = switch (CampaignProgress.selectedLevel(
+    'sokoban_difficulty', count: 3)) {
+    2 => 0,
+    3 => 2,
+    _ => 1,
+  };
   late SokobanGame game = _load();
   final focus = FocusNode();
 
   SokobanGame _load() {
     final (size, boxes) = [(6, 2), (7, 3), (8, 4)][difficulty];
-    return SokobanGame(SokobanLevel.generate(levelNumber * 31 + difficulty, size: size, boxCount: boxes));
+    final result = SokobanGame(SokobanLevel.generate(
+      levelNumber * 31 + difficulty, size: size, boxCount: boxes,
+    ));
+    final snapshot = CampaignProgress.loadActive('sokoban_$difficulty', levelNumber,
+      maxLength: boxes + 3);
+    if (snapshot != null) result.restore(snapshot);
+    return result;
+  }
+
+  void _persist() => unawaited(CampaignProgress.saveActive(
+    'sokoban_$difficulty', levelNumber, game.snapshot(),
+  ));
+
+  void _restart() {
+    setState(() => game = SokobanGame(game.level));
+    _persist();
+  }
+
+  void _undo() {
+    if (!game.canUndo) return;
+    setState(game.undo);
+    _persist();
   }
 
   @override
@@ -64,24 +91,23 @@ class _SokobanScreenState extends State<SokobanScreen> {
     }
   }
 
-  void _step(int d) => setState(() {
-    game.step(d);
-    _recordSolved();
-  });
+  void _step(int d) {
+    if (!game.step(d)) return;
+    setState(_recordSolved);
+    _persist();
+  }
 
   void _tapCell(int i) {
     final w = game.level.w;
     final diff = i - game.player;
     // Adjacent: step (and push). Otherwise walk there.
     final d = diff == -w ? 0 : diff == 1 ? 1 : diff == w ? 2 : diff == -1 ? 3 : -1;
+    var moved = false;
     setState(() {
-      if (d >= 0) {
-        game.step(d);
-      } else {
-        game.walkTo(i);
-      }
-      _recordSolved();
+      moved = d >= 0 ? game.step(d) : game.walkTo(i);
+      if (moved) _recordSolved();
     });
+    if (moved) _persist();
   }
 
   KeyEventResult _key(FocusNode node, KeyEvent e) {
@@ -93,7 +119,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
       LogicalKeyboardKey.arrowLeft: 3,
     };
     if (e.logicalKey == LogicalKeyboardKey.keyZ || e.logicalKey == LogicalKeyboardKey.backspace) {
-      setState(game.undo);
+      _undo();
       return KeyEventResult.handled;
     }
     final d = map[e.logicalKey];
@@ -111,15 +137,16 @@ class _SokobanScreenState extends State<SokobanScreen> {
       gameId: 'sokoban',
       completed: game.solved,
       title: 'Sokoban',
-      onNewGame: () => setState(() => game = _load()),
+      onNewGame: _restart,
       rules: 'Push every crate onto a target square. You can push one crate '
           'at a time and never pull. Tap a square next to you (or use the '
           'arrows / keyboard) to step, or tap any open square to walk there. '
           'Swipe across the board to take one step in that direction. '
           'The first 20 numbered levels are available from the selector on '
           'Easy, Medium or Hard; use the arrows to explore more levels. '
-          'Completion markers are saved offline separately per difficulty. '
-          'Levels are generated backwards from solved positions. '
+          'Completion markers and unfinished crate positions are saved '
+          'offline separately per difficulty. Levels are generated '
+          'backwards from solved positions. '
           'Z or Backspace undoes a move.',
       children: [
         SegmentedButton<int>(
@@ -129,10 +156,14 @@ class _SokobanScreenState extends State<SokobanScreen> {
             ButtonSegment(value: 2, label: Text('Hard')),
           ],
           selected: {difficulty},
-          onSelectionChanged: (s) => setState(() {
-            difficulty = s.first;
-            game = _load();
-          }),
+          onSelectionChanged: (s) {
+            setState(() {
+              difficulty = s.first;
+              game = _load();
+            });
+            final saved = difficulty == 0 ? 2 : difficulty == 2 ? 3 : 1;
+            unawaited(CampaignProgress.saveSelected('sokoban_difficulty', saved));
+          },
         ),
         Row(children: [
           const SizedBox(width: 8),
@@ -236,7 +267,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
           IconButton.filledTonal(onPressed: () => _step(1), icon: const Icon(Icons.arrow_forward)),
           const SizedBox(width: 16),
           OutlinedButton.icon(
-            onPressed: game.canUndo ? () => setState(game.undo) : null,
+            onPressed: game.canUndo ? _undo : null,
             icon: const Icon(Icons.undo),
             label: const Text('Undo'),
           ),

@@ -131,6 +131,35 @@ class SokobanGame {
   bool get solved => boxes.difference(level.goals).isEmpty;
   bool get canUndo => _history.isNotEmpty;
 
+  /// A compact snapshot for offline resume. The layout itself is regenerated
+  /// deterministically from its campaign seed, not duplicated in storage.
+  List<int> snapshot() => [
+    player, moves, pushes,
+    ...(boxes.toList()..sort()),
+  ];
+
+  /// A stale or corrupted save must never place a crate outside the board.
+  bool restore(List<int> data) {
+    if (data.length != 3 + level.boxes.length) return false;
+    final nextPlayer = data[0];
+    final nextMoves = data[1], nextPushes = data[2];
+    final nextBoxes = data.skip(3).toSet();
+    final n = level.w * level.h;
+    if (nextMoves < 0 || nextPushes < 0 || nextPushes > nextMoves ||
+        nextPlayer < 0 || nextPlayer >= n ||
+        level.walls.contains(nextPlayer) || nextBoxes.contains(nextPlayer) ||
+        nextBoxes.length != level.boxes.length ||
+        nextBoxes.any((b) => b < 0 || b >= n || level.walls.contains(b))) {
+      return false;
+    }
+    boxes = nextBoxes;
+    player = nextPlayer;
+    moves = nextMoves;
+    pushes = nextPushes;
+    _history.clear();
+    return true;
+  }
+
   /// Moves one step in direction [d] (0 up, 1 right, 2 down, 3 left).
   bool step(int d) {
     if (solved) return false;

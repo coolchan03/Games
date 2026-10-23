@@ -27,13 +27,68 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
   DetectiveCase? generated;
   CaseDifficulty generatedDifficulty = CaseDifficulty.easy;
   DetectiveCase get game => generated ?? DetectiveCasebook.campaignCase(caseIndex);
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreActive();
+  }
+
+  void _saveActive() {
+    if (generated != null) return;
+    const tabs = ['Rooms', 'Times', 'Objects'];
+    unawaited(CampaignProgress.saveActive('detective_casebook', caseIndex + 1, [
+      hints, accusation ?? -1, solved ? 1 : 0, tabs.indexOf(notebookTab),
+      for (var i = 0; i < game.clues.length; i++) checked.contains(i) ? 1 : 0,
+      for (final tab in tabs)
+        for (var suspect = 0; suspect < 4; suspect++)
+          for (var value = 0; value < 4; value++)
+            notes['$tab/$suspect/$value'] ?? 0,
+    ]));
+  }
+
+  void _restoreActive() {
+    if (generated != null) return;
+    const tabs = ['Rooms', 'Times', 'Objects'];
+    final clueCount = game.clues.length;
+    final data = CampaignProgress.loadActive('detective_casebook', caseIndex + 1,
+      maxLength: 4 + clueCount + 48);
+    if (data == null || data.length != 4 + clueCount + 48 ||
+        data[0] < 0 || data[0] > 3 || data[1] < -1 || data[1] > 3 ||
+        data[2] < 0 || data[2] > 1 || data[3] < 0 || data[3] >= tabs.length ||
+        data.skip(4).take(clueCount).any((v) => v < 0 || v > 1) ||
+        data.skip(4 + clueCount).any((v) => v < 0 || v > 2)) return;
+    hints = data[0];
+    accusation = data[1] == -1 ? null : data[1];
+    solved = data[2] == 1;
+    notebookTab = tabs[data[3]];
+    for (var i = 0; i < clueCount; i++) {
+      if (data[4 + i] == 1) checked.add(i);
+    }
+    var index = 4 + clueCount;
+    for (final tab in tabs) {
+      for (var suspect = 0; suspect < 4; suspect++) {
+        for (var value = 0; value < 4; value++) {
+          final note = data[index++];
+          if (note != 0) notes['$tab/$suspect/$value'] = note;
+        }
+      }
+    }
+  }
+
   void _reset() {
     hints=0;accusation=null;solved=false;message=null;
     checked.clear();notes.clear();
+    notebookTab='Rooms';
+  }
+
+  void _restartCase() {
+    setState(_reset);
+    _saveActive();
   }
   void selectCase(int n) {
     if (n < 0 || n >= DetectiveCasebook.campaignCount) return;
-    setState(() { caseIndex=n;generated=null;_reset(); });
+    setState(() { caseIndex=n;generated=null;_reset();_restoreActive(); });
     unawaited(CampaignProgress.saveSelected('detective_casebook', n + 1));
   }
   void dailyCase() => setState(() {
@@ -62,6 +117,7 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
       message=solved?'Case closed! Your conclusion fits every clue.'
         :'That accusation does not fit the evidence. Try another suspect.';
     });
+    _saveActive();
   }
   Future<void> reveal() async {
     final ok=await showDialog<bool>(context:context,
@@ -81,6 +137,7 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
         'visited the ${game.rooms[game.incidentRoomIndex]}, '
         'and arrived at ${game.times[game.incidentTimeIndex]}.';
     });
+    _saveActive();
   }
   String get hint {
     if(hints==1)return 'Follow the ${game.incidentObject.toLowerCase()} '
@@ -100,7 +157,7 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
         DropdownMenuItem(value:'Rooms',child:Text('Suspects × rooms')),
         DropdownMenuItem(value:'Times',child:Text('Suspects × times')),
         DropdownMenuItem(value:'Objects',child:Text('Suspects × objects')),
-      ],onChanged:(v){if(v!=null)setState(()=>notebookTab=v);}),
+      ],onChanged:(v){if(v!=null){setState(()=>notebookTab=v);_saveActive();}}),
       const Text('Tap cells: ? → × excluded → ✓ possible. '
         'These are your personal notes.'),
       const SizedBox(height:12),
@@ -121,6 +178,7 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
                   child:InkWell(onTap:(){
                     final key='$notebookTab/$s/$v';
                     setState(()=>notes[key]=((notes[key]??0)+1)%3);
+                    _saveActive();
                   },child:Card(
                     color:(notes['$notebookTab/$s/$v']??0)==2
                       ?scheme.primaryContainer:scheme.surfaceContainer,
@@ -144,7 +202,8 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
           const Text('Read the clues and solve each mystery using logic. '
             'Every case — including generated daily and random cases — is '
             'checked by a solver to have exactly one solution. Hard cases '
-            'contain no direct statements of where anyone was.'),
+            'contain no direct statements of where anyone was. '
+          'Campaign notes and checked clues resume offline.'),
           const SizedBox(height:12),
           Row(children: [
             IconButton(
@@ -211,9 +270,12 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
               contentPadding:const EdgeInsets.symmetric(horizontal:8),
               controlAffinity:ListTileControlAffinity.leading,
               value:checked.contains(i),title:Text(c.clues[i].text),
-              onChanged:(v)=>setState((){
-                if(v==true){checked.add(i);}else{checked.remove(i);}
-              }),
+              onChanged:(v){
+                setState((){
+                  if(v==true){checked.add(i);}else{checked.remove(i);}
+                });
+                _saveActive();
+              },
             ),
           Card(child:ExpansionTile(
             title:const Text('Deduction notebook'),
@@ -228,9 +290,10 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
           Wrap(spacing:8,runSpacing:8,children:[
             for(var i=0;i<c.suspects.length;i++)
               ChoiceChip(label:Text(c.suspects[i]),selected:accusation==i,
-                onSelected:solved?null:(_)=>setState((){
-                  accusation=i;message=null;
-                })),
+                onSelected:solved?null:(_){
+                  setState((){accusation=i;message=null;});
+                  _saveActive();
+                }),
           ]),
           const SizedBox(height:14),
           FilledButton.icon(
@@ -253,13 +316,20 @@ class _DetectiveScreenState extends State<DetectiveCasebookScreen> {
             child:Text(hint)),
           Wrap(spacing:8,children:[
             TextButton.icon(
-              onPressed:hints<3&&!solved?()=>setState(()=>hints++):null,
+              onPressed: hints < 3 && !solved ? () {
+                setState(() => hints++);
+                _saveActive();
+              } : null,
               icon:const Icon(Icons.lightbulb_outline),
               label:Text('Hint ($hints/3)')),
             TextButton.icon(
               onPressed:solved?null:reveal,
               icon:const Icon(Icons.visibility_outlined),
               label:const Text('Reveal solution')),
+            TextButton.icon(
+              onPressed:_restartCase,
+              icon:const Icon(Icons.restart_alt),
+              label:const Text('Restart case')),
           ]),
           const SizedBox(height:28),
         ]),

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 import 'engine/layered_board.dart';
 import 'engine/mahjong_tile.dart';
@@ -14,29 +17,51 @@ class MahjongSolitaireScreen extends StatefulWidget {
 
 class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
   final layouts = Layout.all();
-  late Layout layout = layouts.first;
-  late LayeredBoard board = LayeredBoard(layout);
+  late Layout layout = layouts[
+    CampaignProgress.selectedLevel('mahjong_solitaire', count: layouts.length) - 1,
+  ];
+  late LayeredBoard board = _load();
   int? selected;
   (int, int)? hint;
 
-  void _newGame() => setState(() {
-        board = LayeredBoard(layout);
-        selected = null;
-        hint = null;
-      });
+  int get _layoutNumber => layouts.indexOf(layout) + 1;
+
+  LayeredBoard _load() {
+    final restored = LayeredBoard(layout);
+    final data = CampaignProgress.loadActive('mahjong_solitaire', _layoutNumber,
+      maxLength: layout.slots.length + 1);
+    if (data != null) restored.restore(data);
+    return restored;
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+    'mahjong_solitaire', _layoutNumber, board.snapshot(),
+  ));
+
+  void _newGame() {
+    setState(() {
+      board = LayeredBoard(layout);
+      selected = null;
+      hint = null;
+    });
+    _save();
+  }
 
   void _tap(int i) {
     if (!board.isFree(i)) return;
+    var removed = false;
     setState(() {
       hint = null;
       if (selected == null || selected == i) {
         selected = selected == i ? null : i;
       } else if (board.remove(selected!, i)) {
         selected = null;
+        removed = true;
       } else {
         selected = i;
       }
     });
+    if (removed) _save();
   }
 
   @override
@@ -57,7 +82,7 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
           'lies on top of it and its left or right side is open. Any two '
           'flowers match each other, as do any two seasons.\n\nEvery layout '
           'is dealt so that it can be solved. Pinch or scroll to zoom. '
-          'Layouts are from KDE KMahjongg.',
+          'Layouts are from KDE KMahjongg. Unfinished layouts resume offline.',
       children: [
         SizedBox(
           height: 40,
@@ -71,8 +96,14 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
                     label: Text(l.name),
                     selected: l == layout,
                     onSelected: (_) {
-                      layout = l;
-                      _newGame();
+                      setState(() {
+                        layout = l;
+                        board = _load();
+                        selected = null;
+                        hint = null;
+                      });
+                      unawaited(CampaignProgress.saveSelected(
+                        'mahjong_solitaire', _layoutNumber));
                     },
                   ),
                 ),
@@ -128,6 +159,7 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
                 : () => setState(() {
                       board.undo();
                       selected = null;
+                      _save();
                     }),
             icon: const Icon(Icons.undo),
             label: const Text('Undo'),
@@ -144,6 +176,7 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
                       board.shuffle();
                       selected = null;
                       hint = null;
+                      _save();
                     }),
             icon: const Icon(Icons.shuffle),
             label: const Text('Shuffle'),
