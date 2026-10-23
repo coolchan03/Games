@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 import 'same_game_engine.dart';
 
@@ -17,24 +20,48 @@ class SameGameScreen extends StatefulWidget {
 class _SameGameScreenState extends State<SameGameScreen> {
   int colours = 3;
   bool solvable = true;
-  late SameGame game = SameGame(colours: colours, solvable: solvable);
+  late SameGame game = _load();
   Set<int> preview = {};
 
-  void _newGame() => setState(() {
-        game = SameGame(colours: colours, solvable: solvable);
-        preview = {};
-      });
+  int get _mode => (colours - 3) * 2 + (solvable ? 1 : 2);
+
+  SameGame _load() {
+    final saved = CampaignProgress.loadActive('same_game', _mode,
+        maxLength: 103);
+    final result = SameGame(colours: colours, solvable: solvable);
+    if (saved != null) result.restore(saved);
+    return result;
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+      'same_game', _mode, game.snapshot()));
+
+  void _newGame() {
+    setState(() {
+      game = SameGame(colours: colours, solvable: solvable);
+      preview = {};
+    });
+    _save();
+  }
+
+  void _undo() {
+    if (!game.canUndo) return;
+    setState(() { game.undo(); preview = {}; });
+    _save();
+  }
 
   void _tap(int i) {
+    var changed = false;
     setState(() {
       final g = game.group(i).toSet();
       if (preview.contains(i)) {
-        game.remove(i);
+        changed = game.remove(i);
         preview = {};
       } else {
         preview = g.length >= 2 ? g : {};
       }
     });
+    if (changed) _save();
   }
 
   @override
@@ -68,8 +95,11 @@ class _SameGameScreenState extends State<SameGameScreen> {
               ],
               selected: {colours},
               onSelectionChanged: (s) {
-                colours = s.first;
-                _newGame();
+                setState(() {
+                  colours = s.first;
+                  game = _load();
+                  preview = {};
+                });
               },
             ),
           ),
@@ -78,18 +108,18 @@ class _SameGameScreenState extends State<SameGameScreen> {
           title: const Text('Solvable boards'),
           value: solvable,
           onChanged: (v) {
-            solvable = v;
-            _newGame();
+            setState(() {
+              solvable = v;
+              game = _load();
+              preview = {};
+            });
           },
         ),
         Row(children: [
           Expanded(child: StatusBanner(status, highlight: game.cleared || game.stuck)),
           IconButton.filledTonal(
             tooltip: 'Undo',
-            onPressed: game.canUndo ? () => setState(() {
-              game.undo();
-              preview = {};
-            }) : null,
+            onPressed: game.canUndo ? _undo : null,
             icon: const Icon(Icons.undo),
           ),
         ]),

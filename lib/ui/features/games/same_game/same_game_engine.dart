@@ -18,6 +18,17 @@ class SameGame {
   int score = 0;
   final List<(List<int>, int)> _history = [];
 
+  List<int> snapshot() => [score, ...grid];
+
+  bool restore(List<int> data) {
+    if (data.length != w * h + 1 || data.first < 0 ||
+        data.skip(1).any((v) => v < 0 || v > colours)) return false;
+    grid = data.skip(1).toList();
+    score = data.first;
+    _history.clear();
+    return true;
+  }
+
   int at(int x, int y) => (x < 0 || x >= w || y < 0 || y >= h) ? 0 : grid[y * w + x];
 
   List<int> group(int i) {
