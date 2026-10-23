@@ -1,9 +1,9 @@
-# Games ? Finish the 66 added games (new-chat handoff)
+# Games - Finish the 66 added games (new-chat handoff)
 
 **Prepared:** October 23, 2026  
 **Repo:** https://github.com/coolchan03/Games  
 **Website:** https://coolchan03.github.io/Games/  
-**Workspace:** `P:\AI Projects\Games` ? **connection:** `@new-tunnel`
+**Workspace:** `P:\AI Projects\Games` - **connection:** `@new-tunnel`
 
 ## Scope: DO NOT rebuild the original games
 
@@ -43,35 +43,35 @@
 
 ## EXACT 66-game list (canonical registry IDs)
 
-### B1 ? Deduction, mysteries and puzzle depth (4)
+### B1 - Deduction, mysteries and puzzle depth (4)
 
 **Detective Casebook** (`detective_casebook`); **Sokoban** (`sokoban`); **Mahjong Solitaire** (`mahjong_solitaire`); **Code Breaker** (`code_breaker`).
 
-### B2 ? Compact logic and spatial puzzles (10)
+### B2 - Compact logic and spatial puzzles (10)
 
 **Signpost** (`signpost`); **Sixteen** (`sixteen`); **Twiddle** (`twiddle`); **Black Box** (`black_box`); **Same Game** (`same_game`); **Inertia** (`inertia`); **Tower of Hanoi** (`tower_of_hanoi`); **Peg Solitaire** (`peg_solitaire`); **Nim** (`nim`); **Memory Pairs** (`memory_pairs`).
 
-### B3 ? Solitaire and drag controls (8)
+### B3 - Solitaire and drag controls (8)
 
 **Klondike Solitaire** (`klondike`); **FreeCell** (`freecell`); **Spider Solitaire** (`spider`); **Golf Solitaire** (`golf_solitaire`); **Pyramid Solitaire** (`pyramid`); **Forty Thieves** (`forty_thieves`); **Aces Up** (`aces_up`); **Poker Squares** (`poker_squares`).
 
-### B4 ? Poker and complex table cards (8)
+### B4 - Poker and complex table cards (8)
 
 **Blackjack** (`blackjack`); **Texas Hold'em** (`texas_holdem`); **Five Card Draw** (`five_card_draw`); **Video Poker** (`video_poker`); **Cribbage** (`cribbage`); **Gin Rummy** (`gin_rummy`); **King's Corner** (`kings_corner`); **Nain Jaune** (`nain_jaune`).
 
-### B5 ? Trick-taking and simple cards (6)
+### B5 - Trick-taking and simple cards (6)
 
 **Hearts** (`hearts`); **Spades** (`spades`); **Oh Hell** (`oh_hell`); **Crazy Eights** (`crazy_eights`); **Go Fish** (`go_fish`); **War** (`war`).
 
-### B6 ? Popular abstract strategy boards (10)
+### B6 - Popular abstract strategy boards (10)
 
 **Chess** (`chess`); **Checkers** (`checkers`); **Reversi** (`reversi`); **Connect Four** (`connect_four`); **Mancala** (`mancala`); **Oware** (`oware`); **Gomoku** (`gomoku`); **Hex** (`hex`); **Go** (`go_game`); **Nine Men's Morris** (`nine_mens_morris`).
 
-### B7 ? Traditional boards and strategy (10)
+### B7 - Traditional boards and strategy (10)
 
 **Backgammon** (`backgammon`); **Ludo** (`ludo`); **Alquerque** (`alquerque`); **Bagh Chal** (`bagh_chal`); **Bagh Bandi** (`bagh_bandi`); **Neutron** (`neutron`); **Chinese Checkers** (`chinese_checkers`); **Dominoes** (`dominoes`); **Dots and Boxes** (`dots_and_boxes`); **Battleship** (`battleship`).
 
-### B8 ? Family, dice, physics and casual (10)
+### B8 - Family, dice, physics and casual (10)
 
 **Game of the Goose** (`goose_game`); **Petits Chevaux** (`petits_chevaux`); **Snakes and Ladders** (`snakes_and_ladders`); **Air Hockey** (`air_hockey`); **Passe-Trappe** (`passe_trappe`); **421 (Dice)** (`dice_421`); **Liar's Dice** (`liars_dice`); **Yacht Dice** (`yacht_dice`); **Shut the Box** (`shut_the_box`); **Tic-Tac-Toe** (`tic_tac_toe`).
 
@@ -85,7 +85,7 @@
 - **Solitaire:** Klondike, Spider, FreeCell have new drag-to-destination and dead-end handling; Golf, Pyramid and Aces Up have relevant drag actions. Verify those changes on phone landscape and fill missing gaps, not rebuild.
 - All new games are registered. Tests and 360dp smoke coverage exist in test/games, but not every rule, save path or physical-device scenario has been certified.
 
-## Batch execution contract ? implement, test, publish
+## Batch execution contract - implement, test, publish
 
 1. Connect `@new-tunnel`, read guardrails, inspect `git status`, HEAD, all worktrees and remote `main` SHA. Read this document and `docs/GAMES_66_ADDITIONS_TRACKER.csv`.
 2. Work on **one batch at a time**, grouping compatible engines; first inspect current source, relevant tests and manual-visible controls. Record actual gaps. Skip an already-correct feature instead of rewriting it.
