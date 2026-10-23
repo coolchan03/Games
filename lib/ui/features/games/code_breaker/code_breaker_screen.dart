@@ -25,7 +25,7 @@ class CodeBreakerScreen extends StatefulWidget {
 
 class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
   CodeBreakerMode mode = CodeBreakerMode.all[
-    CampaignProgress.selectedLevel('code_breaker', count: CodeBreakerMode.all.length) - 1,
+    CampaignProgress.selectedLevel('code_breaker', count: CodeBreakerMode.all.length) - 1
   ];
   late CodeBreakerGame game;
   late List<int?> current;

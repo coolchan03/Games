@@ -18,7 +18,7 @@ class MahjongSolitaireScreen extends StatefulWidget {
 class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
   final layouts = Layout.all();
   late Layout layout = layouts[
-    CampaignProgress.selectedLevel('mahjong_solitaire', count: layouts.length) - 1,
+    CampaignProgress.selectedLevel('mahjong_solitaire', count: layouts.length) - 1
   ];
   late LayeredBoard board = _load();
   int? selected;
