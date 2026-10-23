@@ -40,6 +40,16 @@ VERIFIED = {
         GAMES / "sudoku" / "sudoku_engine.dart",
         r"campaignLevelCount\s*=\s*20",
     ),
+    "word_search": (
+        "40", "40 fixed-seed themed boards, exact-path and offline resume tests",
+        GAMES / "word_search" / "word_search_engine.dart",
+        r"campaignLevelCount\s*=\s*40",
+    ),
+    "akari": (
+        "20", "20 uniquely solvable authored Akari boards, offline resume tested",
+        GAMES / "akari" / "akari_campaign_data.dart",
+        r"levelCount\s*=\s*20",
+    ),
     "classic_maze": (
         "20", "20 deterministic connected mazes, 11x11-29x29; resumable routes",
         GAMES / "classic_maze" / "classic_maze_engine.dart",
