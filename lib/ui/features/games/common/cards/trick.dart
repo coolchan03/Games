@@ -52,7 +52,9 @@ class Trick {
   }
 
   static Trick fromJson(final Map<String, dynamic> json) {
-    return Trick(json["leader"] as int, PlayingCard.cardsFromString(json["cards"] as String),
+    return Trick(
+        json["leader"] as int,
+        PlayingCard.cardsFromString(json["cards"] as String),
         json["winner"] as int);
   }
 }
@@ -61,7 +63,8 @@ class TrickInProgress {
   final int leader;
   final List<PlayingCard> cards;
 
-  TrickInProgress(this.leader, [List<PlayingCard>? _cards]) : cards = _cards ?? [];
+  TrickInProgress(this.leader, [List<PlayingCard>? _cards])
+      : cards = _cards ?? [];
 
   TrickInProgress copy() => TrickInProgress(leader, List.of(cards));
 
@@ -73,8 +76,8 @@ class TrickInProgress {
   }
 
   static TrickInProgress fromJson(final Map<String, dynamic> json) {
-    return TrickInProgress(
-        json["leader"] as int, PlayingCard.cardsFromString(json["cards"] as String));
+    return TrickInProgress(json["leader"] as int,
+        PlayingCard.cardsFromString(json["cards"] as String));
   }
 
   Trick finish({Suit? trump}) {
@@ -103,7 +106,8 @@ bool willLeadingPlayerWinAllRemainingTricks({
   }
   // No other player can have a card higher than any in `playerCards`.
   for (final pc in leadingPlayerCards) {
-    if (remainingCards.any((c) => c.suit == pc.suit && c.rank.isHigherThan(pc.rank))) {
+    if (remainingCards
+        .any((c) => c.suit == pc.suit && c.rank.isHigherThan(pc.rank))) {
       return false;
     }
   }

@@ -10,6 +10,7 @@ final mancalaMetadata = GameMetadata(
   color: DesignSystem.gameAmber,
   builder: (context) => const MancalaScreen(),
   titleGetter: (context) => 'Mancala',
-  subtitleGetter: (context) => 'Kalah with local multiplayer and three AI levels',
+  subtitleGetter: (context) =>
+      'Kalah with local multiplayer and three AI levels',
   popularity: Popularity.high,
 );

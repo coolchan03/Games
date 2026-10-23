@@ -10,6 +10,7 @@ final sameGameMetadata = GameMetadata(
   color: DesignSystem.gameRed,
   builder: (context) => const SameGameScreen(),
   titleGetter: (context) => 'Same Game',
-  subtitleGetter: (context) => 'Clear groups of colour — boards always solvable',
+  subtitleGetter: (context) =>
+      'Clear groups of colour — boards always solvable',
   popularity: Popularity.default_,
 );

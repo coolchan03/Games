@@ -47,8 +47,11 @@ class TrickTable extends StatelessWidget {
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Text(names[i],
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-          Text(info[i], style: const TextStyle(fontSize: 11), textAlign: TextAlign.center),
+              style:
+                  const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+          Text(info[i],
+              style: const TextStyle(fontSize: 11),
+              textAlign: TextAlign.center),
         ]),
       );
     }

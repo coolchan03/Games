@@ -19,6 +19,9 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(360, 720));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(const MaterialApp(home: TowerOfHanoiScreen()));
+    // Level 2 is the classic four-disc tower.
+    await tester.tap(find.byTooltip('Next level'));
+    await tester.pump();
     final board = find.byKey(const ValueKey('hanoi_touch_board'));
     expect(board, findsOneWidget);
     await tester.ensureVisible(board);

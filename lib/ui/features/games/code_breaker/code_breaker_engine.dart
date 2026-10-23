@@ -15,6 +15,32 @@ class CodeBreakerMode {
   static const classic = CodeBreakerMode('Classic', 4, 6, true, 10);
   static const hard = CodeBreakerMode('Hard', 5, 8, true, 12);
   static const all = [easy, classic, hard];
+
+  /// The 20 numbered levels: longer codes, more colours, repeats and fewer
+  /// guesses make them progressively harder. Each attempt draws a new
+  /// secret code, so a failed level can be retried fairly.
+  static const levels = [
+    CodeBreakerMode('Level 1', 3, 4, false, 8),
+    CodeBreakerMode('Level 2', 3, 5, false, 8),
+    CodeBreakerMode('Level 3', 3, 6, false, 8),
+    CodeBreakerMode('Level 4', 4, 5, false, 10),
+    CodeBreakerMode('Level 5', 4, 6, false, 10),
+    CodeBreakerMode('Level 6', 3, 4, true, 8),
+    CodeBreakerMode('Level 7', 3, 6, true, 8),
+    CodeBreakerMode('Level 8', 4, 6, false, 8),
+    CodeBreakerMode('Level 9', 4, 6, true, 10),
+    CodeBreakerMode('Level 10', 4, 7, false, 10),
+    CodeBreakerMode('Level 11', 4, 7, true, 10),
+    CodeBreakerMode('Level 12', 4, 8, false, 10),
+    CodeBreakerMode('Level 13', 4, 6, true, 8),
+    CodeBreakerMode('Level 14', 4, 8, true, 10),
+    CodeBreakerMode('Level 15', 5, 6, false, 10),
+    CodeBreakerMode('Level 16', 5, 7, false, 10),
+    CodeBreakerMode('Level 17', 5, 8, false, 12),
+    CodeBreakerMode('Level 18', 5, 6, true, 12),
+    CodeBreakerMode('Level 19', 5, 7, true, 12),
+    CodeBreakerMode('Level 20', 5, 8, true, 10),
+  ];
 }
 
 /// (hits, blows): hits = right symbol, right place; blows = right symbol, wrong place.

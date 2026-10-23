@@ -18,10 +18,14 @@ class OwareState {
   int turn = 0;
   int plies = 0;
 
-  OwareState copy() => OwareState._(List.of(pits), List.of(stores), turn, plies);
+  OwareState copy() =>
+      OwareState._(List.of(pits), List.of(stores), turn, plies);
 
   bool own(int pit, int p) => p == 0 ? pit < 6 : pit >= 6;
-  int seedsOf(int p) => [for (var i = 0; i < 12; i++) if (own(i, p)) pits[i]].fold(0, (a, b) => a + b);
+  int seedsOf(int p) => [
+        for (var i = 0; i < 12; i++)
+          if (own(i, p)) pits[i]
+      ].fold(0, (a, b) => a + b);
 
   /// Result of sowing from [pit] without mutating this state.
   OwareState _sow(int pit) {
@@ -56,7 +60,10 @@ class OwareState {
   }
 
   List<int> legalMoves() {
-    final mine = [for (var i = 0; i < 12; i++) if (own(i, turn) && pits[i] > 0) i];
+    final mine = [
+      for (var i = 0; i < 12; i++)
+        if (own(i, turn) && pits[i] > 0) i
+    ];
     // Must feed an opponent with no seeds if possible.
     if (seedsOf(1 - turn) == 0) {
       final feeding = mine.where((m) => _sow(m).seedsOf(1 - turn) > 0).toList();
@@ -85,7 +92,11 @@ class OwareState {
     if (stores[0] == 24 && stores[1] == 24) return 2;
     if (legalMoves().isEmpty || plies > 400) {
       final a = stores[0] + seedsOf(0), b = stores[1] + seedsOf(1);
-      return a > b ? 0 : b > a ? 1 : 2;
+      return a > b
+          ? 0
+          : b > a
+              ? 1
+              : 2;
     }
     return -1;
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../common/campaign_level_bar.dart';
 import '../common/game_kit.dart';
 import 'code_breaker_engine.dart';
 
@@ -21,7 +22,8 @@ class CodeBreakerScreen extends StatefulWidget {
 }
 
 class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
-  CodeBreakerMode mode = CodeBreakerMode.easy;
+  int level = CampaignLevelBar.initialLevel('code_breaker');
+  CodeBreakerMode get mode => CodeBreakerMode.levels[level - 1];
   late CodeBreakerGame game;
   late List<int?> current;
   int cursor = 0;
@@ -54,7 +56,7 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
     if (current.contains(null)) return;
     final guess = current.cast<int>();
     if (!game.isValid(guess)) {
-      setState(() => message = 'Each colour may be used only once in Easy mode.');
+      setState(() => message = 'Each colour may be used only once on this level.');
       return;
     }
     setState(() {
@@ -126,21 +128,26 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
       onNewGame: () => setState(_newGame),
       rules: 'Deduce the hidden code of coloured pegs. After each guess you '
           'get clues: ● a peg of the right colour in the right place, ○ a '
-          'right colour in the wrong place.\n\nEasy: 4 pegs, 6 colours, no '
-          'repeats. Classic: 4 pegs, 6 colours, repeats allowed. Hard: 5 '
-          'pegs, 8 colours, repeats allowed. The hint fills in a code that '
+          'right colour in the wrong place.\n\nThere are 20 levels, from 3 pegs '
+          'and 4 colours to 5 pegs and 8 colours with repeats allowed and '
+          'fewer guesses. Crack the code to complete a level; New game draws '
+          'a fresh code for the same level. The hint fills in a code that '
           'is consistent with all clues so far.\n\nBased on Hit & Blow from '
           'z7workbench/minigames (MIT).',
       children: [
-        SegmentedButton<CodeBreakerMode>(
-          segments: [
-            for (final m in CodeBreakerMode.all) ButtonSegment(value: m, label: Text(m.name)),
-          ],
-          selected: {mode},
-          onSelectionChanged: (s) => setState(() {
-            mode = s.first;
+        CampaignLevelBar(
+          gameId: 'code_breaker',
+          level: level,
+          solved: game.won,
+          onLevel: (value) => setState(() {
+            level = value;
             _newGame();
           }),
+          describe: (l) {
+            final m = CodeBreakerMode.levels[l - 1];
+            return '${m.length} pegs, ${m.symbols} colours'
+                '${m.duplicates ? ', repeats' : ''}, ${m.maxGuesses} tries';
+          },
         ),
         StatusBanner(status, highlight: game.over),
         for (var g = 0; g < game.guesses.length; g++)

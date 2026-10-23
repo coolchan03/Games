@@ -20,6 +20,13 @@ class BlackBoxGame {
     hidden = cells.take(balls).toSet();
   }
 
+  /// A box with balls at exactly [cells], used to compare arrangements.
+  BlackBoxGame._fixed(this.n, Set<int> cells)
+      : balls = cells.length,
+        rng = Random() {
+    hidden = cells;
+  }
+
   final int n, balls;
   final Random rng;
   late final Set<int> hidden;
@@ -104,6 +111,36 @@ class BlackBoxGame {
   }
 
   int get wrong => guesses.difference(hidden).length;
-  int get score => lasersUsed + wrong * 5;
-  bool get correct => guesses.length == balls && wrong == 0;
+  int get score => lasersUsed + (correct ? 0 : wrong * 5);
+
+  /// As in Tatham's blackbox.c, a guess is right when it has the right
+  /// number of balls and no laser could tell it apart from the real box.
+  bool get correct =>
+      guesses.length == balls && (wrong == 0 || indistinguishable(guesses));
+
+  /// Whether balls at [cells] give the same result for every port.
+  bool indistinguishable(Set<int> cells) {
+    final other = BlackBoxGame._fixed(n, Set.of(cells));
+    for (var p = 0; p < 4 * n; p++) {
+      final a = trace(p), b = other.trace(p);
+      if (a.kind != b.kind || a.exit != b.exit) return false;
+    }
+    return true;
+  }
+}
+
+/// The 20 numbered Black Box levels as (box size, hidden balls). Each
+/// attempt hides the balls afresh, so retrying a level is a new puzzle.
+class BlackBoxLevels {
+  static const specs = [
+    (5, 2), (5, 3), (6, 2), (6, 3), (6, 4),
+    (7, 3), (7, 4), (7, 5), (8, 3), (8, 4),
+    (8, 5), (8, 6), (9, 4), (9, 5), (9, 6),
+    (9, 7), (10, 5), (10, 6), (10, 7), (10, 8),
+  ];
+
+  static BlackBoxGame build(int level, {Random? random}) {
+    final (n, balls) = specs[level - 1];
+    return BlackBoxGame(n: n, balls: balls, random: random);
+  }
 }

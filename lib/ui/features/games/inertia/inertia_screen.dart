@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../common/campaign_level_bar.dart';
 import '../common/game_kit.dart';
 import 'inertia_engine.dart';
 
@@ -11,8 +12,8 @@ class InertiaScreen extends StatefulWidget {
 }
 
 class _InertiaScreenState extends State<InertiaScreen> {
-  int size = 10;
-  late InertiaGame game = InertiaGame(w: size, h: size);
+  int level = CampaignLevelBar.initialLevel('inertia');
+  late InertiaGame game = InertiaLevels.build(level);
   final focus = FocusNode();
 
   static const _arrows = [
@@ -66,26 +67,29 @@ class _InertiaScreenState extends State<InertiaScreen> {
       gameId: 'inertia',
       completed: game.won,
       title: 'Inertia',
-      onNewGame: () => setState(() => game = InertiaGame(w: size, h: size)),
+      onNewGame: () => setState(() => game = InertiaLevels.build(level)),
       rules: 'Collect every gem. You slide in any of eight directions and '
           'keep going until you stop on a stop square (circle) or run into '
           'a wall — you cannot stop on open ground. Passing over a gem '
           'collects it; touching a mine ends the game (you can undo).\n\n'
           'Tap a square in line with you, use the arrow buttons, or the '
           'arrow keys / numpad. Ported from Simon Tatham\'s Portable Puzzle '
-          'Collection; every level is generated so all gems are reachable.',
+          'Collection; every level is generated so all gems are reachable.\n\n'
+          'There are 20 levels, growing from 6×6 to 12×12. New game restarts '
+          'the current level.',
       children: [
-        SegmentedButton<int>(
-          segments: const [
-            ButtonSegment(value: 8, label: Text('8×8')),
-            ButtonSegment(value: 10, label: Text('10×10')),
-            ButtonSegment(value: 12, label: Text('12×12')),
-          ],
-          selected: {size},
-          onSelectionChanged: (s) => setState(() {
-            size = s.first;
-            game = InertiaGame(w: size, h: size);
+        CampaignLevelBar(
+          gameId: 'inertia',
+          level: level,
+          solved: game.won,
+          onLevel: (value) => setState(() {
+            level = value;
+            game = InertiaLevels.build(level);
           }),
+          describe: (l) {
+            final s = InertiaLevels.sizes[l - 1];
+            return '$s×$s';
+          },
         ),
         StatusBanner(status, highlight: game.won || game.dead),
         Focus(

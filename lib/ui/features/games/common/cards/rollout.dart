@@ -20,7 +20,8 @@ class CardDistributionRequest {
   final List<PlayingCard> cardsToAssign;
   final List<CardDistributionConstraint> constraints;
 
-  CardDistributionRequest({required this.cardsToAssign, required this.constraints});
+  CardDistributionRequest(
+      {required this.cardsToAssign, required this.constraints});
 }
 
 class MonteCarloParams {
@@ -28,10 +29,17 @@ class MonteCarloParams {
   int rolloutsPerRound;
   int? maxTimeMillis;
 
-  MonteCarloParams({required this.maxRounds, required this.rolloutsPerRound, this.maxTimeMillis});
+  MonteCarloParams(
+      {required this.maxRounds,
+      required this.rolloutsPerRound,
+      this.maxTimeMillis});
 }
 
-enum MonteCarloResultType { rollout_not_needed, rollout_failed, rollout_success }
+enum MonteCarloResultType {
+  rollout_not_needed,
+  rollout_failed,
+  rollout_success
+}
 
 class MonteCarloResult {
   MonteCarloResultType resultType;
@@ -64,7 +72,8 @@ class MonteCarloResult {
     }
   }
 
-  static MonteCarloResult rolloutNotNeeded({required PlayingCard bestCard}) => MonteCarloResult(
+  static MonteCarloResult rolloutNotNeeded({required PlayingCard bestCard}) =>
+      MonteCarloResult(
         resultType: MonteCarloResultType.rollout_not_needed,
         bestCard: bestCard,
       );
@@ -114,7 +123,8 @@ class MonteCarloResult {
   }
 }
 
-List<List<PlayingCard>>? _possibleCardDistribution(CardDistributionRequest req, Random rng) {
+List<List<PlayingCard>>? _possibleCardDistribution(
+    CardDistributionRequest req, Random rng) {
   final numPlayers = req.constraints.length;
   List<List<PlayingCard>> result = List.generate(numPlayers, (index) => []);
   List<List<PlayingCard>> legalCards = List.generate(numPlayers, (index) => []);
@@ -136,7 +146,8 @@ List<List<PlayingCard>>? _possibleCardDistribution(CardDistributionRequest req, 
     // Remove cards that are fixed to other players.
     for (int j = 0; j < numPlayers; j++) {
       if (i != j) {
-        legalCards[i].removeWhere((card) => req.constraints[j].fixedCards.contains(card));
+        legalCards[i].removeWhere(
+            (card) => req.constraints[j].fixedCards.contains(card));
       }
     }
   }
@@ -192,7 +203,8 @@ List<List<PlayingCard>>? _possibleCardDistribution(CardDistributionRequest req, 
   return result;
 }
 
-List<List<PlayingCard>>? possibleCardDistribution(CardDistributionRequest req, Random rng) {
+List<List<PlayingCard>>? possibleCardDistribution(
+    CardDistributionRequest req, Random rng) {
   for (int i = 0; i < 1000; i++) {
     final result = _possibleCardDistribution(req, rng);
     if (result != null) {

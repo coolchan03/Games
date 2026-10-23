@@ -128,6 +128,18 @@ class SignpostPuzzle {
   }
 }
 
+/// The 20 numbered Signpost levels: 4×4 (1–6), 5×5 (7–13), 6×6 (14–20).
+/// Each level is generated from a fixed seed, so it is the same puzzle on
+/// every device and always has exactly one solution.
+class SignpostLevels {
+  static int sizeFor(int level) => level <= 6 ? 4 : level <= 13 ? 5 : 6;
+
+  static SignpostPuzzle build(int level) {
+    final size = sizeFor(level);
+    return SignpostPuzzle(w: size, h: size, random: Random(7100 + level * 37));
+  }
+}
+
 /// Player state: successor links between cells.
 class SignpostGame {
   SignpostGame(this.puzzle);

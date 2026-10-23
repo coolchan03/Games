@@ -18,8 +18,9 @@ class SCard {
   int get value => card.rank == Rank.ace ? 1 : card.rank.numericValue;
 }
 
-List<List<SCard>> copyPiles(List<List<SCard>> piles) =>
-    [for (final p in piles) [for (final c in p) c.copy()]];
+List<List<SCard>> copyPiles(List<List<SCard>> piles) => [
+      for (final p in piles) [for (final c in p) c.copy()]
+    ];
 
 /// Ace-low rank value of a plain card.
 int aceLow(PlayingCard c) => c.rank == Rank.ace ? 1 : c.rank.numericValue;
@@ -45,6 +46,7 @@ class CardColumn extends StatelessWidget {
   final int? selectedFrom;
   final void Function(int index)? onTapCard;
   final VoidCallback? onTapEmpty;
+
   /// Returns a draggable source for a face-up card or a movable suffix.
   final Object? Function(int index)? dragDataAt;
   final bool Function(Object source)? canAccept;
@@ -94,7 +96,6 @@ class CardColumn extends StatelessWidget {
             Positioned(
               top: tops[i],
               child: _dragCard(i),
-
             ),
         ]),
       ),
@@ -205,7 +206,8 @@ class PileSlot extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Text(label ?? '',
-                  style: TextStyle(color: Colors.white54, fontSize: width * .32)),
+                  style:
+                      TextStyle(color: Colors.white54, fontSize: width * .32)),
             )
           else
             _dragTop(),
@@ -216,7 +218,8 @@ class PileSlot extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
-                    color: Colors.black54, borderRadius: BorderRadius.circular(6)),
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(6)),
                 child: Text('$count',
                     style: const TextStyle(color: Colors.white, fontSize: 10)),
               ),
@@ -245,8 +248,11 @@ class PileSlot extends StatelessWidget {
 
   Widget _dragTop() {
     final face = CardView(
-      card: top, faceDown: faceDown, width: width,
-      selected: selected, onTap: onTap,
+      card: top,
+      faceDown: faceDown,
+      width: width,
+      selected: selected,
+      onTap: onTap,
     );
     if (top == null || faceDown || dragData == null) return face;
     return Draggable<Object>(
@@ -278,5 +284,6 @@ class Felt extends StatelessWidget {
 }
 
 /// Width for [n] side-by-side columns inside [available] pixels.
-double columnWidth(double available, int n, {double gap = 4, double maxW = 72}) =>
+double columnWidth(double available, int n,
+        {double gap = 4, double maxW = 72}) =>
     ((available - gap * (n - 1)) / n).clamp(20, maxW);

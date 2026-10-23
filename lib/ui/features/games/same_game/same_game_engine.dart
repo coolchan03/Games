@@ -5,20 +5,32 @@
 import 'dart:math';
 
 class SameGame {
-  SameGame({this.w = 10, this.h = 10, this.colours = 4, bool solvable = true, Random? random})
+  SameGame(
+      {this.w = 10,
+      this.h = 10,
+      this.colours = 4,
+      bool solvable = true,
+      Random? random})
       : rng = random ?? Random() {
-    grid = solvable ? _generateSolvable() : [for (var i = 0; i < w * h; i++) rng.nextInt(colours) + 1];
+    grid = solvable
+        ? _generateSolvable()
+        : [for (var i = 0; i < w * h; i++) rng.nextInt(colours) + 1];
   }
 
   final int w, h, colours;
   final Random rng;
+
+  /// Whether the board came from the clearable generator (rather than its
+  /// random fallback, or a random board by request).
+  bool provablyClearable = false;
 
   /// Row-major, row 0 at the top; 0 = empty.
   late List<int> grid;
   int score = 0;
   final List<(List<int>, int)> _history = [];
 
-  int at(int x, int y) => (x < 0 || x >= w || y < 0 || y >= h) ? 0 : grid[y * w + x];
+  int at(int x, int y) =>
+      (x < 0 || x >= w || y < 0 || y >= h) ? 0 : grid[y * w + x];
 
   List<int> group(int i) {
     final c = grid[i];
@@ -54,7 +66,10 @@ class SameGame {
   void _settle(List<int> g) {
     // Gravity.
     for (var x = 0; x < w; x++) {
-      final col = [for (var y = h - 1; y >= 0; y--) if (g[y * w + x] != 0) g[y * w + x]];
+      final col = [
+        for (var y = h - 1; y >= 0; y--)
+          if (g[y * w + x] != 0) g[y * w + x]
+      ];
       for (var y = h - 1, k = 0; y >= 0; y--, k++) {
         g[y * w + x] = k < col.length ? col[k] : 0;
       }
@@ -74,7 +89,10 @@ class SameGame {
   }
 
   bool get cleared => grid.every((c) => c == 0);
-  bool get stuck => !cleared && ![for (var i = 0; i < grid.length; i++) i].any((i) => grid[i] != 0 && group(i).length >= 2);
+  bool get stuck =>
+      !cleared &&
+      ![for (var i = 0; i < grid.length; i++) i]
+          .any((i) => grid[i] != 0 && group(i).length >= 2);
   int get remaining => grid.where((c) => c != 0).length;
   bool get canUndo => _history.isNotEmpty;
 
@@ -85,18 +103,19 @@ class SameGame {
     score = h.$2;
   }
 
-  /// Builds a board by inserting vertical two-cell blobs (or new two-cell
-  /// columns) whose colour differs from every neighbour, so removing the
-  /// blobs in reverse order clears the board.
+  /// Builds a board by inserting vertical two-cell blobs (or new columns)
+  /// whose colour differs from every neighbour, so removing the blobs in
+  /// reverse order clears the board. New columns are two cells tall, or
+  /// three when the height is odd so that every column can reach it.
   List<int> _generateSolvable() {
+    final newColumn = h.isOdd ? 3 : 2;
     for (var attempt = 0; attempt < 200; attempt++) {
       final cols = <List<int>>[]; // bottom-up stacks
-      final first = (w * h).isOdd ? 3 : 2;
-      cols.add(List.filled(first, rng.nextInt(colours) + 1));
-      var filled = first;
+      cols.add(List.filled(newColumn, rng.nextInt(colours) + 1));
+      var filled = newColumn;
       var failures = 0;
       while (filled < w * h && failures < 400) {
-        // Insertion: (column index, height index) or new column at index.
+        // Insertion: (column index, height index, new column?).
         final options = <(int, int, bool)>[];
         for (var c = 0; c < cols.length; c++) {
           if (cols[c].length + 2 > h) continue;
@@ -111,29 +130,41 @@ class SameGame {
         }
         if (options.isEmpty) break;
         final (c, y, newCol) = options[rng.nextInt(options.length)];
+        final size = newCol ? newColumn : 2;
         final trial = [for (final s in cols) List.of(s)];
         if (newCol) {
-          trial.insert(c, [0, 0]);
+          trial.insert(c, List.filled(size, 0));
         } else {
           trial[c].insertAll(y, [0, 0]);
         }
-        int cell(int cx, int cy) => cx < 0 || cx >= trial.length || cy < 0 || cy >= trial[cx].length ? -1 : trial[cx][cy];
+        int cell(int cx, int cy) =>
+            cx < 0 || cx >= trial.length || cy < 0 || cy >= trial[cx].length
+                ? -1
+                : trial[cx][cy];
         final neighbours = <int>{
-          cell(c - 1, y), cell(c - 1, y + 1), cell(c + 1, y), cell(c + 1, y + 1),
-          cell(c, y - 1), cell(c, y + 2),
+          for (var k = 0; k < size; k++) ...[
+            cell(c - 1, y + k),
+            cell(c + 1, y + k)
+          ],
+          cell(c, y - 1),
+          cell(c, y + size),
         };
-        final allowed = [for (var k = 1; k <= colours; k++) if (!neighbours.contains(k)) k];
+        final allowed = [
+          for (var k = 1; k <= colours; k++)
+            if (!neighbours.contains(k)) k
+        ];
         if (allowed.isEmpty) {
           failures++;
           continue;
         }
         final colour = allowed[rng.nextInt(allowed.length)];
-        trial[c][y] = colour;
-        trial[c][y + 1] = colour;
+        for (var k = 0; k < size; k++) {
+          trial[c][y + k] = colour;
+        }
         cols
           ..clear()
           ..addAll(trial);
-        filled += 2;
+        filled += size;
       }
       if (filled != w * h) continue;
       final g = List.filled(w * h, 0);
@@ -142,8 +173,42 @@ class SameGame {
           g[(h - 1 - k) * w + x] = cols[x][k];
         }
       }
+      provablyClearable = true;
       return g;
     }
     return [for (var i = 0; i < w * h; i++) rng.nextInt(colours) + 1];
+  }
+}
+
+/// The 20 numbered Same Game levels as (width, height, colours). Every level
+/// is a fixed, clearable board; clearing it completes the level.
+class SameGameLevels {
+  static const specs = [
+    (5, 5, 2),
+    (6, 6, 2),
+    (6, 6, 3),
+    (6, 6, 3),
+    (7, 7, 3),
+    (7, 7, 3),
+    (8, 8, 3),
+    (8, 8, 3),
+    (8, 8, 4),
+    (8, 8, 4),
+    (9, 9, 3),
+    (9, 9, 4),
+    (9, 9, 4),
+    (10, 10, 3),
+    (10, 10, 4),
+    (10, 10, 4),
+    (10, 10, 5),
+    (12, 10, 4),
+    (12, 10, 5),
+    (12, 12, 5),
+  ];
+
+  static SameGame build(int level) {
+    final (w, h, colours) = specs[level - 1];
+    return SameGame(
+        w: w, h: h, colours: colours, random: Random(4400 + level * 29));
   }
 }

@@ -13,9 +13,12 @@ class CampaignProgress {
       if (!Hive.isBoxOpen(boxName)) return <int>{};
       final raw = Hive.box(boxName).get('$keyPrefix$gameId');
       if (raw is! List) return <int>{};
-      return raw.whereType<int>().where(
-        (n) => n >= 1 && (maxLevel == null || n <= maxLevel),
-      ).toSet();
+      return raw
+          .whereType<int>()
+          .where(
+            (n) => n >= 1 && (maxLevel == null || n <= maxLevel),
+          )
+          .toSet();
     } catch (_) {
       return <int>{};
     }
@@ -36,8 +39,7 @@ class CampaignProgress {
     if (level < 1) return;
     try {
       if (!Hive.isBoxOpen(boxName)) return;
-      await Hive.box(boxName)
-          .put('selected_campaign_level_v1_$gameId', level);
+      await Hive.box(boxName).put('selected_campaign_level_v1_$gameId', level);
     } catch (_) {
       // An optional progress write must not prevent a level change.
     }
@@ -53,7 +55,9 @@ class CampaignProgress {
     try {
       if (!Hive.isBoxOpen(boxName)) return null;
       final raw = Hive.box(boxName).get(_activeKey(gameId, level));
-      if (raw is! List || raw.isEmpty || raw.length > maxLength ||
+      if (raw is! List ||
+          raw.isEmpty ||
+          raw.length > maxLength ||
           raw.any((v) => v is! int)) return null;
       return List<int>.from(raw);
     } catch (_) {
@@ -61,12 +65,12 @@ class CampaignProgress {
     }
   }
 
-  static Future<void> saveActive(String gameId, int level,
-      List<int> payload) async {
+  static Future<void> saveActive(
+      String gameId, int level, List<int> payload) async {
     try {
       if (!Hive.isBoxOpen(boxName) || level < 1) return;
-      await Hive.box(boxName).put(_activeKey(gameId, level),
-          List<int>.from(payload));
+      await Hive.box(boxName)
+          .put(_activeKey(gameId, level), List<int>.from(payload));
     } catch (_) {
       // Progress persistence is best-effort while offline.
     }
