@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 import 'inertia_engine.dart';
 
@@ -11,16 +14,51 @@ class InertiaScreen extends StatefulWidget {
 }
 
 class _InertiaScreenState extends State<InertiaScreen> {
-  int size = 10;
-  late InertiaGame game = InertiaGame(w: size, h: size);
+  int size = switch (CampaignProgress.selectedLevel('inertia', count: 3)) {
+    2 => 8,
+    3 => 12,
+    _ => 10,
+  };
+  late InertiaGame game = _load();
   final focus = FocusNode();
+
+  int get _modeId => size == 10 ? 1 : size == 8 ? 2 : 3;
+
+  InertiaGame _load() {
+    final saved = CampaignProgress.loadActive('inertia', _modeId,
+        maxLength: size * size + 5);
+    if (saved != null) {
+      final restored = InertiaGame.fromSnapshot(
+          w: size, h: size, data: saved);
+      if (restored != null) return restored;
+    }
+    return InertiaGame(w: size, h: size);
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+      'inertia', _modeId, game.snapshot()));
+
+  void _restart() {
+    setState(() => game = InertiaGame(w: size, h: size));
+    _save();
+  }
+
+  void _undo() {
+    if (!game.canUndo) return;
+    setState(game.undo);
+    _save();
+  }
 
   static const _arrows = [
     Icons.north, Icons.north_east, Icons.east, Icons.south_east,
     Icons.south, Icons.south_west, Icons.west, Icons.north_west,
   ];
 
-  void _move(int d) => setState(() => game.move(d));
+  void _move(int d) {
+    if (!game.canMove(d)) return;
+    setState(() => game.move(d));
+    _save();
+  }
 
   /// Tapping a square moves toward it if it lies on one of the 8 lines.
   void _tapCell(int x, int y) {
@@ -66,14 +104,15 @@ class _InertiaScreenState extends State<InertiaScreen> {
       gameId: 'inertia',
       completed: game.won,
       title: 'Inertia',
-      onNewGame: () => setState(() => game = InertiaGame(w: size, h: size)),
+      onNewGame: _restart,
       rules: 'Collect every gem. You slide in any of eight directions and '
           'keep going until you stop on a stop square (circle) or run into '
           'a wall — you cannot stop on open ground. Passing over a gem '
           'collects it; touching a mine ends the game (you can undo).\n\n'
           'Tap a square in line with you, use the arrow buttons, or the '
           'arrow keys / numpad. Ported from Simon Tatham\'s Portable Puzzle '
-          'Collection; every level is generated so all gems are reachable.',
+          'Collection; every level is generated so all gems are reachable. '
+          'Unfinished boards resume offline for each size.',
       children: [
         SegmentedButton<int>(
           segments: const [
@@ -82,10 +121,13 @@ class _InertiaScreenState extends State<InertiaScreen> {
             ButtonSegment(value: 12, label: Text('12×12')),
           ],
           selected: {size},
-          onSelectionChanged: (s) => setState(() {
-            size = s.first;
-            game = InertiaGame(w: size, h: size);
-          }),
+          onSelectionChanged: (s) {
+            setState(() {
+              size = s.first;
+              game = _load();
+            });
+            unawaited(CampaignProgress.saveSelected('inertia', _modeId));
+          },
         ),
         StatusBanner(status, highlight: game.won || game.dead),
         Focus(
@@ -138,7 +180,7 @@ class _InertiaScreenState extends State<InertiaScreen> {
                   d < 0
                       ? IconButton(
                           tooltip: 'Undo',
-                          onPressed: game.canUndo ? () => setState(game.undo) : null,
+                          onPressed: game.canUndo ? _undo : null,
                           icon: const Icon(Icons.undo))
                       : IconButton.filledTonal(
                           onPressed: game.canMove(d) ? () => _move(d) : null,

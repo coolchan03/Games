@@ -106,20 +106,29 @@ void main() {
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(const MaterialApp(home: DetectiveCasebookScreen()));
+      // Bounded drags avoid waiting indefinitely for lazy ListView children.
+      Future<void> revealFirstClue() async {
+        final finder = find.byType(CheckboxListTile);
+        for (var attempt = 0;
+            attempt < 8 && finder.evaluate().isEmpty;
+            attempt++) {
+          await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+          await tester.pump();
+        }
+        expect(finder, findsWidgets);
+        await tester.ensureVisible(finder.first);
+        await tester.pump();
+      }
+      await revealFirstClue();
       final clue = find.byType(CheckboxListTile).first;
-      await tester.scrollUntilVisible(clue, 180,
-          scrollable: find.byType(Scrollable).first);
-      await tester.ensureVisible(clue);
-      await tester.pumpAndSettle();
       await tester.tap(clue);
       await tester.pump();
       expect(tester.widget<CheckboxListTile>(clue).value, isTrue);
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpWidget(const MaterialApp(home: DetectiveCasebookScreen()));
-      final restoredClue = find.byType(CheckboxListTile).first;
-      await tester.scrollUntilVisible(restoredClue, 180,
-          scrollable: find.byType(Scrollable).first);
-      expect(tester.widget<CheckboxListTile>(restoredClue).value, isTrue);
+      await revealFirstClue();
+      expect(tester.widget<CheckboxListTile>(
+          find.byType(CheckboxListTile).first).value, isTrue);
       await tester.pumpWidget(const SizedBox.shrink());
       expect(tester.takeException(), isNull);
     } finally {

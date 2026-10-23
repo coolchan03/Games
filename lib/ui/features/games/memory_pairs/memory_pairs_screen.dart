@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 
 const _symbols = <(IconData, Color)>[
@@ -23,6 +25,65 @@ class MemoryGame {
     cards = [for (var i = 0; i < pairs; i++) ...[i, i]]..shuffle(rng);
     owner = List.filled(cards.length, 0);
   }
+  MemoryGame._restored(this.pairs, this.rng);
+
+  /// Scores are derived from matched ownership when restoring a session.
+  List<int> snapshot() => [
+    turn, flips, up.length,
+    up.isNotEmpty ? up[0] : -1,
+    up.length == 2 ? up[1] : -1,
+    ...cards,
+    ...owner,
+    for (var i = 0; i < cards.length; i++) seen.containsKey(i) ? 1 : 0,
+  ];
+
+  static MemoryGame? fromSnapshot(int pairs, List<int> data, {Random? random}) {
+    final n = pairs * 2;
+    if (pairs < 1 || data.length != 5 + 3 * n ||
+        data[0] < 1 || data[0] > 2 || data[1] < 0 ||
+        data[2] < 0 || data[2] > 2) return null;
+    final upCount = data[2], first = data[3], second = data[4];
+    if ((upCount == 0 && (first != -1 || second != -1)) ||
+        (upCount == 1 && (first < 0 || first >= n || second != -1)) ||
+        (upCount == 2 && (first < 0 || first >= n ||
+            second < 0 || second >= n || first == second))) return null;
+    final symbols = data.sublist(5, 5 + n);
+    final owners = data.sublist(5 + n, 5 + 2 * n);
+    final memories = data.sublist(5 + 2 * n);
+    if (symbols.any((s) => s < 0 || s >= pairs) ||
+        owners.any((o) => o < 0 || o > 2) ||
+        memories.any((v) => v < 0 || v > 1)) return null;
+    for (var symbol = 0; symbol < pairs; symbol++) {
+      final indices = [
+        for (var i = 0; i < n; i++) if (symbols[i] == symbol) i,
+      ];
+      if (indices.length != 2 || owners[indices[0]] != owners[indices[1]]) {
+        return null;
+      }
+    }
+    if ((first >= 0 && owners[first] != 0) ||
+        (second >= 0 && owners[second] != 0) ||
+        data[1] < owners.where((o) => o != 0).length + upCount) {
+      return null;
+    }
+    for (var i = 0; i < n; i++) {
+      if (memories[i] == 1 && owners[i] != 0) return null;
+    }
+    final game = MemoryGame._restored(pairs, random ?? Random());
+    game.cards = symbols;
+    game.owner = owners;
+    game.turn = data[0];
+    game.flips = data[1];
+    if (first >= 0) game.up.add(first);
+    if (second >= 0) game.up.add(second);
+    game.scores[0] = owners.where((o) => o == 1).length ~/ 2;
+    game.scores[1] = owners.where((o) => o == 2).length ~/ 2;
+    for (var i = 0; i < n; i++) {
+      if (memories[i] == 1) game.seen[i] = game.cards[i];
+    }
+    return game;
+  }
+
   final int pairs;
   final Random rng;
   late final List<int> cards;
@@ -37,7 +98,8 @@ class MemoryGame {
 
   /// Flips [i]; returns true when two cards are up and need resolving.
   bool flip(int i) {
-    if (owner[i] != 0 || up.contains(i) || up.length == 2) return false;
+    if (i < 0 || i >= cards.length || over || owner[i] != 0 ||
+        up.contains(i) || up.length == 2) return false;
     up.add(i);
     seen[i] = cards[i];
     flips++;
@@ -46,6 +108,7 @@ class MemoryGame {
 
   /// Resolves two face-up cards. Returns true if they matched.
   bool resolve() {
+    if (up.length != 2) return false;
     final a = up[0], b = up[1];
     up.clear();
     if (cards[a] == cards[b]) {
@@ -91,27 +154,96 @@ class MemoryPairsScreen extends StatefulWidget {
 }
 
 class _MemoryPairsScreenState extends State<MemoryPairsScreen> {
-  int mode = 1; // 0 solo, 1 vs computer, 2 two players
-  AiLevel level = AiLevel.medium;
-  int pairs = 8;
-  late MemoryGame game = MemoryGame(pairs);
+  static const pairSizes = [8, 12, 18];
+  // Original default remains "vs Computer", eight pairs.
+  int mode = switch (CampaignProgress.selectedLevel('memory_pairs', count: 9)) {
+    4 || 5 || 6 => 0,
+    7 || 8 || 9 => 2,
+    _ => 1,
+  };
+  AiLevel level = switch (
+      CampaignProgress.selectedLevel('memory_pairs_ai', count: 3)) {
+    2 => AiLevel.easy,
+    3 => AiLevel.hard,
+    _ => AiLevel.medium,
+  };
+  int pairs = pairSizes[
+      (CampaignProgress.selectedLevel('memory_pairs', count: 9) - 1) % 3];
+  late MemoryGame game = _load();
   bool busy = false;
   int generation = 0;
 
-  void _newGame() => setState(() {
-        generation++;
-        busy = false;
-        game = MemoryGame(pairs);
-      });
+  int get _modeId {
+    final group = mode == 1 ? 0 : mode == 0 ? 1 : 2;
+    return group * 3 + pairSizes.indexOf(pairs) + 1;
+  }
+
+  MemoryGame _load() {
+    final data = CampaignProgress.loadActive(
+      'memory_pairs', _modeId, maxLength: 5 + pairs * 6,
+    );
+    if (data != null) {
+      final saved = MemoryGame.fromSnapshot(pairs, data);
+      if (saved != null) return saved;
+    }
+    return MemoryGame(pairs);
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+      'memory_pairs', _modeId, game.snapshot()));
+
+  void _switchMode() {
+    setState(() {
+      generation++;
+      busy = false;
+      game = _load();
+    });
+    unawaited(CampaignProgress.saveSelected('memory_pairs', _modeId));
+    _resumePendingTurn();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _resumePendingTurn();
+  }
+
+  void _resumePendingTurn() {
+    final token = generation;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || token != generation) return;
+      if (game.up.length == 2) {
+        unawaited(_finishAndContinue());
+      } else if (mode == 1 && game.turn == 2 && !game.over) {
+        unawaited(_computer());
+      }
+    });
+  }
+
+  Future<void> _finishAndContinue() async {
+    await _resolve();
+    if (mounted && mode == 1 && !game.over && game.turn == 2) {
+      await _computer();
+    }
+  }
+
+  void _newGame() {
+    setState(() {
+      generation++;
+      busy = false;
+      game = MemoryGame(pairs);
+    });
+    _save();
+  }
 
   Future<void> _tap(int i) async {
-    if (busy || (mode == 1 && game.turn == 2)) return;
-    if (!game.flip(i)) {
-      setState(() {});
-      return;
-    }
+    if (busy || game.over || (mode == 1 && game.turn == 2)) return;
+    final ready = game.flip(i);
+    setState(() {});
+    if (game.up.isNotEmpty) _save();
+    if (!ready) return;
     await _resolve();
-    if (mode == 1) await _computer();
+    if (mounted && mode == 1 && !game.over) await _computer();
   }
 
   Future<void> _resolve() async {
@@ -124,19 +256,22 @@ class _MemoryPairsScreenState extends State<MemoryPairsScreen> {
       if (mode == 0 && !matched) game.turn = 1;
       busy = false;
     });
+    _save();
   }
 
   Future<void> _computer() async {
     final token = generation;
-    while (mounted && token == generation && game.turn == 2 && !game.over) {
+    while (mounted && token == generation && mode == 1 &&
+        game.turn == 2 && !game.over) {
       setState(() => busy = true);
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-      if (!mounted || token != generation) return;
       final memory = [.25, .6, .95][level.index];
-      setState(() => game.flip(game.aiPick(memory)));
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-      if (!mounted || token != generation) return;
-      setState(() => game.flip(game.aiPick(memory)));
+      while (game.up.length < 2) {
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+        if (!mounted || token != generation || mode != 1 ||
+            game.turn != 2 || game.over) return;
+        setState(() => game.flip(game.aiPick(memory)));
+        _save();
+      }
       await _resolve();
     }
   }
@@ -166,7 +301,8 @@ class _MemoryPairsScreenState extends State<MemoryPairsScreen> {
       onNewGame: _newGame,
       rules: 'Flip two cards per turn. A matching pair is yours and you go '
           'again; otherwise the cards turn back over. Find more pairs than '
-          'your opponent, or clear the board in as few turns as possible.',
+          'your opponent, or clear the board in as few turns as possible. '
+          'Your cards, scores, turn and difficulty resume offline.',
       children: [
         SegmentedButton<int>(
           segments: const [
@@ -177,7 +313,7 @@ class _MemoryPairsScreenState extends State<MemoryPairsScreen> {
           selected: {mode},
           onSelectionChanged: (s) {
             mode = s.first;
-            _newGame();
+            _switchMode();
           },
         ),
         const SizedBox(height: 8),
@@ -192,7 +328,7 @@ class _MemoryPairsScreenState extends State<MemoryPairsScreen> {
               selected: {pairs},
               onSelectionChanged: (s) {
                 pairs = s.first;
-                _newGame();
+                _switchMode();
               },
             ),
           ),
@@ -202,7 +338,12 @@ class _MemoryPairsScreenState extends State<MemoryPairsScreen> {
           SegmentedButton<AiLevel>(
             segments: [for (final l in AiLevel.values) ButtonSegment(value: l, label: Text(l.label))],
             selected: {level},
-            onSelectionChanged: (s) => setState(() => level = s.first),
+            onSelectionChanged: (s) {
+              setState(() => level = s.first);
+              final value = level == AiLevel.medium ? 1 :
+                  level == AiLevel.easy ? 2 : 3;
+              unawaited(CampaignProgress.saveSelected('memory_pairs_ai', value));
+            },
           ),
         ],
         StatusBanner(status, highlight: game.over),

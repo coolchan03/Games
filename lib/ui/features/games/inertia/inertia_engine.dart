@@ -23,6 +23,41 @@ class InertiaGame {
     totalGems = gems;
   }
 
+  // Loading a saved board must not rerun the level generator.
+  InertiaGame._restored(this.w, this.h) : rng = Random();
+
+  /// Preserve the exact generated board and current player state offline.
+  List<int> snapshot() => [
+    px, py, moves, dead ? 1 : 0, totalGems,
+    for (final cell in grid) cell.index,
+  ];
+
+  static InertiaGame? fromSnapshot({
+    required int w, required int h, required List<int> data,
+  }) {
+    if (w < 2 || h < 2 || data.length != 5 + w * h) return null;
+    final x = data[0], y = data[1], turns = data[2];
+    final deadFlag = data[3], total = data[4];
+    if (x < 0 || x >= w || y < 0 || y >= h || turns < 0 ||
+        (deadFlag != 0 && deadFlag != 1) || total < 1 || total > w * h ||
+        data.skip(5).any((v) =>
+            v < Cell.blank.index || v > Cell.wall.index)) return null;
+    final savedGrid = data.skip(5).map((v) => Cell.values[v]).toList();
+    final remaining = savedGrid.where((c) => c == Cell.gem).length;
+    final playerCell = savedGrid[y * w + x];
+    if (remaining > total || playerCell == Cell.wall ||
+        (deadFlag == 1) != (playerCell == Cell.mine)) return null;
+    final result = InertiaGame._restored(w, h);
+    result.grid = savedGrid;
+    result.px = x;
+    result.py = y;
+    result.moves = turns;
+    result.dead = deadFlag == 1;
+    result.gems = remaining;
+    result.totalGems = total;
+    return result;
+  }
+
   final int w, h;
   final Random rng;
   late List<Cell> grid;
@@ -163,7 +198,8 @@ class InertiaGame {
     }
   }
 
-  bool canMove(int d) => !dead && !won && at(grid, px + dirX(d), py + dirY(d)) != Cell.wall;
+  bool canMove(int d) => d >= 0 && d < _directions && !dead && !won &&
+      at(grid, px + dirX(d), py + dirY(d)) != Cell.wall;
 
   /// Slides in direction [d] until a stop, a wall, or a mine.
   bool move(int d) {

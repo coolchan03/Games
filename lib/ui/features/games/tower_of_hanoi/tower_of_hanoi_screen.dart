@@ -99,7 +99,15 @@ class TowerOfHanoiScreen extends StatefulWidget {
 }
 
 class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
-  int discs = CampaignProgress.selectedLevel('tower_of_hanoi', count: 6) + 2;
+  // Keep the original four-disc default for existing players and tests.
+  int discs = switch (CampaignProgress.selectedLevel('tower_of_hanoi', count: 6)) {
+    2 => 3,
+    3 => 5,
+    4 => 6,
+    5 => 7,
+    6 => 8,
+    _ => 4,
+  };
   late HanoiGame game = _load();
   int? from;
   (int, int)? hint;
@@ -186,7 +194,15 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
               from = null;
               hint = null;
             });
-            unawaited(CampaignProgress.saveSelected('tower_of_hanoi', discs - 2));
+            final selected = switch (discs) {
+              3 => 2,
+              5 => 3,
+              6 => 4,
+              7 => 5,
+              8 => 6,
+              _ => 1,
+            };
+            unawaited(CampaignProgress.saveSelected('tower_of_hanoi', selected));
           },
         ),
         StatusBanner(status, highlight: game.solved),
