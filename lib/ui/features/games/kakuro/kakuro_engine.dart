@@ -1,20 +1,24 @@
 import 'dart:math';
 
+import 'kakuro_campaign_data.dart';
+
 class KakuroCell {
   final int r, c;
   final bool isWhite;
   final bool isBlock;
   final bool isClue;
-  final int? vClue; // Vertical clue (sum of cells below)
-  final int? hClue; // Horizontal clue (sum of cells to the right)
-  final int? solution; // Solved value for white cells
+  final bool isGiven;
+  final int? vClue;
+  final int? hClue;
+  final int? solution;
 
-  KakuroCell({
+  const KakuroCell({
     required this.r,
     required this.c,
     this.isWhite = false,
     this.isBlock = false,
     this.isClue = false,
+    this.isGiven = false,
     this.vClue,
     this.hClue,
     this.solution,
@@ -22,131 +26,227 @@ class KakuroCell {
 }
 
 class KakuroLevel {
-  final int size; // e.g., 4
+  final int size;
+  final int levelNumber;
   final List<List<KakuroCell>> grid;
 
-  KakuroLevel({required this.size, required this.grid});
+  const KakuroLevel({
+    required this.size,
+    required this.grid,
+    this.levelNumber = 1,
+  });
+}
+
+class KakuroRun {
+  final int sum;
+  final List<Point<int>> positions;
+  const KakuroRun(this.sum, this.positions);
 }
 
 class KakuroEngine {
-  final Random _random = Random();
+  /// Retained for callers using the previous engine API. Campaign levels are
+  /// deterministic; calling this method no longer re-rolls three templates.
+  KakuroLevel generateLevel({int levelNumber = 1}) => campaignLevel(levelNumber);
 
-  KakuroLevel generateLevel() {
-    // We can select a random puzzle template from our list of high-quality designs
-    final templateIndex = _random.nextInt(3);
-    return _buildTemplate(templateIndex);
+  static KakuroLevel campaignLevel(int number) {
+    final seed = KakuroCampaignData.seed(number);
+    final n = seed.size;
+    final starters = seed.starters.toSet();
+    final grid = <List<KakuroCell>>[];
+    for (var row = 0; row < n; row++) {
+      final cells = <KakuroCell>[];
+      for (var col = 0; col < n; col++) {
+        final digit = seed.cells[row][col];
+        if (digit > 0) {
+          cells.add(KakuroCell(
+            r: row, c: col, isWhite: true,
+            isGiven: starters.contains(row * n + col), solution: digit,
+          ));
+        } else {
+          var across = 0;
+          var down = 0;
+          for (var x = col + 1; x < n && seed.cells[row][x] > 0; x++) {
+            across += seed.cells[row][x];
+          }
+          for (var y = row + 1; y < n && seed.cells[y][col] > 0; y++) {
+            down += seed.cells[y][col];
+          }
+          cells.add(KakuroCell(
+            r: row, c: col,
+            isBlock: across == 0 && down == 0,
+            isClue: across > 0 || down > 0,
+            hClue: across > 0 ? across : null,
+            vClue: down > 0 ? down : null,
+          ));
+        }
+      }
+      grid.add(cells);
+    }
+    return KakuroLevel(size: n, grid: grid, levelNumber: number);
   }
 
-  KakuroLevel _buildTemplate(int index) {
-    final size = 4;
-    final grid = List.generate(size, (r) => List<KakuroCell>.generate(size, (c) => KakuroCell(r: r, c: c, isBlock: true)));
+  static Map<Point<int>, int?> startingValues(KakuroLevel level) {
+    final values = <Point<int>, int?>{};
+    for (final row in level.grid) {
+      for (final cell in row) {
+        if (cell.isWhite) {
+          values[Point(cell.c, cell.r)] = cell.isGiven ? cell.solution : null;
+        }
+      }
+    }
+    return values;
+  }
 
-    if (index == 0) {
-      // Template 0 (Our designed Kakuro puzzle)
-      _setBlock(grid, 0, 0);
-      _setClue(grid, 0, 1, vClue: 4);
-      _setClue(grid, 0, 2, vClue: 11);
-      _setBlock(grid, 0, 3);
+  static List<KakuroRun> clueRuns(KakuroLevel level) {
+    final runs = <KakuroRun>[];
+    for (var r = 0; r < level.size; r++) {
+      for (var c = 0; c < level.size; c++) {
+        final cell = level.grid[r][c];
+        if (!cell.isClue) continue;
+        if (cell.hClue != null) {
+          final coords = <Point<int>>[];
+          for (var x = c + 1;
+              x < level.size && level.grid[r][x].isWhite; x++) {
+            coords.add(Point(x, r));
+          }
+          runs.add(KakuroRun(cell.hClue!, coords));
+        }
+        if (cell.vClue != null) {
+          final coords = <Point<int>>[];
+          for (var y = r + 1;
+              y < level.size && level.grid[y][c].isWhite; y++) {
+            coords.add(Point(c, y));
+          }
+          runs.add(KakuroRun(cell.vClue!, coords));
+        }
+      }
+    }
+    return runs;
+  }
 
-      _setClue(grid, 1, 0, hClue: 3);
-      _setWhite(grid, 1, 1, solution: 1);
-      _setWhite(grid, 1, 2, solution: 2);
-      _setClue(grid, 1, 3, vClue: 9);
+  /// Checks displayed rules, not a hidden exact-solution comparison. The
+  /// authored puzzles are independently verified to have unique solutions.
+  static bool checkSolved(KakuroLevel level, Map<Point<int>, int?> values) {
+    final starting = startingValues(level);
+    if (values.length != starting.length) return false;
+    for (final key in starting.keys) {
+      final value = values[key];
+      if (value == null || value < 1 || value > 9) return false;
+      if (starting[key] != null && starting[key] != value) return false;
+    }
+    for (final run in clueRuns(level)) {
+      if (run.positions.length < 2 || run.positions.length > 9) return false;
+      final seen = <int>{};
+      var sum = 0;
+      for (final pos in run.positions) {
+        final digit = values[pos];
+        if (digit == null || !seen.add(digit)) return false;
+        sum += digit;
+      }
+      if (sum != run.sum) return false;
+    }
+    return true;
+  }
 
-      _setClue(grid, 2, 0, hClue: 17);
-      _setWhite(grid, 2, 1, solution: 3);
-      _setWhite(grid, 2, 2, solution: 9);
-      _setWhite(grid, 2, 3, solution: 5);
-
-      _setBlock(grid, 3, 0);
-      _setBlock(grid, 3, 1);
-      _setClue(grid, 3, 2, hClue: 4);
-      _setWhite(grid, 3, 3, solution: 4);
-    } else if (index == 1) {
-      // Template 1
-      _setBlock(grid, 0, 0);
-      _setClue(grid, 0, 1, vClue: 14);
-      _setClue(grid, 0, 2, vClue: 8);
-      _setBlock(grid, 0, 3);
-
-      _setClue(grid, 1, 0, hClue: 11);
-      _setWhite(grid, 1, 1, solution: 8);
-      _setWhite(grid, 1, 2, solution: 3);
-      _setClue(grid, 1, 3, vClue: 6);
-
-      _setClue(grid, 2, 0, hClue: 11);
-      _setWhite(grid, 2, 1, solution: 6);
-      _setWhite(grid, 2, 2, solution: 5);
-      _setWhite(grid, 2, 3, solution: 0); // we will replace it soon: 2 + 4 = 6, 2 + 5 = 7? Wait, let's trace:
-      // Let's set a beautiful alternative template:
-      // V clues at (0,1): 11, at (0,2): 7.
-      // H clue at (1,0): 10. White at (1,1): 6, (1,2): 4.
-      // H clue at (2,0): 8. White at (2,1): 5, (2,2): 3.
-      // This is a simple 3x3 layout inside a 4x4. Let's make it clean:
-      grid[0][0] = KakuroCell(r: 0, c: 0, isBlock: true);
-      grid[0][1] = KakuroCell(r: 0, c: 1, isClue: true, vClue: 11);
-      grid[0][2] = KakuroCell(r: 0, c: 2, isClue: true, vClue: 7);
-      grid[0][3] = KakuroCell(r: 0, c: 3, isBlock: true);
-
-      grid[1][0] = KakuroCell(r: 1, c: 0, isClue: true, hClue: 10);
-      grid[1][1] = KakuroCell(r: 1, c: 1, isWhite: true, solution: 6);
-      grid[1][2] = KakuroCell(r: 1, c: 2, isWhite: true, solution: 4);
-      grid[1][3] = KakuroCell(r: 1, c: 3, isClue: true, vClue: 9);
-
-      grid[2][0] = KakuroCell(r: 2, c: 0, isClue: true, hClue: 14);
-      grid[2][1] = KakuroCell(r: 2, c: 1, isWhite: true, solution: 5);
-      grid[2][2] = KakuroCell(r: 2, c: 2, isWhite: true, solution: 3);
-      grid[2][3] = KakuroCell(r: 2, c: 3, isWhite: true, solution: 6);
-
-      grid[3][0] = KakuroCell(r: 3, c: 0, isBlock: true);
-      grid[3][1] = KakuroCell(r: 3, c: 1, isBlock: true);
-      grid[3][2] = KakuroCell(r: 3, c: 2, isClue: true, hClue: 3);
-      grid[3][3] = KakuroCell(r: 3, c: 3, isWhite: true, solution: 3);
-    } else {
-      // Template 2
-      grid[0][0] = KakuroCell(r: 0, c: 0, isBlock: true);
-      grid[0][1] = KakuroCell(r: 0, c: 1, isClue: true, vClue: 13);
-      grid[0][2] = KakuroCell(r: 0, c: 2, isClue: true, vClue: 10);
-      grid[0][3] = KakuroCell(r: 0, c: 3, isBlock: true);
-
-      grid[1][0] = KakuroCell(r: 1, c: 0, isClue: true, hClue: 15);
-      grid[1][1] = KakuroCell(r: 1, c: 1, isWhite: true, solution: 7);
-      grid[1][2] = KakuroCell(r: 1, c: 2, isWhite: true, solution: 8);
-      grid[1][3] = KakuroCell(r: 1, c: 3, isClue: true, vClue: 7);
-
-      grid[2][0] = KakuroCell(r: 2, c: 0, isClue: true, hClue: 10);
-      grid[2][1] = KakuroCell(r: 2, c: 1, isWhite: true, solution: 6);
-      grid[2][2] = KakuroCell(r: 2, c: 2, isWhite: true, solution: 2);
-      grid[2][3] = KakuroCell(r: 2, c: 3, isWhite: true, solution: 2); // Wait, duplicate digits in segment!
-      // Let's change: Row 2 horizontal clue is 12: White (2,1)=6, (2,2)=2, (2,3)=4.
-      // Then Col 1: (1,1)+(2,1) = 7 + 6 = 13 (correct V=13).
-      // Col 2: (1,2)+(2,2) = 8 + 2 = 10 (correct V=10).
-      // Col 3: (2,3)+(3,3) = 4 + 3 = 7 (correct V=7 at (1,3)).
-      // Row 3 horizontal clue is 3: White (3,3)=3.
-      // Beautifully unique and clean!
-      grid[2][0] = KakuroCell(r: 2, c: 0, isClue: true, hClue: 12);
-      grid[2][1] = KakuroCell(r: 2, c: 1, isWhite: true, solution: 6);
-      grid[2][2] = KakuroCell(r: 2, c: 2, isWhite: true, solution: 2);
-      grid[2][3] = KakuroCell(r: 2, c: 3, isWhite: true, solution: 4);
-
-      grid[3][0] = KakuroCell(r: 3, c: 0, isBlock: true);
-      grid[3][1] = KakuroCell(r: 3, c: 1, isBlock: true);
-      grid[3][2] = KakuroCell(r: 3, c: 2, isClue: true, hClue: 3);
-      grid[3][3] = KakuroCell(r: 3, c: 3, isWhite: true, solution: 3);
+  /// Uniqueness verifier used by campaign tests (stops at two solutions).
+  /// Constraint pruning avoids brute-force enumeration of all assignments.
+  static int countSolutions(KakuroLevel level, {int limit = 2}) {
+    final runs = clueRuns(level);
+    final slots = startingValues(level);
+    final memberships = <Point<int>, List<int>>{};
+    final used = List<int>.filled(runs.length, 0);
+    final total = List<int>.filled(runs.length, 0);
+    final filled = List<int>.filled(runs.length, 0);
+    for (var i = 0; i < runs.length; i++) {
+      for (final position in runs[i].positions) {
+        (memberships[position] ??= <int>[]).add(i);
+      }
+    }
+    if (memberships.length != slots.length) return 0;
+    final assigned = <Point<int>, int>{};
+    for (final entry in slots.entries) {
+      final digit = entry.value;
+      if (digit == null) continue;
+      assigned[entry.key] = digit;
+      for (final idx in memberships[entry.key]!) {
+        if ((used[idx] & (1 << digit)) != 0) return 0;
+        used[idx] |= 1 << digit;
+        total[idx] += digit;
+        filled[idx]++;
+      }
     }
 
-    return KakuroLevel(size: size, grid: grid);
-  }
+    bool canFill(int missing, int sum, int mask, int nextDigit) {
+      if (missing == 0) return sum == 0;
+      if (sum <= 0 || nextDigit > 9 || 10 - nextDigit < missing) return false;
+      for (var d = nextDigit; d <= 9; d++) {
+        if ((mask & (1 << d)) != 0 || d > sum) continue;
+        if (canFill(missing - 1, sum - d, mask | (1 << d), d + 1)) {
+          return true;
+        }
+      }
+      return false;
+    }
 
-  void _setBlock(List<List<KakuroCell>> grid, int r, int c) {
-    grid[r][c] = KakuroCell(r: r, c: c, isBlock: true);
-  }
+    List<int> options(Point<int> position) {
+      final possible = <int>[];
+      for (var digit = 1; digit <= 9; digit++) {
+        var allowed = true;
+        for (final idx in memberships[position]!) {
+          if ((used[idx] & (1 << digit)) != 0) {
+            allowed = false;
+            break;
+          }
+          final unfilled = runs[idx].positions.length - filled[idx] - 1;
+          final remaining = runs[idx].sum - total[idx] - digit;
+          if (!canFill(unfilled, remaining, used[idx] | (1 << digit), 1)) {
+            allowed = false;
+            break;
+          }
+        }
+        if (allowed) possible.add(digit);
+      }
+      return possible;
+    }
 
-  void _setClue(List<List<KakuroCell>> grid, int r, int c, {int? vClue, int? hClue}) {
-    grid[r][c] = KakuroCell(r: r, c: c, isClue: true, vClue: vClue, hClue: hClue);
-  }
-
-  void _setWhite(List<List<KakuroCell>> grid, int r, int c, {required int solution}) {
-    grid[r][c] = KakuroCell(r: r, c: c, isWhite: true, solution: solution);
+    var solutions = 0;
+    void solve() {
+      if (solutions >= limit) return;
+      if (assigned.length == slots.length) {
+        solutions++;
+        return;
+      }
+      Point<int>? chosen;
+      List<int>? choices;
+      for (final position in slots.keys) {
+        if (assigned.containsKey(position)) continue;
+        final possible = options(position);
+        if (possible.isEmpty) return;
+        if (choices == null || possible.length < choices.length) {
+          chosen = position;
+          choices = possible;
+          if (possible.length == 1) break;
+        }
+      }
+      if (chosen == null || choices == null) return;
+      for (final digit in choices) {
+        assigned[chosen] = digit;
+        for (final idx in memberships[chosen]!) {
+          used[idx] |= 1 << digit;
+          total[idx] += digit;
+          filled[idx]++;
+        }
+        solve();
+        for (final idx in memberships[chosen]!) {
+          used[idx] &= ~(1 << digit);
+          total[idx] -= digit;
+          filled[idx]--;
+        }
+        assigned.remove(chosen);
+        if (solutions >= limit) return;
+      }
+    }
+    solve();
+    return solutions;
   }
 }
