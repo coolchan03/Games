@@ -4,7 +4,7 @@ Updated 2026-10-22. Machine-readable source: `docs/GAMES_MASTER_COMPLETION_TRACK
 
 ## Current assessment
 
-{'NOT_REVIEWED': 348, 'NEEDS_IMPLEMENTATION': 0, 'IMPLEMENTED_UNVERIFIED': 21, 'TEST_FAILED': 0, 'VERIFIED': 0, 'BLOCKED': 1}
+{'NOT_REVIEWED': 347, 'NEEDS_IMPLEMENTATION': 0, 'IMPLEMENTED_UNVERIFIED': 22, 'TEST_FAILED': 0, 'VERIFIED': 0, 'BLOCKED': 1}
 
 The six legacy 20-level campaigns (Detective Casebook, Nonogram, Minesweeper, Sokoban, Sudoku, Classic Maze) have reported level coverage but are not yet certified end-to-end. Word Search has 40 generated candidates on the integrated branch, but its Windows screen file is currently inaccessible and the original audit fails with PermissionError. This is a blocker rather than a reason to delete/reset the file.
 
@@ -21,3 +21,7 @@ Six solitaire titles have web/Android CI-verified implementation changes on main
 ## Certification states
 
 `NOT_REVIEWED`, `NEEDS_IMPLEMENTATION`, `IMPLEMENTED_UNVERIFIED`, `TEST_FAILED`, `VERIFIED`, `BLOCKED`. Zero games are marked VERIFIED solely by source inspections or catalog registration. Each row tracks missing evidence explicitly rather than fabricating completion.
+
+## Akari campaign ? candidate pending CI
+
+20 distinct authored boards (5x5 to 7x7), offline progress, restart and level navigation, plus source tests are included on the Akari test branch. Independent Python puzzle solver checked exactly one solution per board. Flutter CI, browser/device gameplay, and final certification remain pending. All 370 game IDs retained.
