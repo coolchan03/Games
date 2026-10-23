@@ -10,7 +10,6 @@ final connectFourMetadata = GameMetadata(
   color: DesignSystem.gameBlue,
   builder: (context) => const ConnectFourScreen(),
   titleGetter: (context) => 'Connect Four',
-  subtitleGetter: (context) =>
-      'Two players or computer with three difficulties',
+  subtitleGetter: (context) => 'Two players or computer with three difficulties',
   popularity: Popularity.high,
 );

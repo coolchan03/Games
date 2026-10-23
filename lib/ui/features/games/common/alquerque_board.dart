@@ -9,10 +9,7 @@ class AlquerqueGeometry {
 
   /// Directions available from point [i] (dx, dy).
   static List<(int, int)> dirs(int i) => [
-        (1, 0),
-        (-1, 0),
-        (0, 1),
-        (0, -1),
+        (1, 0), (-1, 0), (0, 1), (0, -1),
         if (hasDiagonals(i)) ...[(1, 1), (1, -1), (-1, 1), (-1, -1)],
       ];
 

@@ -4,18 +4,12 @@ import 'package:flutter/material.dart';
 /// Rejects accidental outside-board drops instead of clamping to an edge cell.
 int? boardCellForPoint(Offset point, Size size,
     {required int columns, int rows = 5}) {
-  if (columns <= 0 ||
-      rows <= 0 ||
-      !size.width.isFinite ||
-      !size.height.isFinite ||
-      size.width <= 0 ||
-      size.height <= 0 ||
-      !point.dx.isFinite ||
-      !point.dy.isFinite ||
-      point.dx < 0 ||
-      point.dy < 0 ||
-      point.dx >= size.width ||
-      point.dy >= size.height) {
+  if (columns <= 0 || rows <= 0 ||
+      !size.width.isFinite || !size.height.isFinite ||
+      size.width <= 0 || size.height <= 0 ||
+      !point.dx.isFinite || !point.dy.isFinite ||
+      point.dx < 0 || point.dy < 0 ||
+      point.dx >= size.width || point.dy >= size.height) {
     return null;
   }
   final x = (point.dx * columns / size.width).floor();
@@ -68,8 +62,8 @@ class _GridBoardTouchAreaState extends State<GridBoardTouchArea> {
     return LayoutBuilder(builder: (context, constraints) {
       final size = Size(constraints.maxWidth, constraints.maxHeight);
 
-      int? hit(Offset point) => boardCellForPoint(point, size,
-          columns: widget.columns, rows: widget.rows);
+      int? hit(Offset point) => boardCellForPoint(
+            point, size, columns: widget.columns, rows: widget.rows);
 
       void beginDrag(DragStartDetails details) {
         // Use the original finger-down square, not the post-slop location.

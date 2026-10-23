@@ -21,9 +21,10 @@ class CardView extends StatelessWidget {
   final bool dimmed;
   final VoidCallback? onTap;
 
-  static Color suitColor(Suit s) => s == Suit.hearts || s == Suit.diamonds
-      ? const Color(0xFFC62828)
-      : const Color(0xFF1B1B1F);
+  static Color suitColor(Suit s) =>
+      s == Suit.hearts || s == Suit.diamonds
+          ? const Color(0xFFC62828)
+          : const Color(0xFF1B1B1F);
 
   static String rankLabel(Rank r) => r == Rank.ten ? '10' : r.asciiChar;
 
@@ -51,8 +52,7 @@ class CardView extends StatelessWidget {
             end: Alignment.bottomRight,
           ),
           boxShadow: const [
-            BoxShadow(
-                blurRadius: 2, offset: Offset(0, 1), color: Colors.black26)
+            BoxShadow(blurRadius: 2, offset: Offset(0, 1), color: Colors.black26)
           ],
         ),
         child: Center(
@@ -70,8 +70,7 @@ class CardView extends StatelessWidget {
               color: selected ? colors.primary : Colors.black26,
               width: selected ? 3 : 1),
           boxShadow: const [
-            BoxShadow(
-                blurRadius: 2, offset: Offset(0, 1), color: Colors.black26)
+            BoxShadow(blurRadius: 2, offset: Offset(0, 1), color: Colors.black26)
           ],
         ),
         child: Stack(children: [
@@ -86,8 +85,7 @@ class CardView extends StatelessWidget {
                       height: 1,
                       fontWeight: FontWeight.w700)),
               Text(c.suit.symbolChar,
-                  style:
-                      TextStyle(color: ink, fontSize: width * .26, height: 1)),
+                  style: TextStyle(color: ink, fontSize: width * .26, height: 1)),
             ]),
           ),
           Align(

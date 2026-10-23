@@ -256,21 +256,23 @@ class MancalaState {
       animationPhase: clearAnimation
           ? AnimationPhase.idle
           : (animationPhase ?? this.animationPhase),
-      sowingAnimation:
-          clearAnimation ? null : (sowingAnimation ?? this.sowingAnimation),
-      animationMessage:
-          clearAnimation ? null : (animationMessage ?? this.animationMessage),
+      sowingAnimation: clearAnimation
+          ? null
+          : (sowingAnimation ?? this.sowingAnimation),
+      animationMessage: clearAnimation
+          ? null
+          : (animationMessage ?? this.animationMessage),
     );
   }
 
   /// Serializes state to JSON for persistence.
   Map<String, dynamic> toJson() => {
-        'status': status.name,
-        'currentPlayer': currentPlayer,
-        'board': List<int>.from(board),
-        'aiDifficulty': aiDifficulty?.name,
-        'elapsedSeconds': elapsedSeconds,
-      };
+    'status': status.name,
+    'currentPlayer': currentPlayer,
+    'board': List<int>.from(board),
+    'aiDifficulty': aiDifficulty?.name,
+    'elapsedSeconds': elapsedSeconds,
+  };
 
   /// Deserializes state from JSON.
   factory MancalaState.fromJson(Map<String, dynamic> json) {

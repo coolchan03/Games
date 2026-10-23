@@ -75,14 +75,11 @@ HandRank rankFive(List<PlayingCard> cards) {
     });
   final shape = groups.map((g) => counts[g]!).toList();
   if (shape[0] == 4) return HandRank(HandCategory.fourOfAKind, groups);
-  if (shape[0] == 3 && shape[1] == 2)
-    return HandRank(HandCategory.fullHouse, groups);
+  if (shape[0] == 3 && shape[1] == 2) return HandRank(HandCategory.fullHouse, groups);
   if (flush) return HandRank(HandCategory.flush, values);
-  if (straightHigh != null)
-    return HandRank(HandCategory.straight, [straightHigh]);
+  if (straightHigh != null) return HandRank(HandCategory.straight, [straightHigh]);
   if (shape[0] == 3) return HandRank(HandCategory.threeOfAKind, groups);
-  if (shape[0] == 2 && shape[1] == 2)
-    return HandRank(HandCategory.twoPair, groups);
+  if (shape[0] == 2 && shape[1] == 2) return HandRank(HandCategory.twoPair, groups);
   if (shape[0] == 2) return HandRank(HandCategory.pair, groups);
   return HandRank(HandCategory.highCard, values);
 }
