@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_level_bar.dart';
 import '../common/game_kit.dart';
 import 'signpost_engine.dart';
 
@@ -12,9 +13,11 @@ class SignpostScreen extends StatefulWidget {
 }
 
 class _SignpostScreenState extends State<SignpostScreen> {
-  int size = 4;
-  late SignpostGame game = SignpostGame(SignpostPuzzle(w: size, h: size));
+  int level = CampaignLevelBar.initialLevel('signpost');
+  late SignpostGame game = SignpostGame(SignpostLevels.build(level));
   int? from;
+
+  int get size => game.puzzle.w;
 
   static const _icons = [
     Icons.north, Icons.north_east, Icons.east, Icons.south_east,
@@ -22,9 +25,14 @@ class _SignpostScreenState extends State<SignpostScreen> {
   ];
 
   void _newGame() => setState(() {
-        game = SignpostGame(SignpostPuzzle(w: size, h: size));
+        game = SignpostGame(SignpostLevels.build(level));
         from = null;
       });
+
+  void _setLevel(int value) {
+    level = value;
+    _newGame();
+  }
 
   void _tap(int cell) {
     setState(() {
@@ -75,14 +83,17 @@ class _SignpostScreenState extends State<SignpostScreen> {
           'can be any distance away in that direction. Some numbers are '
           'given. Tap a square, then tap the square it should lead to; tap a '
           'square twice to clear its link. Every puzzle has exactly one '
-          'solution. From Simon Tatham\'s Portable Puzzle Collection.',
+          'solution. There are 20 levels, growing from 4×4 to 6×6; New game '
+          'restarts the current level. From Simon Tatham\'s Portable Puzzle Collection.',
       children: [
-        SegmentedButton<int>(
-          segments: [for (final s in const [4, 5, 6]) ButtonSegment(value: s, label: Text('$s×$s'))],
-          selected: {size},
-          onSelectionChanged: (s) {
-            size = s.first;
-            _newGame();
+        CampaignLevelBar(
+          gameId: 'signpost',
+          level: level,
+          solved: solved,
+          onLevel: _setLevel,
+          describe: (n) {
+            final s = SignpostLevels.sizeFor(n);
+            return '$s×$s';
           },
         ),
         StatusBanner(solved ? 'Solved!' : from == null ? 'Tap a square to start a link' : 'Now tap a highlighted square', highlight: solved),

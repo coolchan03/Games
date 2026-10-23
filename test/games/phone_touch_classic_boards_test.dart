@@ -108,6 +108,7 @@ void main() {
       (tester) async {
     phone(tester);
     await tester.pumpWidget(const MaterialApp(home: PegSolitaireScreen()));
+    await _openClassicPegLevel(tester);
     final board = find.byKey(const ValueKey('peg_solitaire_touch_board'));
     await tester.ensureVisible(board);
     final rect = tester.getRect(board);
@@ -129,6 +130,7 @@ void main() {
       (tester) async {
     phone(tester);
     await tester.pumpWidget(const MaterialApp(home: PegSolitaireScreen()));
+    await _openClassicPegLevel(tester);
     final board = find.byKey(const ValueKey('peg_solitaire_touch_board'));
     await tester.ensureVisible(board);
     final rect = tester.getRect(board);
@@ -204,4 +206,12 @@ void main() {
     expect((state.game as ChessState).currentTurn, PieceColor.black);
     expect((state.game as ChessState).pieceAt(7, 1), isNull);
   });
+}
+
+/// Level 20 is the full English board with the centre hole empty.
+Future<void> _openClassicPegLevel(WidgetTester tester) async {
+  for (var i = 1; i < 20; i++) {
+    await tester.tap(find.byTooltip('Next level'));
+    await tester.pump();
+  }
 }

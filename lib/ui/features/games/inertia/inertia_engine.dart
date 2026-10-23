@@ -200,3 +200,18 @@ class InertiaGame {
     moves--;
   }
 }
+
+/// The 20 numbered Inertia levels: boards grow from 6×6 to 12×12, with a
+/// fifth of the squares each walls, stops, mines and gems. Each level comes
+/// from a fixed seed, and the generator keeps every gem reachable.
+class InertiaLevels {
+  static const sizes = [
+    6, 6, 6, 7, 7, 7, 8, 8, 8, 8,
+    9, 9, 9, 10, 10, 10, 10, 12, 12, 12,
+  ];
+
+  static InertiaGame build(int level) {
+    final size = sizes[level - 1];
+    return InertiaGame(w: size, h: size, random: Random(5800 + level * 61));
+  }
+}

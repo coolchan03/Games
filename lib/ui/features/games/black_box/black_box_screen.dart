@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../common/campaign_level_bar.dart';
 import '../common/game_kit.dart';
 import 'black_box_engine.dart';
 
@@ -10,8 +11,8 @@ class BlackBoxScreen extends StatefulWidget {
 }
 
 class _BlackBoxScreenState extends State<BlackBoxScreen> {
-  int balls = 4;
-  late BlackBoxGame game = BlackBoxGame(balls: balls);
+  int level = CampaignLevelBar.initialLevel('black_box');
+  late BlackBoxGame game = BlackBoxLevels.build(level);
 
   /// Labels for exit pairs (1, 2, 3, …) in the order they were found.
   Map<int, String> get _labels {
@@ -39,6 +40,7 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
     final status = game.revealed
         ? (game.correct
             ? 'Correct! Score ${game.score} (lower is better)'
+                '${game.wrong > 0 ? ' — your layout gives identical results' : ''}'
             : '${game.wrong} ball${game.wrong == 1 ? '' : 's'} misplaced — score ${game.score}')
         : 'Lasers fired: ${game.lasersUsed} · balls marked ${game.guesses.length}/${game.balls}';
     Widget port(int p) {
@@ -67,24 +69,33 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
       gameId: 'black_box',
       completed: game.revealed && game.correct,
       title: 'Black Box',
-      onNewGame: () => setState(() => game = BlackBoxGame(balls: balls)),
-      rules: 'Balls are hidden in the 8×8 box. Tap an edge port to fire a '
+      onNewGame: () => setState(() => game = BlackBoxLevels.build(level)),
+      rules: 'Balls are hidden in the box. Tap an edge port to fire a '
           'laser in. H means it hit a ball head-on; R means it was reflected '
           'back out; a number shows the matching pair of ports where it went '
           'in and came out. A ball diagonally ahead of the laser turns it 90° '
           'away; two such balls reflect it; a ball diagonally beside the '
           'entry square reflects it immediately.\n\nTap squares to mark '
           'where you think the balls are, then check. Each laser costs 1 '
-          'point and each wrong ball 5 — lower is better. Rules from Simon '
-          'Tatham\'s Portable Puzzle Collection.',
+          'point and each wrong ball 5 — lower is better. A layout that gives '
+          'exactly the same laser results as the real one also counts as '
+          'correct.\n\nThere are 20 levels, from 2 balls in a 5×5 box to 8 '
+          'balls in a 10×10 box. Get a level right to complete it; New game '
+          'hides the balls again. Rules from Simon Tatham\'s Portable Puzzle '
+          'Collection.',
       children: [
-        SegmentedButton<int>(
-          segments: [for (final b in const [3, 4, 5, 6]) ButtonSegment(value: b, label: Text('$b balls'))],
-          selected: {balls},
-          onSelectionChanged: (s) => setState(() {
-            balls = s.first;
-            game = BlackBoxGame(balls: balls);
+        CampaignLevelBar(
+          gameId: 'black_box',
+          level: level,
+          solved: game.revealed && game.correct,
+          onLevel: (value) => setState(() {
+            level = value;
+            game = BlackBoxLevels.build(level);
           }),
+          describe: (l) {
+            final (n, b) = BlackBoxLevels.specs[l - 1];
+            return '$n×$n, $b balls';
+          },
         ),
         StatusBanner(status, highlight: game.revealed),
         AspectRatio(

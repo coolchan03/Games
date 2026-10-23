@@ -245,9 +245,9 @@ const Map<String, GameGuide> addedGameGuides = {
   'black_box': GameGuide(
     title: 'Black Box',
     category: 'LOGIC',
-    objective: 'Balls are hidden in the 8×8 box. Tap an edge port to fire a laser in. H means it hit a ball head-on; R means it was reflected back out; a number shows the matching pair of ports where it went in and came out. A ball diagonally ahead of the laser turns it 90° away; two such balls reflect it; a ball diagonally beside the entry square reflects it immediately.\n\nTap squares to mark where you think the balls are, then check. Each laser costs 1 point and each wrong ball 5 — lower is better. Rules from Simon Tatham\'s Portable Puzzle Collection.',
+    objective: 'Balls are hidden in the box (5×5 to 10×10 across the 20 levels). Tap an edge port to fire a laser in. H means it hit a ball head-on; R means it was reflected back out; a number shows the matching pair of ports where it went in and came out. A ball diagonally ahead of the laser turns it 90° away; two such balls reflect it; a ball diagonally beside the entry square reflects it immediately.\n\nTap squares to mark where you think the balls are, then check. Each laser costs 1 point and each wrong ball 5 — lower is better. Rules from Simon Tatham\'s Portable Puzzle Collection.',
     controls: 'Tap an edge port to fire a laser in. Tap squares to mark where you think the balls are, then check.',
-    walkthrough: ['Balls are hidden in the 8×8 box.', 'Tap an edge port to fire a laser in.', 'H means it hit a ball head-on; R means it was reflected back out; a number shows the matching pair of ports where it went in and came out.'],
+    walkthrough: ['Balls are hidden in the box (5×5 to 10×10 across the 20 levels).', 'Tap an edge port to fire a laser in.', 'H means it hit a ball head-on; R means it was reflected back out; a number shows the matching pair of ports where it went in and came out.'],
     strategies: ['Check the possible moves or options before committing.', 'Reopen this guide or the in-game Rules button whenever needed.'],
   ),
   'same_game': GameGuide(
@@ -317,8 +317,8 @@ const Map<String, GameGuide> addedGameGuides = {
   'peg_solitaire': GameGuide(
     title: 'Peg Solitaire',
     category: 'LOGIC',
-    objective: 'Start with a full English (33-hole) or European (37-hole) board, except for the open center hole. Jump a peg over an adjacent peg into the empty hole exactly two spaces away, horizontally or vertically. The jumped peg disappears. Finish with only one peg; leaving it in the center is a perfect solution.',
-    controls: 'Tap a movable peg to reveal legal targets, then tap a highlighted empty hole, or drag the peg directly to that hole. Choose English or European layout at the top. Use Undo to take back the last jump.',
+    objective: 'Clear the board down to a single peg. The Cross mode has 20 levels on the English (33-hole) board, from small patterns to the full board with the centre hole open; the Triangle mode is the classic 15-hole triangle game, started by removing any peg. Jump a peg over an adjacent peg into the empty hole exactly two spaces away, horizontally or vertically. The jumped peg disappears. Finish with only one peg.',
+    controls: 'Tap a movable peg to reveal legal targets, then tap a highlighted empty hole, or drag the peg directly to that hole. Choose Cross (20 levels) or Triangle at the top; in Triangle, jumps also run along both diagonals. Use Undo to take back the last jump.',
     walkthrough: ['Select a peg with another peg next to it and an empty hole immediately beyond that neighbor.', 'Tap the destination or drag across both spaces; the jumped peg is removed.', 'Repeat until no jumps remain. The aim is a single peg, preferably in the middle hole.'],
     strategies: ['Avoid leaving isolated edge pegs that cannot be reached by later jumps.', 'Work backwards from a hoped-for final peg position when choosing between multiple jumps.', 'Use Undo to revisit a branch when an early jump blocks the endgame.'],
   ),
@@ -485,9 +485,9 @@ const Map<String, GameGuide> addedGameGuides = {
   'code_breaker': GameGuide(
     title: 'Code Breaker',
     category: 'LOGIC',
-    objective: 'Deduce the hidden code of coloured pegs. After each guess you get clues: ● a peg of the right colour in the right place, ○ a right colour in the wrong place.\n\nEasy: 4 pegs, 6 colours, no repeats. Classic: 4 pegs, 6 colours, repeats allowed. Hard: 5 pegs, 8 colours, repeats allowed. The hint fills in a code that is consistent with all clues so far.\n\nBased on Hit & Blow from z7workbench/minigames (MIT).',
+    objective: 'Deduce the hidden code of coloured pegs. After each guess you get clues: ● a peg of the right colour in the right place, ○ a right colour in the wrong place.\n\nThere are 20 levels, from 3 pegs and 4 colours to 5 pegs and 8 colours with repeats allowed and fewer guesses. The hint fills in a code that is consistent with all clues so far.\n\nBased on Hit & Blow from z7workbench/minigames (MIT).',
     controls: 'Use the on-screen puzzle controls to enter an answer or select a move.',
-    walkthrough: ['Deduce the hidden code of coloured pegs.', 'After each guess you get clues: ● a peg of the right colour in the right place, ○ a right colour in the wrong place.', 'Easy: 4 pegs, 6 colours, no repeats.'],
+    walkthrough: ['Deduce the hidden code of coloured pegs.', 'After each guess you get clues: ● a peg of the right colour in the right place, ○ a right colour in the wrong place.', 'Work through 20 levels; each new attempt draws a fresh code.'],
     strategies: ['Check the possible moves or options before committing.', 'Reopen this guide or the in-game Rules button whenever needed.'],
   ),
   'tic_tac_toe': GameGuide(

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../common/game_kit.dart';
+import '../common/sowing_board.dart';
 import 'oware_engine.dart';
 
 class OwareScreen extends StatefulWidget {
@@ -52,28 +53,19 @@ class _OwareScreenState extends State<OwareScreen> {
   }
 
   Widget _pit(int i) {
-    final colors = Theme.of(context).colorScheme;
-    final legal = game.result == -1 && game.legalMoves().contains(i) && !(vsComputer && game.turn == 1) && !thinking;
-    return Expanded(
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: GestureDetector(
-          onTap: () => _tap(i),
-          child: Container(
-            margin: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFF8D6E63),
-              border: Border.all(
-                color: legal ? colors.primary : last == i ? Colors.amber : Colors.black26,
-                width: legal || last == i ? 3 : 1,
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Text('${game.pits[i]}',
-                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-          ),
-        ),
+    final legal = game.result == -1 &&
+        game.legalMoves().contains(i) &&
+        !(vsComputer && game.turn == 1) &&
+        !thinking;
+    return Padding(
+      padding: const EdgeInsets.all(2),
+      child: SowingPit(
+        key: ValueKey('oware_pit_$i'),
+        seeds: game.pits[i],
+        seedKey: i,
+        enabled: legal,
+        lastMove: last == i,
+        onTap: () => _tap(i),
       ),
     );
   }
@@ -112,18 +104,26 @@ class _OwareScreenState extends State<OwareScreen> {
           },
         ),
         StatusBanner(status, highlight: r >= 0),
-        Text('${names[1]}: ${game.stores[1]}', textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 6),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: const Color(0xFF5D4037), borderRadius: BorderRadius.circular(30)),
-          child: Column(children: [
-            Row(children: [for (var i = 11; i >= 6; i--) _pit(i)]),
-            Row(children: [for (var i = 0; i < 6; i++) _pit(i)]),
-          ]),
+        const SizedBox(height: 8),
+        SowingBoard(
+          top: [for (var i = 11; i >= 6; i--) _pit(i)],
+          bottom: [for (var i = 0; i < 6; i++) _pit(i)],
+          leftStore:
+              SeedStore(
+              seeds: game.stores[1],
+              label: vsComputer ? 'CPU' : 'N',
+              seedKey: 21),
+          rightStore:
+              SeedStore(
+              seeds: game.stores[0],
+              label: vsComputer ? 'You' : 'S',
+              seedKey: 20),
         ),
-        const SizedBox(height: 6),
-        Text('${names[0]}: ${game.stores[0]}', textAlign: TextAlign.center, style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 4),
+        Text(
+            '${names[0]} (bottom row) ${game.stores[0]} · ${names[1]} ${game.stores[1]} — first to 25',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

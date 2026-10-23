@@ -2,17 +2,46 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_level_bar.dart';
 import '../common/game_kit.dart';
 import '../common/grid_board_touch_area.dart';
 
 class HanoiGame {
-  HanoiGame(this.discs) : pegs = [List.generate(discs, (i) => discs - i), [], []];
+  HanoiGame(this.discs) : pegs = [List.generate(discs, (i) => discs - i), [], []] {
+    optimal = movesToSolve();
+  }
+
+  /// Starts from an arbitrary legal position: [pegOf] gives the peg (0–2)
+  /// of discs 1 (smallest) to n.
+  HanoiGame.scrambled(List<int> pegOf)
+      : discs = pegOf.length,
+        pegs = [[], [], []] {
+    for (var d = discs; d >= 1; d--) {
+      pegs[pegOf[d - 1]].add(d);
+    }
+    optimal = movesToSolve();
+  }
+
   final int discs;
   final List<List<int>> pegs;
   int moves = 0;
 
-  int get optimal => (1 << discs) - 1;
+  /// Fewest moves needed from the starting position.
+  late final int optimal;
   bool get solved => pegs[2].length == discs;
+
+  /// Fewest moves from the current position to the whole tower on peg 3.
+  int movesToSolve() {
+    var total = 0, target = 2;
+    for (var d = discs; d >= 1; d--) {
+      final at = pegs.indexWhere((p) => p.contains(d));
+      if (at == target) continue;
+      // Disc d moves once; the smaller discs must first gather on the spare.
+      total += 1 << (d - 1);
+      target = 3 - at - target;
+    }
+    return total;
+  }
 
   bool canMove(int from, int to) =>
       from != to && pegs[from].isNotEmpty && (pegs[to].isEmpty || pegs[to].last > pegs[from].last);
@@ -57,6 +86,31 @@ class HanoiGame {
   }
 }
 
+/// The 20 numbered Tower of Hanoi levels. Classic towers of 3 to 8 discs
+/// are mixed with fixed "scrambled" starts, where the discs begin spread
+/// over all three pegs and the minimum is worked out for that position.
+class HanoiLevels {
+  /// (discs, scrambled) for each level.
+  static const specs = [
+    (3, false), (4, false), (4, true), (4, true), (4, true),
+    (5, false), (5, true), (5, true), (5, true), (6, false),
+    (6, true), (6, true), (6, true), (7, false), (7, true),
+    (7, true), (7, true), (8, false), (8, true), (8, true),
+  ];
+
+  static HanoiGame build(int level) {
+    final (discs, scrambled) = specs[level - 1];
+    if (!scrambled) return HanoiGame(discs);
+    final rng = Random(8800 + level * 17);
+    while (true) {
+      final game = HanoiGame.scrambled(
+          [for (var d = 0; d < discs; d++) rng.nextInt(3)]);
+      // Skip starts that are nearly finished.
+      if (game.optimal >= 1 << (discs - 2)) return game;
+    }
+  }
+}
+
 const _discColors = [
   Color(0xFFE53935), Color(0xFFFB8C00), Color(0xFFFDD835), Color(0xFF43A047),
   Color(0xFF1E88E5), Color(0xFF3949AB), Color(0xFF8E24AA), Color(0xFF6D4C41),
@@ -69,8 +123,10 @@ class TowerOfHanoiScreen extends StatefulWidget {
 }
 
 class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
-  int discs = 4;
-  late HanoiGame game = HanoiGame(discs);
+  int level = CampaignLevelBar.initialLevel('tower_of_hanoi');
+  late HanoiGame game = HanoiLevels.build(level);
+
+  int get discs => game.discs;
   int? from;
   (int, int)? hint;
 
@@ -117,21 +173,32 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
       completed: game.solved,
       title: 'Tower of Hanoi',
       onNewGame: () => setState(() {
-        game = HanoiGame(discs);
+        game = HanoiLevels.build(level);
         from = null;
+        hint = null;
       }),
       rules: 'Move the whole tower from the left peg to the right peg. Move '
           'one disc at a time, and never place a larger disc on a smaller one. '
-          'The minimum number of moves is 2ⁿ − 1.',
+          'The minimum number of moves is 2ⁿ − 1.\n\nThere are 20 levels with '
+          '3 to 8 discs. Scrambled levels start with the discs spread over '
+          'all three pegs; the goal is still the whole tower on the right '
+          'peg, and the status line shows the minimum from that start. New '
+          'game restarts the current level.',
       children: [
-        SegmentedButton<int>(
-          segments: [for (final n in const [3, 4, 5, 6, 7, 8]) ButtonSegment(value: n, label: Text('$n'))],
-          selected: {discs},
-          onSelectionChanged: (s) => setState(() {
-            discs = s.first;
-            game = HanoiGame(discs);
+        CampaignLevelBar(
+          gameId: 'tower_of_hanoi',
+          level: level,
+          solved: game.solved,
+          onLevel: (value) => setState(() {
+            level = value;
+            game = HanoiLevels.build(level);
             from = null;
+            hint = null;
           }),
+          describe: (l) {
+            final (d, scrambled) = HanoiLevels.specs[l - 1];
+            return '$d discs${scrambled ? ', scrambled' : ''}';
+          },
         ),
         StatusBanner(status, highlight: game.solved),
         SizedBox(

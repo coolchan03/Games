@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_level_bar.dart';
 import '../common/game_kit.dart';
 
 /// Twiddle (after Simon Tatham's Portable Puzzle Collection, twiddle.c,
@@ -43,6 +44,27 @@ class TwiddleGame {
   }
 }
 
+/// The 20 numbered Twiddle levels: (grid size, block size, scramble
+/// rotations). Each is scrambled from the solved grid by legal rotations,
+/// so it can always be solved.
+class TwiddleLevels {
+  static const _specs = [
+    (3, 2, 2), (3, 2, 3), (3, 2, 4), (3, 2, 6), (3, 2, 9), (3, 2, 36),
+    (4, 2, 3), (4, 2, 5), (4, 2, 8), (4, 2, 12), (4, 2, 64),
+    (4, 3, 3), (4, 3, 5), (4, 3, 8), (4, 3, 64),
+    (5, 3, 3), (5, 3, 5), (5, 3, 8), (5, 3, 14), (5, 3, 100),
+  ];
+
+  static (int, int) configFor(int level) =>
+      (_specs[level - 1].$1, _specs[level - 1].$2);
+
+  static TwiddleGame build(int level) {
+    final (n, block, scramble) = _specs[level - 1];
+    return TwiddleGame(
+        n: n, block: block, scramble: scramble, random: Random(2900 + level * 41));
+  }
+}
+
 class TwiddleScreen extends StatefulWidget {
   const TwiddleScreen({super.key});
   @override
@@ -50,8 +72,8 @@ class TwiddleScreen extends StatefulWidget {
 }
 
 class _TwiddleScreenState extends State<TwiddleScreen> {
-  (int, int) config = (3, 2);
-  late TwiddleGame game = TwiddleGame(n: config.$1, block: config.$2);
+  int level = CampaignLevelBar.initialLevel('twiddle');
+  late TwiddleGame game = TwiddleLevels.build(level);
   bool clockwise = true;
 
   @override
@@ -63,24 +85,26 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
       gameId: 'twiddle',
       completed: game.solved,
       title: 'Twiddle',
-      onNewGame: () => setState(() => game = TwiddleGame(n: config.$1, block: config.$2)),
+      onNewGame: () => setState(() => game = TwiddleLevels.build(level)),
       rules: 'Put the numbers back in order, reading left to right and top '
           'to bottom. Tap one of the round handles to rotate the block of '
           'tiles around it; choose clockwise or anticlockwise below. From '
-          'Simon Tatham\'s Portable Puzzle Collection.',
+          'Simon Tatham\'s Portable Puzzle Collection.\n\nThere are 20 levels, '
+          'from a 3×3 grid with 2×2 blocks to a 5×5 grid with 3×3 blocks. '
+          'New game restarts the current level.',
       children: [
-        SegmentedButton<(int, int)>(
-          segments: const [
-            ButtonSegment(value: (3, 2), label: Text('3×3')),
-            ButtonSegment(value: (4, 2), label: Text('4×4')),
-            ButtonSegment(value: (4, 3), label: Text('4×4 big')),
-            ButtonSegment(value: (5, 3), label: Text('5×5')),
-          ],
-          selected: {config},
-          onSelectionChanged: (s) => setState(() {
-            config = s.first;
-            game = TwiddleGame(n: config.$1, block: config.$2);
+        CampaignLevelBar(
+          gameId: 'twiddle',
+          level: level,
+          solved: game.solved,
+          onLevel: (value) => setState(() {
+            level = value;
+            game = TwiddleLevels.build(level);
           }),
+          describe: (l) {
+            final (n, b) = TwiddleLevels.configFor(l);
+            return '$n×$n, $b×$b blocks';
+          },
         ),
         StatusBanner(game.solved ? 'Solved in ${game.moves} moves!' : 'Moves: ${game.moves}', highlight: game.solved),
         AspectRatio(

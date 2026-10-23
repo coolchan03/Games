@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../common/campaign_level_bar.dart';
 import '../common/game_kit.dart';
 import 'engine/layered_board.dart';
 import 'engine/mahjong_tile.dart';
+import 'mahjong_tile_art.dart';
 
 /// Layered Mahjong Solitaire with classic KMahjongg layouts. Every deal and
 /// every shuffle is generated from a full removal sequence, so it is solvable.
@@ -13,14 +15,14 @@ class MahjongSolitaireScreen extends StatefulWidget {
 }
 
 class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
-  final layouts = Layout.all();
-  late Layout layout = layouts.first;
-  late LayeredBoard board = LayeredBoard(layout);
+  int level = CampaignLevelBar.initialLevel('mahjong_solitaire');
+  late LayeredBoard board = MahjongLevels.build(level);
+  Layout get layout => board.layout;
   int? selected;
   (int, int)? hint;
 
   void _newGame() => setState(() {
-        board = LayeredBoard(layout);
+        board = MahjongLevels.build(level);
         selected = null;
         hint = null;
       });
@@ -57,27 +59,20 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
           'lies on top of it and its left or right side is open. Any two '
           'flowers match each other, as do any two seasons.\n\nEvery layout '
           'is dealt so that it can be solved. Pinch or scroll to zoom. '
-          'Layouts are from KDE KMahjongg.',
+          'Layouts are from KDE KMahjongg.\n\nThere are 20 levels: two deals '
+          'of the flat Beginner layout, then the eight layered layouts, each '
+          'dealt more than once. Clear every tile to complete a level; New '
+          'game restarts the same deal.',
       children: [
-        SizedBox(
-          height: 40,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: [
-              for (final l in layouts)
-                Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: ChoiceChip(
-                    label: Text(l.name),
-                    selected: l == layout,
-                    onSelected: (_) {
-                      layout = l;
-                      _newGame();
-                    },
-                  ),
-                ),
-            ],
-          ),
+        CampaignLevelBar(
+          gameId: 'mahjong_solitaire',
+          level: level,
+          solved: board.won,
+          onLevel: (value) {
+            level = value;
+            _newGame();
+          },
+          describe: (l) => MahjongLevels.layoutFor(l).name,
         ),
         StatusBanner(status, highlight: board.won || moves.isEmpty),
         LayoutBuilder(builder: (context, box) {
@@ -92,63 +87,89 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
               if (sa.y != sb.y) return sa.y - sb.y;
               return sb.x - sa.x;
             });
-          return InteractiveViewer(
-            maxScale: 4,
-            child: SizedBox(
-              width: box.maxWidth,
-              height: (layout.height + 1) * uy + maxZ * depth + 8,
-              child: Stack(children: [
-                for (final i in order)
-                  if (board.tiles[i] != null)
-                    Positioned(
-                      left: u + layout.slots[i].x * u - layout.slots[i].z * depth,
-                      top: maxZ * depth + layout.slots[i].y * uy - layout.slots[i].z * depth,
-                      width: 2 * u + depth * .6,
-                      height: 2 * uy + depth * .6,
-                      child: GestureDetector(
-                        onTap: () => _tap(i),
-                        child: _TileFace(
-                          tile: board.tiles[i]!,
-                          free: board.isFree(i),
-                          selected: selected == i,
-                          hinted: hint != null && (hint!.$1 == i || hint!.$2 == i),
-                          depth: depth * .6,
+          return DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: const RadialGradient(
+                radius: 1.1,
+                colors: [
+                  Color(0xFF2E7D4F),
+                  Color(0xFF1B5E3A),
+                  Color(0xFF0E3B24)
+                ],
+                stops: [0, .6, 1],
+              ),
+              border: Border.all(color: const Color(0xFF5D3A1A), width: 4),
+            ),
+            child: InteractiveViewer(
+              maxScale: 4,
+              child: SizedBox(
+                width: box.maxWidth,
+                height: (layout.height + 1) * uy + maxZ * depth + 8,
+                child: Stack(children: [
+                  for (final i in order)
+                    if (board.tiles[i] != null)
+                      Positioned(
+                        left: u +
+                            layout.slots[i].x * u -
+                            layout.slots[i].z * depth,
+                        top: maxZ * depth +
+                            layout.slots[i].y * uy -
+                            layout.slots[i].z * depth,
+                        width: 2 * u + depth * .6,
+                        height: 2 * uy + depth * .6,
+                        child: GestureDetector(
+                          onTap: () => _tap(i),
+                          child: _TileFace(
+                            tile: board.tiles[i]!,
+                            free: board.isFree(i),
+                            selected: selected == i,
+                            hinted: hint != null &&
+                                (hint!.$1 == i || hint!.$2 == i),
+                            depth: depth * .6,
+                          ),
                         ),
                       ),
-                    ),
-              ]),
+                ]),
+              ),
             ),
           );
         }),
         const SizedBox(height: 8),
-        Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
-          OutlinedButton.icon(
-            onPressed: board.history.isEmpty
-                ? null
-                : () => setState(() {
-                      board.undo();
-                      selected = null;
-                    }),
-            icon: const Icon(Icons.undo),
-            label: const Text('Undo'),
-          ),
-          OutlinedButton.icon(
-            onPressed: moves.isEmpty ? null : () => setState(() => hint = moves.first),
-            icon: const Icon(Icons.lightbulb_outline),
-            label: const Text('Hint'),
-          ),
-          FilledButton.tonalIcon(
-            onPressed: board.won
-                ? null
-                : () => setState(() {
-                      board.shuffle();
-                      selected = null;
-                      hint = null;
-                    }),
-            icon: const Icon(Icons.shuffle),
-            label: const Text('Shuffle'),
-          ),
-        ]),
+        Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: board.history.isEmpty
+                    ? null
+                    : () => setState(() {
+                          board.undo();
+                          selected = null;
+                        }),
+                icon: const Icon(Icons.undo),
+                label: const Text('Undo'),
+              ),
+              OutlinedButton.icon(
+                onPressed: moves.isEmpty
+                    ? null
+                    : () => setState(() => hint = moves.first),
+                icon: const Icon(Icons.lightbulb_outline),
+                label: const Text('Hint'),
+              ),
+              FilledButton.tonalIcon(
+                onPressed: board.won
+                    ? null
+                    : () => setState(() {
+                          board.shuffle();
+                          selected = null;
+                          hint = null;
+                        }),
+                icon: const Icon(Icons.shuffle),
+                label: const Text('Shuffle'),
+              ),
+            ]),
       ],
     );
   }
@@ -167,53 +188,20 @@ class _TileFace extends StatelessWidget {
   final bool free, selected, hinted;
   final double depth;
 
-  static const _red = Color(0xFFC62828), _green = Color(0xFF2E7D32), _blue = Color(0xFF1565C0);
-
-  (IconData, Color, String?) get _face {
-    final i = tile.index;
-    if (i < 9) return (Icons.translate, _red, '${i + 1}');
-    if (i < 18) return (Icons.grass, _green, '${i - 8}');
-    if (i < 27) return (Icons.radio_button_checked, _blue, '${i - 17}');
-    switch (tile) {
-      case MahjongTile.SEASON_1:
-        return (Icons.spa, _green, null);
-      case MahjongTile.SEASON_2:
-        return (Icons.wb_sunny, const Color(0xFFF57F17), null);
-      case MahjongTile.SEASON_3:
-        return (Icons.forest, const Color(0xFF8D6E63), null);
-      case MahjongTile.SEASON_4:
-        return (Icons.ac_unit, _blue, null);
-      case MahjongTile.FLOWER_1:
-      case MahjongTile.FLOWER_2:
-      case MahjongTile.FLOWER_3:
-      case MahjongTile.FLOWER_4:
-        return (Icons.local_florist, const Color(0xFFAD1457), '${i - 30}');
-      case MahjongTile.WIND_1:
-        return (Icons.east, Colors.black87, 'E');
-      case MahjongTile.WIND_2:
-        return (Icons.south, Colors.black87, 'S');
-      case MahjongTile.WIND_3:
-        return (Icons.west, Colors.black87, 'W');
-      case MahjongTile.WIND_4:
-        return (Icons.north, Colors.black87, 'N');
-      case MahjongTile.DRAGON_1:
-        return (Icons.local_fire_department, _red, null);
-      case MahjongTile.DRAGON_2:
-        return (Icons.eco, _green, null);
-      default:
-        return (Icons.crop_square, _blue, null);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final (icon, color, label) = _face;
+    final glow = selected
+        ? const Color(0xFFFFC107)
+        : hinted
+            ? colors.tertiary
+            : null;
     return Semantics(
       label: tileToString(tile).replaceAll('_', ' ').toLowerCase(),
       button: free,
+      selected: selected,
       child: Stack(children: [
-        // Tile side (3D edge).
+        // Two-layer side: ivory face over a jade-green back, as on real tiles.
         Positioned(
           left: depth,
           top: depth,
@@ -221,8 +209,21 @@ class _TileFace extends StatelessWidget {
           bottom: 0,
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: const Color(0xFFBFA77A),
-              borderRadius: BorderRadius.circular(4),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFD9CBA3),
+                  Color(0xFF1F7A5A),
+                  Color(0xFF0F4D38)
+                ],
+                stops: [0, .45, 1],
+              ),
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: const [
+                BoxShadow(
+                    blurRadius: 3, offset: Offset(1, 2), color: Colors.black45),
+              ],
             ),
           ),
         ),
@@ -233,30 +234,30 @@ class _TileFace extends StatelessWidget {
           bottom: depth,
           child: Container(
             decoration: BoxDecoration(
-              color: selected
-                  ? colors.primaryContainer
-                  : hinted
-                      ? colors.tertiaryContainer
-                      : free
-                          ? const Color(0xFFFFFBF0)
-                          : const Color(0xFFE8E0CC),
-              borderRadius: BorderRadius.circular(4),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: selected
+                    ? const [Color(0xFFFFF8E1), Color(0xFFFFE082)]
+                    : hinted
+                        ? [Colors.white, colors.tertiaryContainer]
+                        : const [Color(0xFFFFFDF6), Color(0xFFF1E8D2)],
+              ),
+              borderRadius: BorderRadius.circular(5),
               border: Border.all(
-                color: selected ? colors.primary : Colors.black38,
-                width: selected ? 2 : .8,
+                color: glow ?? const Color(0xFFB8A77F),
+                width: glow != null ? 2.2 : .8,
               ),
+              boxShadow: [
+                if (glow != null)
+                  BoxShadow(color: glow.withValues(alpha: .7), blurRadius: 8),
+              ],
             ),
-            child: FittedBox(
-              child: Padding(
-                padding: const EdgeInsets.all(3),
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  if (label != null)
-                    Text(label,
-                        style: TextStyle(
-                            color: color, fontWeight: FontWeight.w800, fontSize: 18, height: 1)),
-                  Icon(icon, color: color, size: 22),
-                ]),
-              ),
+            padding: const EdgeInsets.all(2),
+            child: Opacity(
+              // Blocked tiles are slightly muted so free ones stand out.
+              opacity: free || selected ? 1 : .62,
+              child: CustomPaint(painter: MahjongFacePainter(tile)),
             ),
           ),
         ),

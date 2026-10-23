@@ -2,16 +2,18 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_level_bar.dart';
 import '../common/game_kit.dart';
 
 /// Sixteen (after Simon Tatham's Portable Puzzle Collection, sixteen.c,
 /// MIT): restore the grid by cyclically shifting whole rows and columns.
 class SixteenGame {
-  SixteenGame({this.n = 4, Random? random}) {
+  SixteenGame({this.n = 4, int scramble = 0, Random? random}) {
     tiles = List.generate(n * n, (i) => i + 1);
     final rng = random ?? Random();
+    final shifts = scramble > 0 ? scramble : n * n * 3;
     do {
-      for (var k = 0; k < n * n * 3; k++) {
+      for (var k = 0; k < shifts; k++) {
         if (rng.nextBool()) {
           shiftRow(rng.nextInt(n), rng.nextBool() ? 1 : -1, count: false);
         } else {
@@ -49,6 +51,26 @@ class SixteenGame {
   }
 }
 
+/// The 20 numbered Sixteen levels: grid size and number of random shifts
+/// used to scramble it grow together. Every level is scrambled from the
+/// solved grid by legal shifts, so it can always be solved.
+class SixteenLevels {
+  static const _specs = [
+    (3, 2), (3, 3), (3, 4), (3, 6), (3, 9), (3, 27),
+    (4, 3), (4, 4), (4, 6), (4, 8), (4, 12), (4, 18), (4, 48),
+    (5, 4), (5, 6), (5, 9), (5, 14), (5, 20), (5, 35), (5, 75),
+  ];
+
+  static int sizeFor(int level) => _specs[level - 1].$1;
+  static int shiftsFor(int level) => _specs[level - 1].$2;
+
+  static SixteenGame build(int level) => SixteenGame(
+        n: sizeFor(level),
+        scramble: shiftsFor(level),
+        random: Random(1600 + level * 53),
+      );
+}
+
 class SixteenScreen extends StatefulWidget {
   const SixteenScreen({super.key});
   @override
@@ -56,8 +78,10 @@ class SixteenScreen extends StatefulWidget {
 }
 
 class _SixteenScreenState extends State<SixteenScreen> {
-  int n = 4;
-  late SixteenGame game = SixteenGame(n: n);
+  int level = CampaignLevelBar.initialLevel('sixteen');
+  late SixteenGame game = SixteenLevels.build(level);
+
+  int get n => game.n;
 
   @override
   Widget build(BuildContext context) {
@@ -71,23 +95,26 @@ class _SixteenScreenState extends State<SixteenScreen> {
       gameId: 'sixteen',
       completed: game.solved,
       title: 'Sixteen',
-      onNewGame: () => setState(() => game = SixteenGame(n: n)),
+      onNewGame: () => setState(() => game = SixteenLevels.build(level)),
       rules: 'Put the numbers back in order. Use the arrows around the edge '
           'to slide a whole row or column one step; the tile pushed off one '
           'end comes back on the other. From Simon Tatham\'s Portable Puzzle '
-          'Collection.',
+          'Collection.\n\nThere are 20 levels, from lightly shuffled 3×3 grids '
+          'to thoroughly shuffled 5×5 ones. New game restarts the current '
+          'level.',
       children: [
-        SegmentedButton<int>(
-          segments: const [
-            ButtonSegment(value: 3, label: Text('3×3')),
-            ButtonSegment(value: 4, label: Text('4×4')),
-            ButtonSegment(value: 5, label: Text('5×5')),
-          ],
-          selected: {n},
-          onSelectionChanged: (s) => setState(() {
-            n = s.first;
-            game = SixteenGame(n: n);
+        CampaignLevelBar(
+          gameId: 'sixteen',
+          level: level,
+          solved: game.solved,
+          onLevel: (value) => setState(() {
+            level = value;
+            game = SixteenLevels.build(level);
           }),
+          describe: (l) {
+            final s = SixteenLevels.sizeFor(l);
+            return '$s×$s';
+          },
         ),
         StatusBanner(game.solved ? 'Solved in ${game.moves} moves!' : 'Moves: ${game.moves}', highlight: game.solved),
         LayoutBuilder(builder: (context, box) {

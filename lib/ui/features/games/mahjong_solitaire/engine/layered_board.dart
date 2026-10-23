@@ -179,3 +179,30 @@ class LayeredBoard {
     shuffles++;
   }
 }
+
+/// The 20 numbered Mahjong Solitaire levels: two deals of the flat
+/// Beginner layout, then each KMahjongg layout dealt from fixed seeds. Every
+/// deal is built from a full removal sequence, so all levels are solvable.
+class MahjongLevels {
+  static final List<Layout> _layouts = Layout.all();
+
+  /// (layout index in [Layout.all], deal seed) for each level.
+  static final List<(int, int)> specs = () {
+    final beginner = _layouts.length - 1;
+    return [
+      (beginner, 1),
+      (beginner, 2),
+      for (var i = 0; i < beginner; i++) (i, 1),
+      for (var i = 0; i < beginner; i++) (i, 2),
+      (beginner - 1, 3),
+      (beginner - 2, 3),
+    ];
+  }();
+
+  static Layout layoutFor(int level) => _layouts[specs[level - 1].$1];
+
+  static LayeredBoard build(int level) {
+    final (index, deal) = specs[level - 1];
+    return LayeredBoard(_layouts[index], random: Random(9100 + index * 97 + deal * 13));
+  }
+}
