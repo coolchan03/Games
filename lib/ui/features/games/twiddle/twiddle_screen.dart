@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 
 /// Twiddle (after Simon Tatham's Portable Puzzle Collection, twiddle.c,
@@ -21,6 +23,26 @@ class TwiddleGame {
   final int n, block;
   late List<int> tiles;
   int moves = 0;
+  final List<List<int>> _history = [];
+
+  bool get canUndo => _history.isNotEmpty;
+  void undo() {
+    if (!canUndo) return;
+    tiles = _history.removeLast();
+    moves--;
+  }
+
+  List<int> snapshot() => [moves, ...tiles];
+  bool restore(List<int> data) {
+    if (data.length != n * n + 1 || data.first < 0) return false;
+    final state = data.skip(1).toList();
+    if (state.toSet().length != n * n ||
+        state.any((v) => v < 1 || v > n * n)) return false;
+    moves = data.first;
+    tiles = state;
+    _history.clear();
+    return true;
+  }
 
   bool get solved {
     for (var i = 0; i < tiles.length; i++) {
@@ -31,6 +53,8 @@ class TwiddleGame {
 
   /// Rotates the block whose top-left cell is (x, y).
   void rotate(int x, int y, bool clockwise, {bool count = true}) {
+    if (x < 0 || y < 0 || x + block > n || y + block > n) return;
+    if (count) _history.add(List<int>.of(tiles));
     final old = List.of(tiles);
     for (var r = 0; r < block; r++) {
       for (var c = 0; c < block; c++) {
@@ -50,9 +74,34 @@ class TwiddleScreen extends StatefulWidget {
 }
 
 class _TwiddleScreenState extends State<TwiddleScreen> {
-  (int, int) config = (3, 2);
-  late TwiddleGame game = TwiddleGame(n: config.$1, block: config.$2);
+  static const _configs = [(3, 2), (4, 2), (4, 3), (5, 3)];
+  int configIndex = CampaignProgress.selectedLevel('twiddle', count: 4) - 1;
+  (int, int) get config => _configs[configIndex];
+  late TwiddleGame game = _load();
   bool clockwise = true;
+
+  TwiddleGame _load() {
+    final result = TwiddleGame(n: config.$1, block: config.$2);
+    final data = CampaignProgress.loadActive('twiddle', configIndex + 1,
+        maxLength: config.$1 * config.$1 + 1);
+    if (data != null) result.restore(data);
+    return result;
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+    'twiddle', configIndex + 1, game.snapshot(),
+  ));
+
+  void _newGame() {
+    setState(() => game = TwiddleGame(n: config.$1, block: config.$2));
+    _save();
+  }
+
+  void _undo() {
+    if (!game.canUndo) return;
+    setState(game.undo);
+    _save();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +112,11 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
       gameId: 'twiddle',
       completed: game.solved,
       title: 'Twiddle',
-      onNewGame: () => setState(() => game = TwiddleGame(n: config.$1, block: config.$2)),
+      onNewGame: _newGame,
       rules: 'Put the numbers back in order, reading left to right and top '
           'to bottom. Tap one of the round handles to rotate the block of '
           'tiles around it; choose clockwise or anticlockwise below. From '
-          'Simon Tatham\'s Portable Puzzle Collection.',
+          'Simon Tatham\'s Portable Puzzle Collection. Unfinished boards resume offline.',
       children: [
         SegmentedButton<(int, int)>(
           segments: const [
@@ -77,12 +126,24 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
             ButtonSegment(value: (5, 3), label: Text('5×5')),
           ],
           selected: {config},
-          onSelectionChanged: (s) => setState(() {
-            config = s.first;
-            game = TwiddleGame(n: config.$1, block: config.$2);
-          }),
+          onSelectionChanged: (s) {
+            setState(() {
+              configIndex = _configs.indexOf(s.first);
+              game = _load();
+            });
+            unawaited(CampaignProgress.saveSelected('twiddle', configIndex + 1));
+          },
         ),
-        StatusBanner(game.solved ? 'Solved in ${game.moves} moves!' : 'Moves: ${game.moves}', highlight: game.solved),
+        Row(children: [
+          Expanded(child: StatusBanner(
+            game.solved ? 'Solved in ${game.moves} moves!' : 'Moves: ${game.moves}',
+            highlight: game.solved,
+          )),
+          IconButton(
+            tooltip: 'Undo', onPressed: game.canUndo ? _undo : null,
+            icon: const Icon(Icons.undo),
+          ),
+        ]),
         AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
@@ -116,7 +177,10 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
                       shape: const CircleBorder(),
                       child: InkWell(
                         customBorder: const CircleBorder(),
-                        onTap: game.solved ? null : () => setState(() => game.rotate(x, y, clockwise)),
+                        onTap: game.solved ? null : () {
+                          setState(() => game.rotate(x, y, clockwise));
+                          _save();
+                        },
                         child: Icon(clockwise ? Icons.rotate_right : Icons.rotate_left, color: colors.onPrimary),
                       ),
                     ),

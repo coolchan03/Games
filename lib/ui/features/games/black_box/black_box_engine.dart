@@ -27,6 +27,43 @@ class BlackBoxGame {
   final Map<int, LaserResult> fired = {};
   bool revealed = false;
 
+  /// Save the hidden board, marked guesses and fired ports as integer flags.
+  /// Restoring through fire() recalculates all exit pairs from actual rules.
+  List<int> snapshot() => [
+    revealed ? 1 : 0,
+    for (var i = 0; i < n * n; i++) hidden.contains(i) ? 1 : 0,
+    for (var i = 0; i < n * n; i++) guesses.contains(i) ? 1 : 0,
+    for (var i = 0; i < 4 * n; i++) fired.containsKey(i) ? 1 : 0,
+  ];
+
+  static BlackBoxGame? fromSnapshot({
+    required int n, required int balls, required List<int> data,
+  }) {
+    if (n < 1 || balls < 1 || balls > n * n ||
+        data.length != 1 + 2 * n * n + 4 * n ||
+        data.any((v) => v != 0 && v != 1)) return null;
+    final board = BlackBoxGame(n: n, balls: balls);
+    final hiddenFlags = data.skip(1).take(n * n).toList();
+    final guessesFlags = data.skip(1 + n * n).take(n * n).toList();
+    final firedFlags = data.skip(1 + 2 * n * n).toList();
+    if (hiddenFlags.where((v) => v == 1).length != balls ||
+        guessesFlags.where((v) => v == 1).length > balls) return null;
+    board.hidden
+      ..clear()
+      ..addAll([for (var i = 0; i < n * n; i++) if (hiddenFlags[i] == 1) i]);
+    board.guesses.addAll([
+      for (var i = 0; i < n * n; i++) if (guessesFlags[i] == 1) i,
+    ]);
+    for (var p = 0; p < 4 * n; p++) {
+      if (firedFlags[p] == 1 && !board.fired.containsKey(p)) board.fire(p);
+    }
+    if (board.fired.length != firedFlags.where((flag) => flag == 1).length ||
+        board.fired.keys.any((port) => firedFlags[port] != 1)) return null;
+    if (data.first == 1 && board.guesses.length != balls) return null;
+    board.revealed = data.first == 1;
+    return board;
+  }
+
   bool ball(int x, int y) => x >= 0 && y >= 0 && x < n && y < n && hidden.contains(y * n + x);
 
   /// Entry cell and direction for a port.

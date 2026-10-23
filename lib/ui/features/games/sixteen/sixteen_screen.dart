@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 
 /// Sixteen (after Simon Tatham's Portable Puzzle Collection, sixteen.c,
@@ -24,6 +26,28 @@ class SixteenGame {
   final int n;
   late List<int> tiles;
   int moves = 0;
+  final List<List<int>> _history = [];
+
+  bool get canUndo => _history.isNotEmpty;
+  void undo() {
+    if (!canUndo) return;
+    tiles = _history.removeLast();
+    moves--;
+  }
+
+  /// Retains only the tile permutation and move count, not the random seed.
+  List<int> snapshot() => [moves, ...tiles];
+
+  bool restore(List<int> saved) {
+    if (saved.length != n * n + 1 || saved.first < 0) return false;
+    final permutation = saved.skip(1).toList();
+    if (permutation.toSet().length != n * n ||
+        permutation.any((v) => v < 1 || v > n * n)) return false;
+    moves = saved.first;
+    tiles = permutation;
+    _history.clear();
+    return true;
+  }
 
   bool get solved {
     for (var i = 0; i < tiles.length; i++) {
@@ -33,6 +57,8 @@ class SixteenGame {
   }
 
   void shiftRow(int r, int by, {bool count = true}) {
+    if (r < 0 || r >= n || by.abs() != 1) return;
+    if (count) _history.add(List<int>.of(tiles));
     final row = [for (var c = 0; c < n; c++) tiles[r * n + c]];
     for (var c = 0; c < n; c++) {
       tiles[r * n + (c + by) % n] = row[c];
@@ -41,6 +67,8 @@ class SixteenGame {
   }
 
   void shiftCol(int c, int by, {bool count = true}) {
+    if (c < 0 || c >= n || by.abs() != 1) return;
+    if (count) _history.add(List<int>.of(tiles));
     final col = [for (var r = 0; r < n; r++) tiles[r * n + c]];
     for (var r = 0; r < n; r++) {
       tiles[((r + by) % n) * n + c] = col[r];
@@ -56,26 +84,59 @@ class SixteenScreen extends StatefulWidget {
 }
 
 class _SixteenScreenState extends State<SixteenScreen> {
-  int n = 4;
-  late SixteenGame game = SixteenGame(n: n);
+  int n = switch (CampaignProgress.selectedLevel('sixteen', count: 3)) {
+    2 => 3,
+    3 => 5,
+    _ => 4,
+  };
+  late SixteenGame game = _load();
+
+  int get _modeId => n == 4 ? 1 : n == 3 ? 2 : 3;
+
+  SixteenGame _load() {
+    final result = SixteenGame(n: n);
+    final saved = CampaignProgress.loadActive(
+      'sixteen', _modeId, maxLength: n * n + 1,
+    );
+    if (saved != null) result.restore(saved);
+    return result;
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+    'sixteen', _modeId, game.snapshot(),
+  ));
+
+  void _newGame() {
+    setState(() => game = SixteenGame(n: n));
+    _save();
+  }
+
+  void _undo() {
+    if (!game.canUndo) return;
+    setState(game.undo);
+    _save();
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     Widget arrow(IconData icon, VoidCallback onTap) => IconButton(
           visualDensity: VisualDensity.compact,
-          onPressed: game.solved ? null : () => setState(onTap),
+          onPressed: game.solved ? null : () {
+            setState(onTap);
+            _save();
+          },
           icon: Icon(icon, size: 20),
         );
     return GameScaffold(
       gameId: 'sixteen',
       completed: game.solved,
       title: 'Sixteen',
-      onNewGame: () => setState(() => game = SixteenGame(n: n)),
+      onNewGame: _newGame,
       rules: 'Put the numbers back in order. Use the arrows around the edge '
           'to slide a whole row or column one step; the tile pushed off one '
           'end comes back on the other. From Simon Tatham\'s Portable Puzzle '
-          'Collection.',
+          'Collection. Your unfinished board is saved offline.',
       children: [
         SegmentedButton<int>(
           segments: const [
@@ -84,12 +145,25 @@ class _SixteenScreenState extends State<SixteenScreen> {
             ButtonSegment(value: 5, label: Text('5×5')),
           ],
           selected: {n},
-          onSelectionChanged: (s) => setState(() {
-            n = s.first;
-            game = SixteenGame(n: n);
-          }),
+          onSelectionChanged: (s) {
+            setState(() {
+              n = s.first;
+              game = _load();
+            });
+            unawaited(CampaignProgress.saveSelected('sixteen', _modeId));
+          },
         ),
-        StatusBanner(game.solved ? 'Solved in ${game.moves} moves!' : 'Moves: ${game.moves}', highlight: game.solved),
+        Row(children: [
+          Expanded(child: StatusBanner(
+            game.solved ? 'Solved in ${game.moves} moves!' : 'Moves: ${game.moves}',
+            highlight: game.solved,
+          )),
+          IconButton(
+            tooltip: 'Undo',
+            onPressed: game.canUndo ? _undo : null,
+            icon: const Icon(Icons.undo),
+          ),
+        ]),
         LayoutBuilder(builder: (context, box) {
           final cell = (box.maxWidth - 80) / n;
           return Column(children: [

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../common/campaign_progress.dart';
 import '../common/game_kit.dart';
 import 'black_box_engine.dart';
 
@@ -10,8 +13,30 @@ class BlackBoxScreen extends StatefulWidget {
 }
 
 class _BlackBoxScreenState extends State<BlackBoxScreen> {
-  int balls = 4;
-  late BlackBoxGame game = BlackBoxGame(balls: balls);
+  static const modes = [4, 3, 5, 6];
+  int balls = modes[CampaignProgress.selectedLevel('black_box', count: 4) - 1];
+  late BlackBoxGame game = _load();
+
+  int get modeIndex => modes.indexOf(balls) + 1;
+
+  BlackBoxGame _load() {
+    const n = 8;
+    final raw = CampaignProgress.loadActive('black_box', modeIndex,
+        maxLength: 1 + 2 * n * n + 4 * n);
+    return raw == null
+        ? BlackBoxGame(n: n, balls: balls)
+        : BlackBoxGame.fromSnapshot(n: n, balls: balls, data: raw) ??
+            BlackBoxGame(n: n, balls: balls);
+  }
+
+  void _save() => unawaited(CampaignProgress.saveActive(
+    'black_box', modeIndex, game.snapshot(),
+  ));
+
+  void _newGame() {
+    setState(() => game = BlackBoxGame(balls: balls));
+    _save();
+  }
 
   /// Labels for exit pairs (1, 2, 3, …) in the order they were found.
   Map<int, String> get _labels {
@@ -44,7 +69,10 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
     Widget port(int p) {
       final l = labels[p];
       return GestureDetector(
-        onTap: () => setState(() => game.fire(p)),
+        onTap: () {
+          setState(() => game.fire(p));
+          _save();
+        },
         child: Container(
           margin: const EdgeInsets.all(1.5),
           decoration: BoxDecoration(
@@ -67,7 +95,7 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
       gameId: 'black_box',
       completed: game.revealed && game.correct,
       title: 'Black Box',
-      onNewGame: () => setState(() => game = BlackBoxGame(balls: balls)),
+      onNewGame: _newGame,
       rules: 'Balls are hidden in the 8×8 box. Tap an edge port to fire a '
           'laser in. H means it hit a ball head-on; R means it was reflected '
           'back out; a number shows the matching pair of ports where it went '
@@ -76,15 +104,18 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
           'entry square reflects it immediately.\n\nTap squares to mark '
           'where you think the balls are, then check. Each laser costs 1 '
           'point and each wrong ball 5 — lower is better. Rules from Simon '
-          'Tatham\'s Portable Puzzle Collection.',
+          'Tatham\'s Portable Puzzle Collection. Progress resumes offline.',
       children: [
         SegmentedButton<int>(
           segments: [for (final b in const [3, 4, 5, 6]) ButtonSegment(value: b, label: Text('$b balls'))],
           selected: {balls},
-          onSelectionChanged: (s) => setState(() {
-            balls = s.first;
-            game = BlackBoxGame(balls: balls);
-          }),
+          onSelectionChanged: (s) {
+            setState(() {
+              balls = s.first;
+              game = _load();
+            });
+            unawaited(CampaignProgress.saveSelected('black_box', modeIndex));
+          },
         ),
         StatusBanner(status, highlight: game.revealed),
         AspectRatio(
@@ -105,7 +136,10 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
               final guessed = game.guesses.contains(cell);
               final real = game.hidden.contains(cell);
               return GestureDetector(
-                onTap: () => setState(() => game.toggleGuess(cell)),
+                onTap: () {
+                  setState(() => game.toggleGuess(cell));
+                  _save();
+                },
                 child: Container(
                   margin: const EdgeInsets.all(1),
                   color: const Color(0xFF263238),
@@ -129,7 +163,10 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
         FilledButton(
           onPressed: game.revealed || game.guesses.length != game.balls
               ? null
-              : () => setState(() => game.revealed = true),
+              : () {
+                  setState(() => game.revealed = true);
+                  _save();
+                },
           child: const Text('Check my answer'),
         ),
       ],
