@@ -131,7 +131,7 @@ class _BaghChalScreenState extends State<BaghChalScreen> {
         StatusBanner(status, highlight: r != 0),
         Text('Goats captured: ${game.captured}/5 · goats to place: ${game.goatsToPlace}', textAlign: TextAlign.center),
         const SizedBox(height: 8),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             final c = box.maxWidth / 5;
@@ -179,7 +179,7 @@ class _BaghChalScreenState extends State<BaghChalScreen> {
                 ),
             ]));
           }),
-        ),
+        )),
       ],
     );
   }

@@ -13,7 +13,16 @@ class InertiaScreen extends StatefulWidget {
 
 class _InertiaScreenState extends State<InertiaScreen> {
   int level = CampaignLevelBar.initialLevel('inertia');
-  late InertiaGame game = InertiaLevels.build(level);
+  late InertiaGame game = _build(level);
+
+  /// Builds [level], resuming a saved unfinished attempt when [resume].
+  InertiaGame _build(int level, {bool resume = true}) {
+    final g = InertiaLevels.build(level);
+    final saved =
+        resume ? CampaignLevelBar.restoreActive('inertia', level) : null;
+    if (saved != null) g.restore(saved);
+    return g;
+  }
   final focus = FocusNode();
 
   static const _arrows = [
@@ -67,7 +76,7 @@ class _InertiaScreenState extends State<InertiaScreen> {
       gameId: 'inertia',
       completed: game.won,
       title: 'Inertia',
-      onNewGame: () => setState(() => game = InertiaLevels.build(level)),
+      onNewGame: () => setState(() => game = _build(level, resume: false)),
       rules: 'Collect every gem. You slide in any of eight directions and '
           'keep going until you stop on a stop square (circle) or run into '
           'a wall — you cannot stop on open ground. Passing over a gem '
@@ -84,15 +93,21 @@ class _InertiaScreenState extends State<InertiaScreen> {
           solved: game.won,
           onLevel: (value) => setState(() {
             level = value;
-            game = InertiaLevels.build(level);
+            game = _build(level);
           }),
           describe: (l) {
             final s = InertiaLevels.sizes[l - 1];
             return '$s×$s';
           },
+          activeState: game.snapshot,
+          result: CampaignResult(
+            score: game.moves,
+            stars: starsForPar(game.moves, game.totalGems * 2),
+            label: (m) => '$m moves',
+          ),
         ),
         StatusBanner(status, highlight: game.won || game.dead),
-        Focus(
+        LandscapeBoard(child: Focus(
           focusNode: focus,
           autofocus: true,
           onKeyEvent: _key,
@@ -128,7 +143,7 @@ class _InertiaScreenState extends State<InertiaScreen> {
               },
             ),
           ),
-        ),
+        )),
         const SizedBox(height: 8),
         Center(
           child: SizedBox(

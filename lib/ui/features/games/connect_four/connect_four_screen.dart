@@ -180,7 +180,7 @@ class _ConnectFourState extends State<ConnectFourScreen> {
         ),
         StatusBanner(status, highlight: done),
         const SizedBox(height: 8),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 7 / 6.4,
           child: Container(
             padding: const EdgeInsets.all(8),
@@ -226,7 +226,7 @@ class _ConnectFourState extends State<ConnectFourScreen> {
                 ),
             ]),
           ),
-        ),
+        )),
       ],
     );
   }

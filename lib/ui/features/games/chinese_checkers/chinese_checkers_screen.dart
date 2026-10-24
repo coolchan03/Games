@@ -118,7 +118,7 @@ class _ChineseCheckersScreenState extends State<ChineseCheckersScreen> {
             ),
         ]),
         const SizedBox(height: 6),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             // x = q + r/2 spans -8..8, y = r·√3/2 spans ±6.93.
@@ -152,7 +152,7 @@ class _ChineseCheckersScreenState extends State<ChineseCheckersScreen> {
                 ),
             ]);
           }),
-        ),
+        )),
       ],
     );
   }

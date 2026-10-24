@@ -147,7 +147,7 @@ class _TicTacToeState extends State<TicTacToeScreen> {
         ),
         StatusBanner(status, highlight: r != 0),
         const SizedBox(height: 8),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: Container(
             decoration: BoxDecoration(
@@ -197,7 +197,7 @@ class _TicTacToeState extends State<TicTacToeScreen> {
               ),
             ),
           ),
-        ),
+        )),
       ],
     );
   }

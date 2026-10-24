@@ -90,4 +90,54 @@ class CampaignProgress {
       // Failed optional progress writes must not prevent puzzle completion.
     }
   }
+
+  static String _resultsKey(String gameId) => 'campaign_results_v1_$gameId';
+
+  /// Best result per level: level -> (stars 1-3, best score).
+  static Map<int, (int, int)> loadResults(String gameId) {
+    try {
+      if (!Hive.isBoxOpen(boxName)) return {};
+      final raw = Hive.box(boxName).get(_resultsKey(gameId));
+      if (raw is! List) return {};
+      final values = raw.whereType<int>().toList();
+      return {
+        for (var i = 0; i + 2 < values.length; i += 3)
+          if (values[i] >= 1 && values[i + 1] >= 1 && values[i + 1] <= 3)
+            values[i]: (values[i + 1], values[i + 2]),
+      };
+    } catch (_) {
+      return {};
+    }
+  }
+
+  /// Keeps the better of the stored and new result for [level] (more stars
+  /// first, then the better score). Returns the merged map.
+  static Map<int, (int, int)> recordResult(String gameId, int level,
+      {required int stars, required int score, bool lowerIsBetter = true}) {
+    final results = loadResults(gameId);
+    final old = results[level];
+    final s = stars.clamp(1, 3);
+    final best = old == null
+        ? score
+        : lowerIsBetter
+            ? (score < old.$2 ? score : old.$2)
+            : (score > old.$2 ? score : old.$2);
+    results[level] = (old == null || s > old.$1 ? s : old.$1, best);
+    try {
+      if (Hive.isBoxOpen(boxName)) {
+        final levels = results.keys.toList()..sort();
+        unawaitedPut(_resultsKey(gameId), [
+          for (final l in levels) ...[l, results[l]!.$1, results[l]!.$2],
+        ]);
+      }
+    } catch (_) {
+      // Best scores are optional; never block finishing a level.
+    }
+    return results;
+  }
+
+  static void unawaitedPut(String key, Object value) {
+    Hive.box(boxName).put(key, value).catchError((Object _) {});
+  }
 }
+

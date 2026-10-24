@@ -20,6 +20,8 @@ import 'widgets/category_button.dart';
 import 'widgets/search_bar.dart' as custom;
 import 'widgets/game_tile.dart';
 import 'widgets/table_texture.dart';
+import 'widgets/continue_card.dart';
+import '../games/shared/game_storage.dart';
 import 'widgets/empty_games_state.dart';
 import 'game_browse_order.dart';
 
@@ -41,10 +43,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Map<String, String>? _localizedTitlesCache;
   Locale? _lastLocale;
 
+  static const _validCategories = {
+    'ALL', 'ATTENTION', 'LOGIC', 'BOARD', 'CARD', 'MATH', 'WORD', 'MEMORY',
+    'SPATIAL',
+  };
+
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _restoreCategory();
+  }
+
+  /// Reopens the library on the category picked last time.
+  Future<void> _restoreCategory() async {
+    try {
+      final data = await GameStorage.load('library_category');
+      final value = data?['category'];
+      if (mounted && value is String && _validCategories.contains(value)) {
+        setState(() => _selectedCategory = value);
+      }
+    } catch (_) {
+      // Remembering the category is a convenience; start on ALL.
+    }
+  }
+
+  void _selectCategory(String value) {
+    setState(() => _selectedCategory = value);
+    GameStorage.save('library_category', {'version': 1, 'category': value})
+        .catchError((Object _) {});
   }
 
   @override
@@ -99,6 +126,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _buildAppBar(theme, colorScheme, l10n),
           if (_browseSubset == GameBrowseSubset.all &&
               _searchQuery.isEmpty && _selectedCategory == 'ALL')
+            const SliverToBoxAdapter(child: ContinueCard()),
+          if (_browseSubset == GameBrowseSubset.all &&
+              _searchQuery.isEmpty && _selectedCategory == 'ALL')
             SliverToBoxAdapter(
               child: FavoritesSection(
                 selectedCategory: _selectedCategory,
@@ -121,8 +151,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 _searchController.clear();
                 setState(() => _searchQuery = "");
               },
-              onCategorySelected: (value) =>
-                  setState(() => _selectedCategory = value),
+              onCategorySelected: _selectCategory,
             ),
           ),
           SliverToBoxAdapter(
@@ -165,15 +194,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Row(children: [
               Text('${displayedGames.length} games',
                   style: theme.textTheme.labelLarge),
-              const Spacer(),
-              SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment(value: false, label: Text('Featured')),
-                  ButtonSegment(value: true, label: Text('A-Z')),
-                ],
-                selected: {_alphabetically},
-                onSelectionChanged: (selection) =>
-                    setState(() => _alphabetically = selection.first),
+              const SizedBox(width: 12),
+              // Shrinks rather than overflowing on narrow phones or with
+              // large system text.
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SegmentedButton<bool>(
+                      segments: const [
+                        ButtonSegment(value: false, label: Text('Featured')),
+                        ButtonSegment(value: true, label: Text('A-Z')),
+                      ],
+                      selected: {_alphabetically},
+                      onSelectionChanged: (selection) =>
+                          setState(() => _alphabetically = selection.first),
+                    ),
+                  ),
+                ),
               ),
             ]),
           )),
@@ -212,24 +251,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildRandomGameFab(BuildContext context, ThemeData theme) {
-    return FloatingActionButton(
-      backgroundColor: DesignSystem.primary,
-      foregroundColor: Colors.white,
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(DesignSystem.radiusMD),
-        side: const BorderSide(
-          color: DesignSystem.primaryShadow,
-          width: 1.5,
+    // A big red die: tap to roll a random game.
+    return Semantics(
+      button: true,
+      label: 'Play a random game',
+      child: GestureDetector(
+        key: const ValueKey('random_game_button'),
+        onTap: _playRandomPuzzle,
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFEF5350), Color(0xFFC62828)],
+            ),
+            border: Border.all(color: Colors.white, width: 2),
+            boxShadow: const [
+              BoxShadow(color: Color(0xFF7F1414), offset: Offset(0, 4)),
+              BoxShadow(
+                  color: Colors.black26, offset: Offset(0, 8), blurRadius: 10),
+            ],
+          ),
+          child: CustomPaint(painter: _DiePips()),
         ),
-      ),
-      onPressed: _playRandomPuzzle,
-      child: const Icon(
-        Icons.shuffle_rounded,
-        size: 26,
       ),
     );
   }
+
 
   void _playRandomPuzzle() {
     final hiddenGameIds = ref.read(
@@ -321,17 +372,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             color: Colors.transparent,
             drawBorder: false,
             padding: const EdgeInsets.all(12),
+            semanticsLabel:
+                _searchQuery.isNotEmpty ? 'Clear search' : 'Search games',
             onTap: () {
               setState(() {
-                _isSearchVisible = !_isSearchVisible;
-                if (!_isSearchVisible) {
+                if (_searchQuery.isNotEmpty) {
+                  // While searching, the button clears the search.
                   _searchQuery = "";
                   _searchController.clear();
+                } else {
+                  _isSearchVisible = !_isSearchVisible;
                 }
               });
             },
             child: Icon(
-              _isSearchVisible ? Icons.close_rounded : Icons.search_rounded,
+              _searchQuery.isNotEmpty
+                  ? Icons.close_rounded
+                  : Icons.search_rounded,
               color: const Color(0xFFFFF3E0),
               size: 22,
             ),
@@ -783,4 +840,21 @@ class _HiddenGameTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Five white pips of a die face.
+class _DiePips extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final pip = Paint()..color = Colors.white;
+    final r = size.width * .085;
+    for (final (x, y) in const [
+      (.28, .28), (.72, .28), (.5, .5), (.28, .72), (.72, .72),
+    ]) {
+      canvas.drawCircle(Offset(size.width * x, size.height * y), r, pip);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DiePips old) => false;
 }

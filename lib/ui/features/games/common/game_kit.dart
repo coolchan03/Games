@@ -167,17 +167,71 @@ class GameScaffold extends StatelessWidget {
     final display = MediaQuery.sizeOf(context);
     final compactLandscape =
         display.width > display.height && display.height < 650;
-    final content = Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: compactLandscape ? 8 : 16,
-        vertical: compactLandscape ? 6 : 12,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      ),
+    final padding = EdgeInsets.symmetric(
+      horizontal: compactLandscape ? 8 : 16,
+      vertical: compactLandscape ? 6 : 12,
     );
+    final boardIndex = children.indexWhere((c) => c is LandscapeBoard);
+    // On a sideways phone a square board would be taller than the screen,
+    // so it goes on the right with the controls scrolling beside it.
+    final sideBySide = compactLandscape && boardIndex >= 0;
+    final Widget content;
+    if (sideBySide) {
+      content = LayoutBuilder(builder: (context, box) {
+        final side = math.min(box.maxHeight - padding.vertical,
+            box.maxWidth * .58);
+        // Too narrow to share: keep the usual single column.
+        if (box.maxWidth - side - padding.horizontal - 12 < 260) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: padding,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: children,
+              ),
+            ),
+          );
+        }
+        return Padding(
+          padding: padding,
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var i = 0; i < children.length; i++)
+                      if (i != boardIndex) children[i],
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            SizedBox(
+              width: side,
+              height: side,
+              // Boards get the full width and are scaled down if their
+              // controls make them taller than the screen.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(width: side, child: children[boardIndex]),
+              ),
+            ),
+          ]),
+        );
+      });
+    } else {
+      content = Padding(
+        padding: padding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: children,
+        ),
+      );
+    }
     final scaffold = Scaffold(
       appBar: AppBar(
         toolbarHeight: compactLandscape ? 44 : null,
@@ -204,7 +258,9 @@ class GameScaffold extends StatelessWidget {
                   ? display.width
                   : contentWidthFor(display, maxWidth),
             ),
-            child: scrollable ? SingleChildScrollView(child: content) : content,
+            child: scrollable && !sideBySide
+                ? SingleChildScrollView(child: content)
+                : content,
           ),
         ),
       ),
@@ -216,10 +272,107 @@ class GameScaffold extends StatelessWidget {
       onUndo: onUndo,
       child: scaffold,
     );
-    if (gameId == null) return watched;
+    final celebrated = _Confetti(active: completed, child: watched);
+    if (gameId == null) return celebrated;
     return _CompletionReporter(
-        gameId: gameId!, completed: completed, child: watched);
+        gameId: gameId!, completed: completed, child: celebrated);
   }
+}
+
+/// Marks a game's board among [GameScaffold.children]. On a sideways phone
+/// the scaffold shows it on the right, sized to the screen height, with
+/// the other controls beside it; elsewhere it is laid out as usual.
+class LandscapeBoard extends StatelessWidget {
+  const LandscapeBoard({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => child;
+}
+
+/// A short confetti burst over the game each time [active] turns true.
+class _Confetti extends StatefulWidget {
+  const _Confetti({required this.active, required this.child});
+  final bool active;
+  final Widget child;
+  @override
+  State<_Confetti> createState() => _ConfettiState();
+}
+
+class _ConfettiState extends State<_Confetti>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 2200));
+  int _seed = 0;
+
+  @override
+  void didUpdateWidget(_Confetti old) {
+    super.didUpdateWidget(old);
+    if (widget.active && !old.active) {
+      _seed++;
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      widget.child,
+      Positioned.fill(
+        child: IgnorePointer(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) => _controller.isAnimating
+                ? CustomPaint(
+                    key: const ValueKey('confetti'),
+                    painter: _ConfettiPainter(_controller.value, _seed),
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ),
+      ),
+    ]);
+  }
+}
+
+class _ConfettiPainter extends CustomPainter {
+  _ConfettiPainter(this.t, this.seed);
+  final double t;
+  final int seed;
+
+  static const _colours = [
+    Color(0xFFE53935), Color(0xFFFDD835), Color(0xFF43A047),
+    Color(0xFF1E88E5), Color(0xFF8E24AA), Color(0xFFFF7043),
+  ];
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rng = math.Random(seed);
+    final fade = t < .75 ? 1.0 : (1 - t) / .25;
+    for (var i = 0; i < 90; i++) {
+      final x0 = rng.nextDouble() * size.width;
+      final speed = .6 + rng.nextDouble() * .7;
+      final drift = (rng.nextDouble() - .5) * 120;
+      final spin = rng.nextDouble() * 12;
+      final y = -20 + (size.height + 40) * t * speed;
+      final x = x0 + drift * t + math.sin(t * 10 + i) * 12;
+      final paint = Paint()
+        ..color = _colours[i % _colours.length].withValues(alpha: fade);
+      canvas.save();
+      canvas.translate(x, y);
+      canvas.rotate(spin * t);
+      canvas.drawRect(const Rect.fromLTWH(-4, -2.5, 8, 5), paint);
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ConfettiPainter old) => old.t != t || old.seed != seed;
 }
 
 /// Width for a game's content column. Phones use [preferred]; tablets and

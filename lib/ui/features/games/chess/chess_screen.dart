@@ -234,7 +234,7 @@ class _ChessScreenState extends State<ChessScreen> {
           },
         ),
         StatusBanner(status, highlight: over),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: GridBoardTouchArea(
             key: const ValueKey('chess_touch_board'),
@@ -318,7 +318,7 @@ class _ChessScreenState extends State<ChessScreen> {
             },
           ),
           ),
-        ),
+        )),
         const SizedBox(height: 12),
         Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
           OutlinedButton.icon(

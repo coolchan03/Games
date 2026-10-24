@@ -133,7 +133,7 @@ class _NineMensMorrisScreenState extends State<NineMensMorrisScreen> {
         StatusBanner(status, highlight: r != 0 || pendingRemoval != null),
         Text('White ${game.total(1)} · Black ${game.total(2)} pieces', textAlign: TextAlign.center),
         const SizedBox(height: 8),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             final step = box.maxWidth / 7;
@@ -173,7 +173,7 @@ class _NineMensMorrisScreenState extends State<NineMensMorrisScreen> {
                 ),
             ]);
           }),
-        ),
+        )),
       ],
     );
   }

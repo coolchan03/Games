@@ -88,7 +88,7 @@ class _DotsAndBoxesScreenState extends State<DotsAndBoxesScreen> {
           },
         ),
         StatusBanner(status, highlight: game.over),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             final gap = box.maxWidth / (size + .6);
@@ -155,7 +155,7 @@ class _DotsAndBoxesScreenState extends State<DotsAndBoxesScreen> {
             }
             return Stack(clipBehavior: Clip.none, children: widgets);
           }),
-        ),
+        )),
       ],
     );
   }

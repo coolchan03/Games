@@ -20,8 +20,9 @@ class BlackBoxGame {
     hidden = cells.take(balls).toSet();
   }
 
-  /// A box with balls at exactly [cells], used to compare arrangements.
-  BlackBoxGame._fixed(this.n, Set<int> cells)
+  /// A box with balls at exactly [cells] (used to compare arrangements and
+  /// to resume a saved game).
+  BlackBoxGame.fixed(this.n, Set<int> cells)
       : balls = cells.length,
         rng = Random() {
     hidden = cells;
@@ -93,6 +94,51 @@ class BlackBoxGame {
     if (r.kind == 'X') fired[r.exit!] = LaserResult.exitAt(port);
   }
 
+  /// Snapshot for saving: hidden balls, marks, fired ports, revealed flag.
+  List<int> get snapshot {
+    final ports = [for (final e in fired.entries) e.key];
+    return [
+      revealed ? 1 : 0,
+      hidden.length, ...hidden,
+      guesses.length, ...guesses,
+      ports.length, ...ports,
+    ];
+  }
+
+  /// Rebuilds a game from [snapshot]; null if the data does not fit an
+  /// [n]×[n] box with [balls] balls.
+  static BlackBoxGame? fromSnapshot(int n, int balls, List<int> data) {
+    try {
+      var i = 0;
+      List<int> take() {
+        final count = data[++i];
+        final out = data.sublist(i + 1, i + 1 + count);
+        i += count;
+        return out;
+      }
+
+      final revealed = data[0] == 1;
+      final hidden = take();
+      final guesses = take();
+      final ports = take();
+      if (hidden.length != balls ||
+          [...hidden, ...guesses].any((c) => c < 0 || c >= n * n) ||
+          guesses.length > balls ||
+          ports.any((p) => p < 0 || p >= 4 * n)) {
+        return null;
+      }
+      final game = BlackBoxGame.fixed(n, hidden.toSet());
+      game.guesses.addAll(guesses);
+      for (final p in ports) {
+        game.fire(p);
+      }
+      game.revealed = revealed;
+      return game;
+    } catch (_) {
+      return null;
+    }
+  }
+
   void toggleGuess(int cell) {
     if (revealed) return;
     if (!guesses.remove(cell) && guesses.length < balls) guesses.add(cell);
@@ -120,7 +166,7 @@ class BlackBoxGame {
 
   /// Whether balls at [cells] give the same result for every port.
   bool indistinguishable(Set<int> cells) {
-    final other = BlackBoxGame._fixed(n, Set.of(cells));
+    final other = BlackBoxGame.fixed(n, Set.of(cells));
     for (var p = 0; p < 4 * n; p++) {
       final a = trace(p), b = other.trace(p);
       if (a.kind != b.kind || a.exit != b.exit) return false;
