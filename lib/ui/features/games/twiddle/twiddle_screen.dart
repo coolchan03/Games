@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../common/campaign_level_bar.dart';
@@ -14,7 +15,9 @@ class TwiddleGame {
     final moves = scramble > 0 ? scramble : n * n * 4;
     do {
       for (var k = 0; k < moves; k++) {
-        rotate(rng.nextInt(n - block + 1), rng.nextInt(n - block + 1), rng.nextBool(), count: false);
+        rotate(rng.nextInt(n - block + 1), rng.nextInt(n - block + 1),
+            rng.nextBool(),
+            count: false);
       }
     } while (solved);
   }
@@ -49,11 +52,29 @@ class TwiddleGame {
 /// so it can always be solved.
 class TwiddleLevels {
   static const _specs = [
-    (3, 2, 2), (3, 2, 3), (3, 2, 4), (3, 2, 6), (3, 2, 9), (3, 2, 36),
-    (4, 2, 3), (4, 2, 5), (4, 2, 8), (4, 2, 12), (4, 2, 64),
-    (4, 3, 3), (4, 3, 5), (4, 3, 8), (4, 3, 64),
-    (5, 3, 3), (5, 3, 5), (5, 3, 8), (5, 3, 14), (5, 3, 100),
+    (3, 2, 2),
+    (3, 2, 3),
+    (3, 2, 4),
+    (3, 2, 6),
+    (3, 2, 9),
+    (3, 2, 36),
+    (4, 2, 3),
+    (4, 2, 5),
+    (4, 2, 8),
+    (4, 2, 12),
+    (4, 2, 64),
+    (4, 3, 3),
+    (4, 3, 5),
+    (4, 3, 8),
+    (4, 3, 64),
+    (5, 3, 3),
+    (5, 3, 5),
+    (5, 3, 8),
+    (5, 3, 14),
+    (5, 3, 100),
   ];
+
+  static int scrambleFor(int level) => _specs[level - 1].$3;
 
   static (int, int) configFor(int level) =>
       (_specs[level - 1].$1, _specs[level - 1].$2);
@@ -61,7 +82,10 @@ class TwiddleLevels {
   static TwiddleGame build(int level) {
     final (n, block, scramble) = _specs[level - 1];
     return TwiddleGame(
-        n: n, block: block, scramble: scramble, random: Random(2900 + level * 41));
+        n: n,
+        block: block,
+        scramble: scramble,
+        random: Random(2900 + level * 41));
   }
 }
 
@@ -73,7 +97,22 @@ class TwiddleScreen extends StatefulWidget {
 
 class _TwiddleScreenState extends State<TwiddleScreen> {
   int level = CampaignLevelBar.initialLevel('twiddle');
-  late TwiddleGame game = TwiddleLevels.build(level);
+  late TwiddleGame game = _build(level);
+
+  /// Builds [level], resuming a saved unfinished attempt when [resume].
+  TwiddleGame _build(int level, {bool resume = true}) {
+    final g = TwiddleLevels.build(level);
+    final saved =
+        resume ? CampaignLevelBar.restoreActive('twiddle', level) : null;
+    if (saved != null &&
+        saved.length == g.tiles.length + 1 &&
+        listEquals(([...saved.sublist(1)]..sort()), ([...g.tiles]..sort()))) {
+      g.moves = saved[0];
+      g.tiles = saved.sublist(1);
+    }
+    return g;
+  }
+
   bool clockwise = true;
 
   @override
@@ -85,7 +124,7 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
       gameId: 'twiddle',
       completed: game.solved,
       title: 'Twiddle',
-      onNewGame: () => setState(() => game = TwiddleLevels.build(level)),
+      onNewGame: () => setState(() => game = _build(level, resume: false)),
       rules: 'Put the numbers back in order, reading left to right and top '
           'to bottom. Tap one of the round handles to rotate the block of '
           'tiles around it; choose clockwise or anticlockwise below. From '
@@ -99,15 +138,26 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
           solved: game.solved,
           onLevel: (value) => setState(() {
             level = value;
-            game = TwiddleLevels.build(level);
+            game = _build(level);
           }),
           describe: (l) {
             final (n, b) = TwiddleLevels.configFor(l);
             return '$n×$n, $b×$b blocks';
           },
+          activeState: [game.moves, ...game.tiles],
+          result: CampaignResult(
+            score: game.moves,
+            stars: starsForPar(game.moves, TwiddleLevels.scrambleFor(level)),
+            label: (m) => '$m moves',
+          ),
         ),
-        StatusBanner(game.solved ? 'Solved in ${game.moves} moves!' : 'Moves: ${game.moves}', highlight: game.solved),
-        AspectRatio(
+        StatusBanner(
+            game.solved
+                ? 'Solved in ${game.moves} moves!'
+                : 'Moves: ${game.moves}',
+            highlight: game.solved),
+        LandscapeBoard(
+            child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             final cell = box.maxWidth / n;
@@ -121,11 +171,15 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
                   child: Container(
                     margin: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                      color: game.tiles[i] == i + 1 ? colors.primaryContainer : colors.surfaceContainerHighest,
+                      color: game.tiles[i] == i + 1
+                          ? colors.primaryContainer
+                          : colors.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     alignment: Alignment.center,
-                    child: Text('${game.tiles[i]}', style: TextStyle(fontSize: cell * .4, fontWeight: FontWeight.bold)),
+                    child: Text('${game.tiles[i]}',
+                        style: TextStyle(
+                            fontSize: cell * .4, fontWeight: FontWeight.bold)),
                   ),
                 ),
               for (var y = 0; y < anchors; y++)
@@ -140,19 +194,30 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
                       shape: const CircleBorder(),
                       child: InkWell(
                         customBorder: const CircleBorder(),
-                        onTap: game.solved ? null : () => setState(() => game.rotate(x, y, clockwise)),
-                        child: Icon(clockwise ? Icons.rotate_right : Icons.rotate_left, color: colors.onPrimary),
+                        onTap: game.solved
+                            ? null
+                            : () =>
+                                setState(() => game.rotate(x, y, clockwise)),
+                        child: Icon(
+                            clockwise ? Icons.rotate_right : Icons.rotate_left,
+                            color: colors.onPrimary),
                       ),
                     ),
                   ),
             ]);
           }),
-        ),
+        )),
         const SizedBox(height: 8),
         SegmentedButton<bool>(
           segments: const [
-            ButtonSegment(value: true, icon: Icon(Icons.rotate_right), label: Text('Clockwise')),
-            ButtonSegment(value: false, icon: Icon(Icons.rotate_left), label: Text('Anticlockwise')),
+            ButtonSegment(
+                value: true,
+                icon: Icon(Icons.rotate_right),
+                label: Text('Clockwise')),
+            ButtonSegment(
+                value: false,
+                icon: Icon(Icons.rotate_left),
+                label: Text('Anticlockwise')),
           ],
           selected: {clockwise},
           onSelectionChanged: (s) => setState(() => clockwise = s.first),

@@ -14,8 +14,39 @@ class SignpostScreen extends StatefulWidget {
 
 class _SignpostScreenState extends State<SignpostScreen> {
   int level = CampaignLevelBar.initialLevel('signpost');
-  late SignpostGame game = SignpostGame(SignpostLevels.build(level));
+  late SignpostGame game = _build(level);
   int? from;
+
+  /// Seconds spent on this level in earlier sessions, plus this session.
+  int _savedSeconds = 0;
+  DateTime _started = DateTime.now();
+  int get seconds =>
+      _savedSeconds + DateTime.now().difference(_started).inSeconds;
+
+  /// Builds [level], resuming a saved unfinished attempt when [resume].
+  SignpostGame _build(int level, {bool resume = true}) {
+    final g = SignpostGame(SignpostLevels.build(level));
+    _savedSeconds = 0;
+    _started = DateTime.now();
+    final n = g.puzzle.n;
+    final saved =
+        resume ? CampaignLevelBar.restoreActive('signpost', level) : null;
+    if (saved != null && saved.length == n + 1) {
+      final links = saved.sublist(1);
+      final valid = [
+        for (var i = 0; i < n; i++)
+          links[i] == 0 ||
+              (links[i] >= 1 && links[i] <= n && g.canLink(i, links[i] - 1))
+      ].every((ok) => ok);
+      if (valid) {
+        for (var i = 0; i < n; i++) {
+          if (links[i] > 0) g.link(i, links[i] - 1);
+        }
+        _savedSeconds = saved[0].clamp(0, 1 << 20);
+      }
+    }
+    return g;
+  }
 
   int get size => game.puzzle.w;
 
@@ -25,14 +56,15 @@ class _SignpostScreenState extends State<SignpostScreen> {
   ];
 
   void _newGame() => setState(() {
-        game = SignpostGame(SignpostLevels.build(level));
+        game = _build(level, resume: false);
         from = null;
       });
 
-  void _setLevel(int value) {
-    level = value;
-    _newGame();
-  }
+  void _setLevel(int value) => setState(() {
+        level = value;
+        game = _build(level);
+        from = null;
+      });
 
   void _tap(int cell) {
     setState(() {
@@ -95,9 +127,15 @@ class _SignpostScreenState extends State<SignpostScreen> {
             final s = SignpostLevels.sizeFor(n);
             return '$s×$s';
           },
+          activeState: [seconds, for (final n in game.next) (n ?? -1) + 1],
+          result: CampaignResult(
+            score: seconds,
+            stars: starsForPar(seconds, p.n * 6),
+            label: _time,
+          ),
         ),
         StatusBanner(solved ? 'Solved!' : from == null ? 'Tap a square to start a link' : 'Now tap a highlighted square', highlight: solved),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             final cell = box.maxWidth / size;
@@ -151,7 +189,7 @@ class _SignpostScreenState extends State<SignpostScreen> {
                 ),
             ]);
           }),
-        ),
+        )),
         const SizedBox(height: 8),
         OutlinedButton(
           onPressed: () => setState(() {
@@ -166,6 +204,9 @@ class _SignpostScreenState extends State<SignpostScreen> {
     );
   }
 }
+
+String _time(int seconds) =>
+    '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
 
 class _Links extends CustomPainter {
   _Links(this.game, this.cell, this.color);

@@ -21,11 +21,30 @@ class SameGameScreen extends StatefulWidget {
 
 class _SameGameScreenState extends State<SameGameScreen> {
   int level = CampaignLevelBar.initialLevel('same_game');
-  late SameGame game = SameGameLevels.build(level);
+  late SameGame game = _build(level);
+
+  /// Undos used on this level (fewer earns more stars).
+  int undos = 0;
+
+  /// Builds [level], resuming a saved unfinished attempt when [resume].
+  SameGame _build(int level, {bool resume = true}) {
+    final g = SameGameLevels.build(level);
+    undos = 0;
+    final saved =
+        resume ? CampaignLevelBar.restoreActive('same_game', level) : null;
+    if (saved != null &&
+        saved.length == g.grid.length + 2 &&
+        saved.sublist(2).every((c) => c >= 0 && c <= g.colours)) {
+      g.score = saved[0];
+      undos = saved[1];
+      g.grid = saved.sublist(2);
+    }
+    return g;
+  }
   Set<int> preview = {};
 
-  void _newGame() => setState(() {
-        game = SameGameLevels.build(level);
+  void _newGame({bool resume = false}) => setState(() {
+        game = _build(level, resume: resume);
         preview = {};
       });
 
@@ -54,7 +73,7 @@ class _SameGameScreenState extends State<SameGameScreen> {
       gameId: 'same_game',
       completed: game.cleared,
       title: 'Same Game',
-      onNewGame: _newGame,
+      onNewGame: () => _newGame(),
       rules: 'Tap a group of two or more touching tiles of the same colour '
           'to select it, and tap again to remove it. Tiles above fall down '
           'and empty columns close up. Removing n tiles scores (n − 2)²; '
@@ -70,12 +89,23 @@ class _SameGameScreenState extends State<SameGameScreen> {
           solved: game.cleared,
           onLevel: (value) {
             level = value;
-            _newGame();
+            _newGame(resume: true);
           },
           describe: (l) {
             final (w, h, c) = SameGameLevels.specs[l - 1];
             return '$w×$h, $c colours';
           },
+          activeState: [game.score, undos, ...game.grid],
+          result: CampaignResult(
+            score: game.score,
+            stars: undos == 0
+                ? 3
+                : undos <= 3
+                    ? 2
+                    : 1,
+            label: (s) => '$s points',
+            lowerIsBetter: false,
+          ),
         ),
         Row(children: [
           Expanded(
@@ -86,13 +116,14 @@ class _SameGameScreenState extends State<SameGameScreen> {
             onPressed: game.canUndo
                 ? () => setState(() {
                       game.undo();
+                      undos++;
                       preview = {};
                     })
                 : null,
             icon: const Icon(Icons.undo),
           ),
         ]),
-        Container(
+        LandscapeBoard(child: Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: const Color(0xFF263238),
@@ -148,7 +179,7 @@ class _SameGameScreenState extends State<SameGameScreen> {
               },
             ),
           ),
-        ),
+        )),
       ],
     );
   }

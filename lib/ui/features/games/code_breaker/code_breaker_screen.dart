@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../common/campaign_level_bar.dart';
@@ -29,14 +31,37 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
   int cursor = 0;
   String? message;
 
+  /// Hints used on this attempt (a hinted solve earns at most 2 stars).
+  int hints = 0;
+
   @override
   void initState() {
     super.initState();
-    _newGame();
+    _newGame(resume: true);
   }
 
-  void _newGame() {
+  /// Starts the current level, resuming a saved attempt when [resume].
+  void _newGame({bool resume = false}) {
     game = CodeBreakerGame(mode);
+    hints = 0;
+    final saved =
+        resume ? CampaignLevelBar.restoreActive('code_breaker', level) : null;
+    final len = mode.length;
+    if (saved != null &&
+        saved.length >= len + 1 &&
+        (saved.length - 1 - len) % len == 0 &&
+        saved.sublist(1).every((s) => s >= 0 && s < mode.symbols)) {
+      final restored =
+          CodeBreakerGame(mode, secret: saved.sublist(1, 1 + len));
+      var ok = restored.isValid(restored.secret);
+      for (var i = 1 + len; ok && i < saved.length; i += len) {
+        ok = restored.submit(saved.sublist(i, i + len));
+      }
+      if (ok) {
+        game = restored;
+        hints = saved[0];
+      }
+    }
     current = List.filled(mode.length, null);
     cursor = 0;
     message = null;
@@ -70,6 +95,7 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
     final h = game.hint();
     if (h == null) return;
     setState(() {
+      hints++;
       current = List<int?>.from(h);
       message = 'This code fits every clue so far.';
     });
@@ -125,7 +151,7 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
       gameId: 'code_breaker',
       completed: game.won,
       title: 'Code Breaker',
-      onNewGame: () => setState(_newGame),
+      onNewGame: () => setState(() => _newGame()),
       rules: 'Deduce the hidden code of coloured pegs. After each guess you '
           'get clues: ● a peg of the right colour in the right place, ○ a '
           'right colour in the wrong place.\n\nThere are 20 levels, from 3 pegs '
@@ -141,13 +167,30 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
           solved: game.won,
           onLevel: (value) => setState(() {
             level = value;
-            _newGame();
+            _newGame(resume: true);
           }),
           describe: (l) {
             final m = CodeBreakerMode.levels[l - 1];
             return '${m.length} pegs, ${m.symbols} colours'
                 '${m.duplicates ? ', repeats' : ''}, ${m.maxGuesses} tries';
           },
+          activeState: [
+            hints,
+            ...game.secret,
+            for (final g in game.guesses) ...g,
+          ],
+          result: CampaignResult(
+            score: game.guesses.length,
+            stars: min(
+              hints > 0 ? 2 : 3,
+              game.guesses.length * 2 <= mode.maxGuesses
+                  ? 3
+                  : game.guesses.length * 4 <= mode.maxGuesses * 3
+                      ? 2
+                      : 1,
+            ),
+            label: (g) => '$g guess${g == 1 ? '' : 'es'}',
+          ),
         ),
         StatusBanner(status, highlight: game.over),
         for (var g = 0; g < game.guesses.length; g++)

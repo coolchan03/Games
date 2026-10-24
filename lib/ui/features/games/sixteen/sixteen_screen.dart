@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../common/campaign_level_bar.dart';
@@ -56,9 +57,26 @@ class SixteenGame {
 /// solved grid by legal shifts, so it can always be solved.
 class SixteenLevels {
   static const _specs = [
-    (3, 2), (3, 3), (3, 4), (3, 6), (3, 9), (3, 27),
-    (4, 3), (4, 4), (4, 6), (4, 8), (4, 12), (4, 18), (4, 48),
-    (5, 4), (5, 6), (5, 9), (5, 14), (5, 20), (5, 35), (5, 75),
+    (3, 2),
+    (3, 3),
+    (3, 4),
+    (3, 6),
+    (3, 9),
+    (3, 27),
+    (4, 3),
+    (4, 4),
+    (4, 6),
+    (4, 8),
+    (4, 12),
+    (4, 18),
+    (4, 48),
+    (5, 4),
+    (5, 6),
+    (5, 9),
+    (5, 14),
+    (5, 20),
+    (5, 35),
+    (5, 75),
   ];
 
   static int sizeFor(int level) => _specs[level - 1].$1;
@@ -79,7 +97,21 @@ class SixteenScreen extends StatefulWidget {
 
 class _SixteenScreenState extends State<SixteenScreen> {
   int level = CampaignLevelBar.initialLevel('sixteen');
-  late SixteenGame game = SixteenLevels.build(level);
+  late SixteenGame game = _build(level);
+
+  /// Builds [level], resuming a saved unfinished attempt when [resume].
+  SixteenGame _build(int level, {bool resume = true}) {
+    final g = SixteenLevels.build(level);
+    final saved =
+        resume ? CampaignLevelBar.restoreActive('sixteen', level) : null;
+    if (saved != null &&
+        saved.length == g.tiles.length + 1 &&
+        listEquals(([...saved.sublist(1)]..sort()), ([...g.tiles]..sort()))) {
+      g.moves = saved[0];
+      g.tiles = saved.sublist(1);
+    }
+    return g;
+  }
 
   int get n => game.n;
 
@@ -95,7 +127,7 @@ class _SixteenScreenState extends State<SixteenScreen> {
       gameId: 'sixteen',
       completed: game.solved,
       title: 'Sixteen',
-      onNewGame: () => setState(() => game = SixteenLevels.build(level)),
+      onNewGame: () => setState(() => game = _build(level, resume: false)),
       rules: 'Put the numbers back in order. Use the arrows around the edge '
           'to slide a whole row or column one step; the tile pushed off one '
           'end comes back on the other. From Simon Tatham\'s Portable Puzzle '
@@ -109,46 +141,73 @@ class _SixteenScreenState extends State<SixteenScreen> {
           solved: game.solved,
           onLevel: (value) => setState(() {
             level = value;
-            game = SixteenLevels.build(level);
+            game = _build(level);
           }),
           describe: (l) {
             final s = SixteenLevels.sizeFor(l);
             return '$s×$s';
           },
+          activeState: [game.moves, ...game.tiles],
+          result: CampaignResult(
+            score: game.moves,
+            stars: starsForPar(game.moves, SixteenLevels.shiftsFor(level)),
+            label: (m) => '$m moves',
+          ),
         ),
-        StatusBanner(game.solved ? 'Solved in ${game.moves} moves!' : 'Moves: ${game.moves}', highlight: game.solved),
-        LayoutBuilder(builder: (context, box) {
+        StatusBanner(
+            game.solved
+                ? 'Solved in ${game.moves} moves!'
+                : 'Moves: ${game.moves}',
+            highlight: game.solved),
+        LandscapeBoard(child: LayoutBuilder(builder: (context, box) {
           final cell = (box.maxWidth - 80) / n;
           return Column(children: [
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               const SizedBox(width: 40),
-              for (var c = 0; c < n; c++) SizedBox(width: cell, child: arrow(Icons.arrow_upward, () => game.shiftCol(c, -1))),
+              for (var c = 0; c < n; c++)
+                SizedBox(
+                    width: cell,
+                    child:
+                        arrow(Icons.arrow_upward, () => game.shiftCol(c, -1))),
               const SizedBox(width: 40),
             ]),
             for (var r = 0; r < n; r++)
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                SizedBox(width: 40, child: arrow(Icons.arrow_back, () => game.shiftRow(r, -1))),
+                SizedBox(
+                    width: 40,
+                    child: arrow(Icons.arrow_back, () => game.shiftRow(r, -1))),
                 for (var c = 0; c < n; c++)
                   Container(
                     width: cell - 6,
                     height: cell - 6,
                     margin: const EdgeInsets.all(3),
                     decoration: BoxDecoration(
-                      color: game.tiles[r * n + c] == r * n + c + 1 ? colors.primaryContainer : colors.surfaceContainerHighest,
+                      color: game.tiles[r * n + c] == r * n + c + 1
+                          ? colors.primaryContainer
+                          : colors.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     alignment: Alignment.center,
-                    child: Text('${game.tiles[r * n + c]}', style: TextStyle(fontSize: cell * .35, fontWeight: FontWeight.bold)),
+                    child: Text('${game.tiles[r * n + c]}',
+                        style: TextStyle(
+                            fontSize: cell * .35, fontWeight: FontWeight.bold)),
                   ),
-                SizedBox(width: 40, child: arrow(Icons.arrow_forward, () => game.shiftRow(r, 1))),
+                SizedBox(
+                    width: 40,
+                    child:
+                        arrow(Icons.arrow_forward, () => game.shiftRow(r, 1))),
               ]),
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               const SizedBox(width: 40),
-              for (var c = 0; c < n; c++) SizedBox(width: cell, child: arrow(Icons.arrow_downward, () => game.shiftCol(c, 1))),
+              for (var c = 0; c < n; c++)
+                SizedBox(
+                    width: cell,
+                    child:
+                        arrow(Icons.arrow_downward, () => game.shiftCol(c, 1))),
               const SizedBox(width: 40),
             ]),
           ]);
-        }),
+        })),
       ],
     );
   }

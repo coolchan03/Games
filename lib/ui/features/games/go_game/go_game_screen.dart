@@ -125,7 +125,7 @@ class _GoGameScreenState extends State<GoGameScreen> {
         StatusBanner(status, highlight: board.over),
         Text('Captures — Black ${board.captures[0]} · White ${board.captures[1]}', textAlign: TextAlign.center),
         const SizedBox(height: 6),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: Container(
             color: const Color(0xFFDCB35C),
@@ -154,7 +154,7 @@ class _GoGameScreenState extends State<GoGameScreen> {
               ]);
             }),
           ),
-        ),
+        )),
         const SizedBox(height: 8),
         Row(children: [
           Expanded(

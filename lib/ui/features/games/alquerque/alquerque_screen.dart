@@ -109,7 +109,7 @@ class _AlquerqueScreenState extends State<AlquerqueScreen> {
         StatusBanner(status, highlight: r != 0),
         Text('White ${game.count(1)} · Black ${game.count(2)}', textAlign: TextAlign.center),
         const SizedBox(height: 8),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             final c = box.maxWidth / 5;
@@ -160,7 +160,7 @@ class _AlquerqueScreenState extends State<AlquerqueScreen> {
                 ),
             ]));
           }),
-        ),
+        )),
       ],
     );
   }

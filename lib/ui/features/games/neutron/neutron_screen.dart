@@ -139,7 +139,7 @@ class _NeutronScreenState extends State<NeutronScreen> {
           },
         ),
         StatusBanner(status, highlight: r != 0),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: GridBoardTouchArea(
             columns: 5,
@@ -180,7 +180,7 @@ class _NeutronScreenState extends State<NeutronScreen> {
               );
             },
           )),
-        ),
+        )),
         if (neutronTo != null)
           TextButton(onPressed: () => setState(() => neutronTo = null), child: const Text('Undo Neutron move')),
       ],

@@ -18,13 +18,45 @@ class MahjongSolitaireScreen extends StatefulWidget {
 
 class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
   int level = CampaignLevelBar.initialLevel('mahjong_solitaire');
-  late LayeredBoard board = MahjongLevels.build(level);
+  late LayeredBoard board = _build(level);
   Layout get layout => board.layout;
   int? selected;
   (int, int)? hint;
 
-  void _newGame() => setState(() {
-        board = MahjongLevels.build(level);
+  /// Hints used on this level (help lowers the stars).
+  int hints = 0;
+
+  /// Builds [level], resuming a saved unfinished attempt when [resume].
+  /// The save must be the same deal with only whole pairs removed (or
+  /// shuffled), otherwise the fresh deal is used.
+  LayeredBoard _build(int level, {bool resume = true}) {
+    final b = MahjongLevels.build(level);
+    hints = 0;
+    final saved = resume
+        ? CampaignLevelBar.restoreActive('mahjong_solitaire', level)
+        : null;
+    if (saved == null || saved.length != b.tiles.length + 2) return b;
+    final cells = saved.sublist(2);
+    final available = <int, int>{};
+    for (final t in b.tiles) {
+      available[t!.index] = (available[t.index] ?? 0) + 1;
+    }
+    for (final c in cells) {
+      if (c == -1) continue;
+      if (c < 0 || c >= MahjongTile.values.length) return b;
+      final left = (available[c] ?? 0) - 1;
+      if (left < 0) return b;
+      available[c] = left;
+    }
+    if (cells.where((c) => c == -1).length.isOdd) return b;
+    b.tiles = [for (final c in cells) c == -1 ? null : MahjongTile.values[c]];
+    b.shuffles = saved[0];
+    hints = saved[1];
+    return b;
+  }
+
+  void _newGame({bool resume = false}) => setState(() {
+        board = _build(level, resume: resume);
         selected = null;
         hint = null;
       });
@@ -56,7 +88,7 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
       completed: board.won,
       title: 'Mahjong Solitaire',
       maxWidth: 900,
-      onNewGame: _newGame,
+      onNewGame: () => _newGame(),
       rules: 'Remove all tiles in matching pairs. A tile is free when nothing '
           'lies on top of it and its left or right side is open. Any two '
           'flowers match each other, as do any two seasons.\n\nEvery layout '
@@ -72,9 +104,25 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
           solved: board.won,
           onLevel: (value) {
             level = value;
-            _newGame();
+            _newGame(resume: true);
           },
           describe: (l) => MahjongLevels.layoutFor(l).name,
+          activeState: [
+            board.shuffles,
+            hints,
+            for (final t in board.tiles) t?.index ?? -1,
+          ],
+          result: CampaignResult(
+            score: board.shuffles + hints,
+            stars: board.shuffles + hints == 0
+                ? 3
+                : board.shuffles <= 1
+                    ? 2
+                    : 1,
+            label: (n) => n == 0
+                ? 'no hints or shuffles'
+                : '$n hint${n == 1 ? '' : 's'} or shuffles',
+          ),
         ),
         StatusBanner(status, highlight: board.won || moves.isEmpty),
         LayoutBuilder(builder: (context, box) {
@@ -163,7 +211,10 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
               OutlinedButton.icon(
                 onPressed: moves.isEmpty
                     ? null
-                    : () => setState(() => hint = moves.first),
+                    : () => setState(() {
+                          hint = moves.first;
+                          hints++;
+                        }),
                 icon: const Icon(Icons.lightbulb_outline),
                 label: const Text('Hint'),
               ),

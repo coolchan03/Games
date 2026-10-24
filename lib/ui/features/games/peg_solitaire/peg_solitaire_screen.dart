@@ -14,7 +14,32 @@ class PegSolitaireScreen extends StatefulWidget {
 
 class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
   int level = CampaignLevelBar.initialLevel('peg_solitaire');
-  late PegBoard board = PegLevels.build(level);
+  late PegBoard board = _build(level);
+
+  /// Undos used on the current level (fewer earns more stars).
+  int undos = 0;
+
+  /// Builds [level], resuming a saved unfinished attempt when [resume].
+  PegBoard _build(int level, {bool resume = true}) {
+    final b = PegLevels.build(level);
+    undos = 0;
+    final saved = resume
+        ? CampaignLevelBar.restoreActive('peg_solitaire', level)
+        : null;
+    if (saved != null && saved.length == 50) {
+      final pegs = saved.sublist(1);
+      final valid = [
+        for (var i = 0; i < 49; i++) pegs[i] == 0 || (pegs[i] == 1 && b.holes[i])
+      ].every((ok) => ok);
+      if (valid && pegs.contains(1)) {
+        for (var i = 0; i < 49; i++) {
+          b.pegs[i] = pegs[i] == 1;
+        }
+        undos = saved[0];
+      }
+    }
+    return b;
+  }
   int? selected;
 
   /// Playing the 15-hole triangle game instead of the cross-board levels.
@@ -103,11 +128,13 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
           ),
         ]),
         const SizedBox(height: 8),
-        TrianglePegBoardView(
-          board: tri,
-          selected: selected,
-          onTap: _tapTriangle,
-          onDrop: _dropTriangle,
+        LandscapeBoard(
+          child: TrianglePegBoardView(
+            board: tri,
+            selected: selected,
+            onTap: _tapTriangle,
+            onDrop: _dropTriangle,
+          ),
         ),
       ],
     );
@@ -160,7 +187,7 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
       completed: board.remaining == 1,
       title: 'Peg Solitaire',
       onNewGame: () => setState(() {
-        board = PegLevels.build(level);
+        board = _build(level, resume: false);
         selected = null;
       }),
       rules:
@@ -181,10 +208,20 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
           solved: board.remaining == 1,
           onLevel: (value) => setState(() {
             level = value;
-            board = PegLevels.build(level);
+            board = _build(level);
             selected = null;
           }),
           describe: PegLevels.nameFor,
+          activeState: [undos, for (final p in board.pegs) p ? 1 : 0],
+          result: CampaignResult(
+            score: undos,
+            stars: undos == 0
+                ? 3
+                : undos <= 3
+                    ? 2
+                    : 1,
+            label: (u) => u == 0 ? 'no undos' : '$u undo${u == 1 ? '' : 's'}',
+          ),
         ),
         Row(children: [
           Expanded(child: StatusBanner(status, highlight: board.stuck)),
@@ -194,13 +231,14 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
                 ? null
                 : () => setState(() {
                       board.undo();
+                      undos++;
                       selected = null;
                     }),
             icon: const Icon(Icons.undo),
           ),
         ]),
         const SizedBox(height: 8),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: DecoratedBox(
             decoration: const BoxDecoration(
@@ -280,7 +318,7 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
               ),
             ),
           ),
-        ),
+        )),
       ],
     );
   }

@@ -284,7 +284,7 @@ class _BaghBandiScreenState extends State<BaghBandiScreen> {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall),
         const SizedBox(height: 8),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: LayoutBuilder(builder: (context, box) {
             final size = box.maxWidth;
@@ -308,7 +308,7 @@ class _BaghBandiScreenState extends State<BaghBandiScreen> {
               ]),
             );
           }),
-        ),
+        )),
         if (outcome != BandiOutcome.ongoing)
           FilledButton(onPressed: _newGame, child: const Text('Play again')),
       ],

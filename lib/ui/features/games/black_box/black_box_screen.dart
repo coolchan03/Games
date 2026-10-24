@@ -12,7 +12,16 @@ class BlackBoxScreen extends StatefulWidget {
 
 class _BlackBoxScreenState extends State<BlackBoxScreen> {
   int level = CampaignLevelBar.initialLevel('black_box');
-  late BlackBoxGame game = BlackBoxLevels.build(level);
+  late BlackBoxGame game = _build(level);
+
+  /// Builds [level], resuming a saved unfinished attempt when [resume].
+  BlackBoxGame _build(int level, {bool resume = true}) {
+    final (n, balls) = BlackBoxLevels.specs[level - 1];
+    final saved =
+        resume ? CampaignLevelBar.restoreActive('black_box', level) : null;
+    return (saved == null ? null : BlackBoxGame.fromSnapshot(n, balls, saved)) ??
+        BlackBoxLevels.build(level);
+  }
 
   /// Labels for exit pairs (1, 2, 3, …) in the order they were found.
   Map<int, String> get _labels {
@@ -69,7 +78,7 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
       gameId: 'black_box',
       completed: game.revealed && game.correct,
       title: 'Black Box',
-      onNewGame: () => setState(() => game = BlackBoxLevels.build(level)),
+      onNewGame: () => setState(() => game = _build(level, resume: false)),
       rules: 'Balls are hidden in the box. Tap an edge port to fire a '
           'laser in. H means it hit a ball head-on; R means it was reflected '
           'back out; a number shows the matching pair of ports where it went '
@@ -90,15 +99,21 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
           solved: game.revealed && game.correct,
           onLevel: (value) => setState(() {
             level = value;
-            game = BlackBoxLevels.build(level);
+            game = _build(level);
           }),
           describe: (l) {
             final (n, b) = BlackBoxLevels.specs[l - 1];
             return '$n×$n, $b balls';
           },
+          activeState: game.snapshot,
+          result: CampaignResult(
+            score: game.score,
+            stars: starsForPar(game.score, game.balls * 2),
+            label: (s) => 'score $s',
+          ),
         ),
         StatusBanner(status, highlight: game.revealed),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
@@ -135,7 +150,7 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
               );
             },
           ),
-        ),
+        )),
         const SizedBox(height: 8),
         FilledButton(
           onPressed: game.revealed || game.guesses.length != game.balls

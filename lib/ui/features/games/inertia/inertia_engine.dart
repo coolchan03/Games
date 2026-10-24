@@ -163,6 +163,37 @@ class InertiaGame {
     }
   }
 
+  /// Snapshot for saving: moves, position, gems left, dead flag, grid.
+  List<int> get snapshot =>
+      [moves, px, py, gems, dead ? 1 : 0, for (final c in grid) c.index];
+
+  /// Restores [data] onto this freshly built level. Only gems may differ
+  /// from the original grid (they become blank when collected); anything
+  /// else means the save is stale and nothing changes.
+  bool restore(List<int> data) {
+    if (data.length != grid.length + 5) return false;
+    final cells = data.sublist(5);
+    for (var i = 0; i < grid.length; i++) {
+      final c = cells[i];
+      if (c < 0 || c >= Cell.values.length) return false;
+      if (c != grid[i].index &&
+          !(grid[i] == Cell.gem && Cell.values[c] == Cell.blank)) {
+        return false;
+      }
+    }
+    final x = data[1], y = data[2];
+    if (x < 0 || y < 0 || x >= w || y >= h || at(grid, x, y) == Cell.wall) {
+      return false;
+    }
+    grid = [for (final c in cells) Cell.values[c]];
+    moves = data[0];
+    px = x;
+    py = y;
+    gems = grid.where((c) => c == Cell.gem).length;
+    dead = data[4] == 1;
+    return true;
+  }
+
   bool canMove(int d) => !dead && !won && at(grid, px + dirX(d), py + dirY(d)) != Cell.wall;
 
   /// Slides in direction [d] until a stop, a wall, or a mine.

@@ -24,6 +24,24 @@ class HanoiGame {
 
   final int discs;
   final List<List<int>> pegs;
+
+  /// Peg (0-2) of each disc, smallest first — the saved form of a position.
+  List<int> get pegOfDiscs => [
+        for (var d = 1; d <= discs; d++) pegs.indexWhere((p) => p.contains(d))
+      ];
+
+  /// Restores a saved position; false (and unchanged) if it is invalid.
+  bool restore(List<int> pegOf, int savedMoves) {
+    if (pegOf.length != discs || pegOf.any((p) => p < 0 || p > 2)) return false;
+    for (final p in pegs) {
+      p.clear();
+    }
+    for (var d = discs; d >= 1; d--) {
+      pegs[pegOf[d - 1]].add(d);
+    }
+    moves = savedMoves;
+    return true;
+  }
   int moves = 0;
 
   /// Fewest moves needed from the starting position.
@@ -124,7 +142,19 @@ class TowerOfHanoiScreen extends StatefulWidget {
 
 class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
   int level = CampaignLevelBar.initialLevel('tower_of_hanoi');
-  late HanoiGame game = HanoiLevels.build(level);
+  late HanoiGame game = _build(level);
+
+  /// Builds [level], resuming a saved unfinished attempt when [resume].
+  HanoiGame _build(int level, {bool resume = true}) {
+    final g = HanoiLevels.build(level);
+    final saved = resume
+        ? CampaignLevelBar.restoreActive('tower_of_hanoi', level)
+        : null;
+    if (saved != null && saved.length == g.discs + 1) {
+      g.restore(saved.sublist(1), saved[0]);
+    }
+    return g;
+  }
 
   int get discs => game.discs;
   int? from;
@@ -173,7 +203,7 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
       completed: game.solved,
       title: 'Tower of Hanoi',
       onNewGame: () => setState(() {
-        game = HanoiLevels.build(level);
+        game = _build(level, resume: false);
         from = null;
         hint = null;
       }),
@@ -191,7 +221,7 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
           solved: game.solved,
           onLevel: (value) => setState(() {
             level = value;
-            game = HanoiLevels.build(level);
+            game = _build(level);
             from = null;
             hint = null;
           }),
@@ -199,9 +229,19 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
             final (d, scrambled) = HanoiLevels.specs[l - 1];
             return '$d discs${scrambled ? ', scrambled' : ''}';
           },
+          activeState: [game.moves, ...game.pegOfDiscs],
+          result: CampaignResult(
+            score: game.moves,
+            stars: game.moves <= game.optimal
+                ? 3
+                : game.moves * 2 <= game.optimal * 3
+                    ? 2
+                    : 1,
+            label: (m) => '$m moves',
+          ),
         ),
         StatusBanner(status, highlight: game.solved),
-        SizedBox(
+        LandscapeBoard(child: SizedBox(
           height: 260,
           child: LayoutBuilder(builder: (context, box) {
             final pegW = box.maxWidth / 3;
@@ -253,7 +293,7 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
               ]),
             );
           }),
-        ),
+        )),
         const SizedBox(height: 8),
         OutlinedButton.icon(
           onPressed: game.solved ? null : () => setState(() => hint = game.hint()),

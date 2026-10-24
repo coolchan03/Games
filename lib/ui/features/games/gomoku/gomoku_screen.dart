@@ -54,7 +54,7 @@ class _GomokuScreenState extends State<GomokuScreen> {
           },
         ),
         StatusBanner(status, highlight: game.over),
-        AspectRatio(
+        LandscapeBoard(child: AspectRatio(
           aspectRatio: 1,
           child: Container(
             color: const Color(0xFFDCB35C),
@@ -87,7 +87,7 @@ class _GomokuScreenState extends State<GomokuScreen> {
               ]);
             }),
           ),
-        ),
+        )),
         const SizedBox(height: 8),
         OutlinedButton.icon(
           onPressed: game.history.isEmpty
