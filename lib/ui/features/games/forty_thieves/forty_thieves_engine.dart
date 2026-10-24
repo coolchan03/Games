@@ -112,4 +112,26 @@ class FortyThievesGame {
     moves++;
     return true;
   }
+
+  /// True when the stock is empty and no top card can go anywhere useful:
+  /// not to a foundation, not onto a matching column, and not into an empty
+  /// column (except a lone card, which would gain nothing).
+  bool get noMovesLeft {
+    if (won || stock.isNotEmpty) return false;
+    final hasEmpty = tableau.any((t) => t.isEmpty);
+    for (var source = -1; source < 10; source++) {
+      final card = source < 0
+          ? (waste.isEmpty ? null : waste.last)
+          : (tableau[source].isEmpty ? null : tableau[source].last.card);
+      if (card == null) continue;
+      if (_foundationFor(card) != null) return false;
+      for (var col = 0; col < 10; col++) {
+        if (col != source && tableau[col].isNotEmpty && _fitsColumn(card, col)) {
+          return false;
+        }
+      }
+      if (hasEmpty && (source < 0 || tableau[source].length > 1)) return false;
+    }
+    return true;
+  }
 }

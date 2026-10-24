@@ -9,7 +9,7 @@ class AppLocalizationsFa extends AppLocalizations {
   AppLocalizationsFa([String locale = 'fa']) : super(locale);
 
   @override
-  String get appTitle => 'بازی‌های پازل';
+  String get appTitle => 'Puzzle Master';
 
   @override
   String get home => 'خانه';

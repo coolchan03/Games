@@ -32,7 +32,7 @@ void main() async {
       size: Size(1280, 720),
       minimumSize: Size(800, 600),
       center: true,
-      title: "Games",
+      title: "Puzzle Master",
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
@@ -97,7 +97,7 @@ class MyApp extends ConsumerWidget {
     }
 
     return MaterialApp(
-      title: 'Games',
+      title: 'Puzzle Master',
       debugShowCheckedModeBanner: false,
       theme: applyLibraryStyle(DesignSystem.lightTheme, visualStyle),
       darkTheme: applyLibraryStyle(DesignSystem.darkTheme, visualStyle),

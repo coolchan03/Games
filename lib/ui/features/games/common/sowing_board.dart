@@ -71,7 +71,7 @@ class SowingBoard extends StatelessWidget {
     return LayoutBuilder(builder: (context, box) {
       final inner = box.maxWidth - 24; // board padding and border
       final store = inner * .13;
-      final pit = min((inner - 2 * store) / top.length, 92.0);
+      final pit = min((inner - 2 * store) / top.length, 150.0);
       final gap = pit * .18;
       final height = 2 * pit + gap;
       Widget row(List<Widget> pits) => Row(

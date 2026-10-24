@@ -147,6 +147,7 @@ class _MancalaState extends State<MancalaScreen> {
             : '${names[game.currentPlayer]} to move';
     return GameScaffold(
       gameId: 'mancala',
+      maxWidth: 900, // a wide board: use the width on tablets
       completed: complete && (vsAi ? game.winner == 0 : game.winner != null),
       title: 'Mancala',
       onNewGame: reset,

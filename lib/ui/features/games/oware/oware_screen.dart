@@ -83,6 +83,7 @@ class _OwareScreenState extends State<OwareScreen> {
                 : '${names[game.turn]} to sow';
     return GameScaffold(
       gameId: 'oware',
+      maxWidth: 900, // a wide board: use the width on tablets
       completed: r == 0 || (!vsComputer && r == 1),
       title: 'Oware',
       onNewGame: _newGame,

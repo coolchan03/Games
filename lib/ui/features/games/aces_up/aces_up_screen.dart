@@ -100,6 +100,11 @@ class _AcesUpScreenState extends State<AcesUpScreen> {
     final left = 52 - game.discarded;
     return GameScaffold(
       gameId: 'aces_up',
+      deadEnd: game.stuck,
+      deadEndMessage: 'The stock is empty and no more cards can be played. Undo to try a different order, or deal again.',
+      onUndo: game.canUndo
+          ? () => setState(game.undo)
+          : null,
       completed: game.won,
       title: 'Aces Up',
       onNewGame: () => setState(() => game = AcesUpGame()),
@@ -122,7 +127,7 @@ class _AcesUpScreenState extends State<AcesUpScreen> {
           ),
         ]),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 5, maxW: 80);
+          final w = columnWidth(box.maxWidth - 16, 5, maxW: cardMaxWidth(context, 80));
           return Felt(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

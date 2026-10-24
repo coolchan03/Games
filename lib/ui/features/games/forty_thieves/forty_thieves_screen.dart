@@ -35,6 +35,13 @@ class _FortyThievesScreenState extends State<FortyThievesScreen> {
     final onFoundations = game.foundations.fold(0, (s, f) => s + f.length);
     return GameScaffold(
       gameId: 'forty_thieves',
+      deadEnd: game.noMovesLeft,
+      onUndo: game.canUndo
+          ? () => setState(() {
+        game.undo();
+        selected = null;
+      })
+          : null,
       completed: game.won,
       title: 'Forty Thieves',
       maxWidth: 820,
@@ -49,7 +56,7 @@ class _FortyThievesScreenState extends State<FortyThievesScreen> {
           'waste; there is no redeal. A hard patience: plan ahead!',
       children: [
         Row(children: [
-          Expanded(child: StatusBanner(game.won ? 'Solved!' : '$onFoundations/104 on foundations · ${game.stock.length} in stock', highlight: game.won)),
+          Expanded(child: StatusBanner(game.won ? 'Solved!' : game.noMovesLeft ? 'No moves left - undo or start a new deal' : '$onFoundations/104 on foundations · ${game.stock.length} in stock', highlight: game.won || game.noMovesLeft)),
           IconButton.filledTonal(
             tooltip: 'Undo',
             onPressed: game.canUndo ? () => setState(() {
@@ -60,7 +67,7 @@ class _FortyThievesScreenState extends State<FortyThievesScreen> {
           ),
         ]),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 10, gap: 3, maxW: 64);
+          final w = columnWidth(box.maxWidth - 16, 10, gap: 3, maxW: cardMaxWidth(context, 64));
           return Felt(
             child: Column(children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

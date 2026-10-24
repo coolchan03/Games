@@ -257,18 +257,58 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return SliverAppBar(
       floating: true,
       pinned: false,
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: const Color(0xFF7A4724),
+      foregroundColor: const Color(0xFFFFF3E0),
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: true,
+      // A wooden games-shelf banner.
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF9A5E33), Color(0xFF6E3F20)],
+          ),
+          border: Border(
+            bottom: BorderSide(color: Color(0xFF4A2812), width: 3),
+          ),
+        ),
+      ),
       leading: const Padding(
         padding: EdgeInsets.only(left: 12.0),
         child: Center(child: SuperStreakAction()),
       ),
       leadingWidth: 72,
-      title: Text(
-        l10n.gamesTitleLabel.toUpperCase(),
-        style: theme.textTheme.displaySmall?.copyWith(letterSpacing: 2.0),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Color(0xFF3B1F6E),
+            ),
+            child: const Icon(Icons.extension_rounded,
+                color: Color(0xFFFFC94D), size: 24),
+          ),
+          const SizedBox(width: 10),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                l10n.appTitle.toUpperCase(),
+                style: theme.textTheme.displaySmall?.copyWith(
+                  letterSpacing: 2.0,
+                  color: const Color(0xFFFFF3E0),
+                  shadows: const [
+                    Shadow(color: Color(0xFF3A1D0A), offset: Offset(0, 2)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       actions: [
         Padding(
@@ -288,7 +328,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             },
             child: Icon(
               _isSearchVisible ? Icons.close_rounded : Icons.search_rounded,
-              color: colorScheme.onSurface,
+              color: const Color(0xFFFFF3E0),
               size: 22,
             ),
           ),

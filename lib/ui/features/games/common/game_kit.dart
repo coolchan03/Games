@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -51,6 +53,75 @@ class _CompletionReporterState extends State<_CompletionReporter> {
   Widget build(BuildContext context) => widget.child;
 }
 
+/// Shows a "no moves left" dialog once each time [deadEnd] turns true,
+/// offering Undo (when available) or a new game.
+class _DeadEndWatcher extends StatefulWidget {
+  const _DeadEndWatcher({
+    required this.deadEnd,
+    required this.message,
+    required this.onNewGame,
+    required this.onUndo,
+    required this.child,
+  });
+  final bool deadEnd;
+  final String message;
+  final VoidCallback onNewGame;
+  final VoidCallback? onUndo;
+  final Widget child;
+  @override
+  State<_DeadEndWatcher> createState() => _DeadEndWatcherState();
+}
+
+class _DeadEndWatcherState extends State<_DeadEndWatcher> {
+  @override
+  void didUpdateWidget(_DeadEndWatcher old) {
+    super.didUpdateWidget(old);
+    if (widget.deadEnd && !old.deadEnd) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && widget.deadEnd) _show();
+      });
+    }
+  }
+
+  void _show() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        key: const ValueKey('dead_end_dialog'),
+        icon: const Icon(Icons.block_rounded),
+        title: const Text('No moves left'),
+        content: Text(widget.message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Look at the board'),
+          ),
+          if (widget.onUndo != null)
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pop();
+                widget.onUndo!();
+              },
+              icon: const Icon(Icons.undo),
+              label: const Text('Undo'),
+            ),
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.of(context).pop();
+              widget.onNewGame();
+            },
+            icon: const Icon(Icons.restart_alt_rounded),
+            label: const Text('New deal'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
+
 /// Shared layout for the board, card and dice games added to Games.
 ///
 /// Every game gets the same app bar (rules + new game), a centred column
@@ -66,6 +137,11 @@ class GameScaffold extends StatelessWidget {
     this.scrollable = true,
     this.gameId,
     this.completed = false,
+    this.deadEnd = false,
+    this.deadEndMessage =
+        'This game can no longer be finished. Undo some moves to try another '
+        'line, or start a new deal.',
+    this.onUndo,
   });
 
   final String title;
@@ -79,6 +155,12 @@ class GameScaffold extends StatelessWidget {
   /// for streaks and XP.
   final String? gameId;
   final bool completed;
+
+  /// When this turns true the player is told no moves are left and offered
+  /// [onUndo] (if given) or a new game.
+  final bool deadEnd;
+  final String deadEndMessage;
+  final VoidCallback? onUndo;
 
   @override
   Widget build(BuildContext context) {
@@ -118,17 +200,41 @@ class GameScaffold extends StatelessWidget {
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: compactLandscape ? display.width : maxWidth,
+              maxWidth: compactLandscape
+                  ? display.width
+                  : contentWidthFor(display, maxWidth),
             ),
             child: scrollable ? SingleChildScrollView(child: content) : content,
           ),
         ),
       ),
     );
-    if (gameId == null) return scaffold;
+    final watched = _DeadEndWatcher(
+      deadEnd: deadEnd && !completed,
+      message: deadEndMessage,
+      onNewGame: onNewGame,
+      onUndo: onUndo,
+      child: scaffold,
+    );
+    if (gameId == null) return watched;
     return _CompletionReporter(
-        gameId: gameId!, completed: completed, child: scaffold);
+        gameId: gameId!, completed: completed, child: watched);
   }
+}
+
+/// Width for a game's content column. Phones use [preferred]; tablets and
+/// desktops use more of the screen: wide card layouts (preferred > 700)
+/// grow with the width; in landscape, boards are sized so a square board
+/// and its controls fit the screen height.
+double contentWidthFor(Size display, double preferred) {
+  final roomy = display.shortestSide >= 600 || display.width >= 900;
+  if (!roomy) return preferred;
+  final portrait = display.height >= display.width;
+  if (portrait || preferred > 700) {
+    return math.min(1400, math.max(preferred, display.width * .94));
+  }
+  // Landscape board: leave room for the controls above a square board.
+  return math.min(1400, math.max(480, display.height - 220));
 }
 
 Future<void> showRules(BuildContext context, String title, String rules) {

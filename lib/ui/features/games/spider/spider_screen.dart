@@ -67,6 +67,13 @@ class _SpiderScreenState extends State<SpiderScreen> {
     final compactLandscape = size.width > size.height && size.height < 650;
     return GameScaffold(
       gameId: 'spider',
+      deadEnd: game.noMovesLeft,
+      onUndo: game.canUndo
+          ? () => setState(() {
+        game.undo();
+        selected = null;
+      })
+          : null,
       completed: game.won,
       title: 'Spider',
       maxWidth: compactLandscape ? 1120 : 820,
@@ -115,7 +122,7 @@ class _SpiderScreenState extends State<SpiderScreen> {
           highlight: game.won || game.noMovesLeft,
         ),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 10, gap: 3, maxW: compactLandscape ? 78 : 64);
+          final w = columnWidth(box.maxWidth - 16, 10, gap: 3, maxW: cardMaxWidth(context, 64));
           return Felt(
             child: Column(children: [
               Row(
