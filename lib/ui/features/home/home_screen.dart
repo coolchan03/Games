@@ -19,6 +19,7 @@ import 'widgets/favorites_section.dart';
 import 'widgets/category_button.dart';
 import 'widgets/search_bar.dart' as custom;
 import 'widgets/game_tile.dart';
+import 'widgets/table_texture.dart';
 import 'widgets/empty_games_state.dart';
 import 'game_browse_order.dart';
 
@@ -89,7 +90,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       floatingActionButton: _buildRandomGameFab(context, theme),
-      body: CustomScrollView(
+      body: TableTextureBackground(
+        category: _selectedCategory,
+        child: CustomScrollView(
         scrollCacheExtent: ScrollCacheExtent.pixels(300),
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -204,6 +207,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               : _buildGameGrid(displayedGames),
         ],
       ),
+      )
     );
   }
 
