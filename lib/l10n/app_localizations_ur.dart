@@ -9,7 +9,7 @@ class AppLocalizationsUr extends AppLocalizations {
   AppLocalizationsUr([String locale = 'ur']) : super(locale);
 
   @override
-  String get appTitle => 'پزل گیمز';
+  String get appTitle => 'Puzzle Master';
 
   @override
   String get home => 'ہوم';

@@ -278,5 +278,15 @@ class Felt extends StatelessWidget {
 }
 
 /// Width for [n] side-by-side columns inside [available] pixels.
+/// Largest card width for a layout: [phone] on a portrait phone, larger in
+/// landscape and much larger on tablets and desktops, so cards fill the
+/// table instead of looking zoomed out.
+double cardMaxWidth(BuildContext context, double phone) {
+  final size = MediaQuery.sizeOf(context);
+  if (size.shortestSide >= 600 || size.width >= 900) return phone * 1.9;
+  if (size.width > size.height) return phone * 1.35;
+  return phone;
+}
+
 double columnWidth(double available, int n, {double gap = 4, double maxW = 72}) =>
     ((available - gap * (n - 1)) / n).clamp(20, maxW);

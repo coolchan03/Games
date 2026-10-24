@@ -143,7 +143,7 @@ abstract class AppLocalizations {
   /// The title of the application
   ///
   /// In en, this message translates to:
-  /// **'Puzzle Games'**
+  /// **'Puzzle Master'**
   String get appTitle;
 
   /// No description provided for @home.

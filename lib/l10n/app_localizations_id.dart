@@ -9,7 +9,7 @@ class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
   @override
-  String get appTitle => 'Game Teka-Teki';
+  String get appTitle => 'Puzzle Master';
 
   @override
   String get home => 'Beranda';

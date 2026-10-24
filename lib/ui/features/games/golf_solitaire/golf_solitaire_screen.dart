@@ -22,6 +22,11 @@ class _GolfSolitaireScreenState extends State<GolfSolitaireScreen> {
             : '${game.remaining} cards left · ${game.stock.length} in stock';
     return GameScaffold(
       gameId: 'golf_solitaire',
+      deadEnd: game.stuck,
+      deadEndMessage: 'The stock is empty and no more cards can be played. Undo to try a different order, or deal again.',
+      onUndo: game.canUndo
+          ? () => setState(game.undo)
+          : null,
       completed: game.won,
       title: 'Golf',
       onNewGame: () => setState(() => game = GolfGame()),

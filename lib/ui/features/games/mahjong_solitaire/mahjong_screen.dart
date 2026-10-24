@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../common/campaign_level_bar.dart';
@@ -76,7 +78,14 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
         ),
         StatusBanner(status, highlight: board.won || moves.isEmpty),
         LayoutBuilder(builder: (context, box) {
-          final u = box.maxWidth / (layout.width + 2);
+          // Fit the width, but on larger screens never taller than about
+          // 70% of the screen (short phone-landscape screens may scroll).
+          final screenH = MediaQuery.sizeOf(context).height;
+          final u = min(
+            box.maxWidth / (layout.width + 2),
+            screenH * (screenH < 500 ? 1.1 : .7) / ((layout.height + 1) * 1.3 + 2),
+          );
+          final dx = (box.maxWidth - (layout.width + 2) * u) / 2;
           final uy = u * 1.3;
           final depth = u * .28;
           final maxZ = layout.slots.fold(0, (m, s) => s.z > m ? s.z : m);
@@ -110,7 +119,7 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
                   for (final i in order)
                     if (board.tiles[i] != null)
                       Positioned(
-                        left: u +
+                        left: dx + u +
                             layout.slots[i].x * u -
                             layout.slots[i].z * depth,
                         top: maxZ * depth +
@@ -241,7 +250,10 @@ class _TileFace extends StatelessWidget {
                     ? const [Color(0xFFFFF8E1), Color(0xFFFFE082)]
                     : hinted
                         ? [Colors.white, colors.tertiaryContainer]
-                        : const [Color(0xFFFFFDF6), Color(0xFFF1E8D2)],
+                        : free
+                            ? const [Color(0xFFFFFDF6), Color(0xFFF1E8D2)]
+                            // Blocked: clearly grey so playable tiles stand out.
+                            : const [Color(0xFFB4B0A8), Color(0xFF8F8B84)],
               ),
               borderRadius: BorderRadius.circular(5),
               border: Border.all(
@@ -254,11 +266,18 @@ class _TileFace extends StatelessWidget {
               ],
             ),
             padding: const EdgeInsets.all(2),
-            child: Opacity(
-              // Blocked tiles are slightly muted so free ones stand out.
-              opacity: free || selected ? 1 : .62,
-              child: CustomPaint(painter: MahjongFacePainter(tile)),
-            ),
+            child: free || selected
+                ? CustomPaint(painter: MahjongFacePainter(tile))
+                : ColorFiltered(
+                    // Blocked tiles: desaturated and dimmed.
+                    colorFilter: const ColorFilter.matrix([
+                      .35, .45, .1, 0, -10, //
+                      .2, .6, .1, 0, -10, //
+                      .2, .45, .25, 0, -10, //
+                      0, 0, 0, .9, 0,
+                    ]),
+                    child: CustomPaint(painter: MahjongFacePainter(tile)),
+                  ),
           ),
         ),
       ]),

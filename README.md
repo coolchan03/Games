@@ -1,4 +1,4 @@
-# Games
+# Puzzle Master
 
 **Open-source, lightweight, unified tabletop and puzzle library** for Android and web.
 

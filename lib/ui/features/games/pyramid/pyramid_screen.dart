@@ -81,6 +81,13 @@ class _PyramidScreenState extends State<PyramidScreen> {
     final left = game.pyramid.where((c) => c != null).length;
     return GameScaffold(
       gameId: 'pyramid',
+      deadEnd: game.stuck,
+      onUndo: game.canUndo
+          ? () => setState(() {
+        game.undo();
+        selected = null;
+      })
+          : null,
       completed: game.won,
       title: 'Pyramid',
       onNewGame: () => setState(() {
@@ -114,7 +121,7 @@ class _PyramidScreenState extends State<PyramidScreen> {
           ),
         ]),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 7, gap: 2, maxW: 64);
+          final w = columnWidth(box.maxWidth - 16, 7, gap: 2, maxW: cardMaxWidth(context, 64));
           final h = w * 1.4;
           return Felt(
             child: Column(children: [

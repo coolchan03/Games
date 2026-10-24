@@ -99,6 +99,13 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
     final compactLandscape = size.width > size.height && size.height < 650;
     return GameScaffold(
       gameId: 'freecell',
+      deadEnd: game.noMovesLeft,
+      onUndo: game.canUndo
+          ? () => setState(() {
+        game.undo();
+        selected = null;
+      })
+          : null,
       completed: game.won,
       title: 'FreeCell',
       maxWidth: compactLandscape ? 1060 : 760,
@@ -133,7 +140,7 @@ class _FreeCellScreenState extends State<FreeCellScreen> {
           ),
         ]),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 8, maxW: compactLandscape ? 90 : 72);
+          final w = columnWidth(box.maxWidth - 16, 8, maxW: cardMaxWidth(context, 72));
           return Felt(
             child: Column(children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

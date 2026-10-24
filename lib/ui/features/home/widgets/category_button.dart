@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:puzzle/utils/design_system.dart';
 
@@ -69,25 +71,51 @@ class CategoryButton extends StatelessWidget {
                   strokeCap: StrokeCap.round,
                 ),
               ),
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? categoryStyle.color
-                      : theme.colorScheme.surface,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: categoryStyle.color
-                        .withValues(alpha: isSelected ? 0.5 : 0.2),
-                    width: 1.5,
+              // A poker-chip style game token.
+              AnimatedScale(
+                duration: const Duration(milliseconds: 160),
+                scale: isSelected ? 1.08 : 1,
+                child: Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected
+                        ? categoryStyle.color
+                        : Color.lerp(categoryStyle.color, Colors.white, .55),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color.lerp(categoryStyle.color, Colors.black, .45)!,
+                        offset: const Offset(0, 3),
+                      ),
+                      if (isSelected)
+                        BoxShadow(
+                          color: categoryStyle.color.withValues(alpha: .45),
+                          blurRadius: 10,
+                        ),
+                    ],
                   ),
-                ),
-                child: Center(
-                  child: Icon(
-                    categoryStyle.icon,
-                    size: 24,
-                    color: isSelected ? Colors.white : categoryStyle.color,
+                  child: CustomPaint(
+                    painter: _ChipEdge(),
+                    child: Center(
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Color.lerp(categoryStyle.color, Colors.black, .2)!,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Icon(
+                          categoryStyle.icon,
+                          size: 20,
+                          color: categoryStyle.color,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -111,4 +139,25 @@ class CategoryButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// White edge spots of a poker chip.
+class _ChipEdge extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.width / 2;
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: .9)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * .22;
+    for (var k = 0; k < 8; k++) {
+      final start = k * math.pi / 4 - .16;
+      canvas.drawArc(Rect.fromCircle(center: c, radius: r * .86), start, .32,
+          false, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_ChipEdge old) => false;
 }

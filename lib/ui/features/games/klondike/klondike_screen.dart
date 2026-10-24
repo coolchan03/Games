@@ -90,6 +90,10 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
     final compactLandscape = size.width > size.height && size.height < 650;
     return GameScaffold(
       gameId: 'klondike',
+      deadEnd: game.noMovesLeft,
+      onUndo: game.canUndo
+          ? () => setState(game.undo)
+          : null,
       completed: game.won,
       title: 'Klondike',
       onNewGame: _newGame,
@@ -133,7 +137,7 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
           highlight: game.won || game.noMovesLeft,
         ),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 7, maxW: compactLandscape ? 96 : 72);
+          final w = columnWidth(box.maxWidth - 16, 7, maxW: cardMaxWidth(context, 72));
           return Felt(
             child: Column(children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
