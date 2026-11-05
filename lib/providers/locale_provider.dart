@@ -31,7 +31,9 @@ class LocaleNotifier extends _$LocaleNotifier {
       final saved = box.get(_localeKey) as String?;
       final loaded = _decode(saved);
       if (state != loaded) state = loaded;
-    } catch (_) {}
+    } catch (error) {
+      debugPrint('Locale preference failure: $error');
+    }
   }
 
   Future<void> setLocale(Locale? locale) async {
@@ -43,7 +45,9 @@ class LocaleNotifier extends _$LocaleNotifier {
         await box.put(_localeKey, _encode(locale));
       }
       state = locale;
-    } catch (_) {}
+    } catch (error) {
+      debugPrint('Locale preference failure: $error');
+    }
   }
 
   static String _encode(Locale locale) {

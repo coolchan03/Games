@@ -42,7 +42,9 @@ class ThemeNotifier extends _$ThemeNotifier {
       if (state != loaded) {
         state = loaded;
       }
-    } catch (_) {}
+    } catch (error) {
+      debugPrint('Theme preference failure: $error');
+    }
   }
 
   Future<void> setThemeMode(AppThemeMode themeMode) async {
@@ -50,7 +52,9 @@ class ThemeNotifier extends _$ThemeNotifier {
       final box = await _getBox();
       await box.put(_themeKey, themeMode.name);
       state = themeMode;
-    } catch (_) {}
+    } catch (error) {
+      debugPrint('Theme preference failure: $error');
+    }
   }
 
   void toggleTheme() {

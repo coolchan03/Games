@@ -22,7 +22,7 @@ class UserRepository {
 
       final version = metaBox.get(_versionKey, defaultValue: 0) as int;
       if (version < _currentSchemaVersion) {
-        _validateExistingData(userBox, streakBox);
+        await _validateExistingData(userBox, streakBox);
         await metaBox.put(_versionKey, _currentSchemaVersion);
       }
     } catch (e) {
@@ -31,15 +31,15 @@ class UserRepository {
     }
   }
 
-  void _validateExistingData(Box<UserData> userBox, Box<GameStreak> streakBox) {
+  Future<void> _validateExistingData(Box<UserData> userBox, Box<GameStreak> streakBox) async {
     final userData = userBox.get('current');
     if (userData != null && !userData.isValid) {
-      userBox.put('current', userData.sanitized());
+      await userBox.put('current', userData.sanitized());
     }
 
     for (final streak in streakBox.values) {
       if (!streak.isValid) {
-        streakBox.put(streak.gameId, streak.sanitized());
+        await streakBox.put(streak.gameId, streak.sanitized());
       }
     }
   }

@@ -136,10 +136,22 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
                   : 'Moves: ${game.moves}',
           highlight: game.won || game.noMovesLeft,
         ),
+        if (size.width < 540)
+          const Padding(
+            padding: EdgeInsets.only(bottom: 4),
+            child: Text('Swipe sideways to see all card piles.',
+                textAlign: TextAlign.center),
+          ),
         LayoutBuilder(builder: (context, box) {
-          final w = columnWidth(box.maxWidth - 16, 7, maxW: cardMaxWidth(context, 72));
-          return Felt(
-            child: Column(children: [
+          // Keep cards readable on narrow phones; let the table pan sideways.
+          final boardWidth = box.maxWidth < 540 ? 540.0 : box.maxWidth;
+          final w = columnWidth(boardWidth - 16, 7, maxW: cardMaxWidth(context, 72));
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: boardWidth,
+              child: Felt(
+                child: Column(children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 PileSlot(
                   top: null,
@@ -215,7 +227,9 @@ class _KlondikeScreenState extends State<KlondikeScreen> {
                     ),
                 ],
               ),
-            ]),
+                ]),
+              ),
+            ),
           );
         }),
         const SizedBox(height: 8),

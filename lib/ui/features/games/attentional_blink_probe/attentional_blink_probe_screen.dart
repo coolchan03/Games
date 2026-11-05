@@ -26,6 +26,8 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
   int _streamIndex = 0;
   bool _isStreaming = true;
   bool _isGameOver = false;
+  bool _answerPending = false;
+  int _gameEpoch = 0;
   Timer? _streamTimer;
 
   @override
@@ -42,6 +44,8 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
 
   void _startNewGame() {
     _streamTimer?.cancel();
+    _gameEpoch++;
+    _answerPending = false;
     setState(() {
       _trialCount = 0;
       _score = 0;
@@ -62,6 +66,7 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
       _currentTrial = AttentionalBlinkProbeEngine.generateTrial();
       _streamIndex = 0;
       _isStreaming = true;
+      _answerPending = false;
     });
 
     _streamTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
@@ -85,7 +90,9 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
   }
 
   void _submitAnswer(bool saidYesT2) {
-    if (_isGameOver || _isStreaming) return;
+    if (_isGameOver || _isStreaming || _answerPending) return;
+    _answerPending = true;
+    final epoch = _gameEpoch;
 
     final isCorrect = saidYesT2 == _currentTrial.t2Present;
     if (isCorrect) {
@@ -98,7 +105,7 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
     }
 
     Future.delayed(const Duration(milliseconds: 400), () {
-      if (mounted && !_isGameOver) {
+      if (mounted && !_isGameOver && epoch == _gameEpoch) {
         _loadNewTrial();
       }
     });

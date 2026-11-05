@@ -171,11 +171,20 @@ class _MancalaState extends State<MancalaScreen> {
         ),
         StatusBanner(status, highlight: complete),
         const SizedBox(height: 8),
+        if (MediaQuery.sizeOf(context).width < 610)
+          const Text('Swipe sideways to view the entire board.',
+              textAlign: TextAlign.center),
         Text(names[1],
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleSmall),
         const SizedBox(height: 4),
-        SowingBoard(
+        LayoutBuilder(builder: (context, box) {
+          final boardWidth = max(box.maxWidth, 610.0);
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: boardWidth,
+              child: SowingBoard(
           top: [for (var i = 12; i >= 7; i--) pit(i)],
           bottom: [for (var i = 0; i < 6; i++) pit(i)],
           leftStore: SeedStore(
@@ -192,7 +201,10 @@ class _MancalaState extends State<MancalaScreen> {
             seedKey: 6,
             highlight: complete && game.winner == 0,
           ),
-        ),
+              ),
+            ),
+          );
+        }),
         const SizedBox(height: 4),
         Text(names[0],
             textAlign: TextAlign.center,
