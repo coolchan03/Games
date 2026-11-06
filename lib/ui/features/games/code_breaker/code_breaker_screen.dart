@@ -149,6 +149,7 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
             : 'Guess ${game.guesses.length + 1} of ${mode.maxGuesses}';
     return GameScaffold(
       gameId: 'code_breaker',
+      confirmNewGame: game.guesses.isNotEmpty,
       completed: game.won,
       title: 'Code Breaker',
       onNewGame: () => setState(() => _newGame()),
@@ -174,7 +175,9 @@ class _CodeBreakerScreenState extends State<CodeBreakerScreen> {
             return '${m.length} pegs, ${m.symbols} colours'
                 '${m.duplicates ? ', repeats' : ''}, ${m.maxGuesses} tries';
           },
-          activeState: [
+          activeState: game.lost
+              ? null
+              : [
             hints,
             ...game.secret,
             for (final g in game.guesses) ...g,

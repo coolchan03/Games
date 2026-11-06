@@ -76,6 +76,7 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
 
     return GameScaffold(
       gameId: 'black_box',
+      confirmNewGame: game.fired.isNotEmpty || game.guesses.isNotEmpty,
       completed: game.revealed && game.correct,
       title: 'Black Box',
       onNewGame: () => setState(() => game = _build(level, resume: false)),
@@ -105,7 +106,7 @@ class _BlackBoxScreenState extends State<BlackBoxScreen> {
             final (n, b) = BlackBoxLevels.specs[l - 1];
             return '$n×$n, $b balls';
           },
-          activeState: game.snapshot,
+          activeState: game.revealed ? null : game.snapshot,
           result: CampaignResult(
             score: game.score,
             stars: starsForPar(game.score, game.balls * 2),

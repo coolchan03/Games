@@ -26,6 +26,17 @@ class TwiddleGame {
   late List<int> tiles;
   int moves = 0;
 
+  /// Rotations made this session as (x, y, clockwise), for undo.
+  final List<(int, int, bool)> _history = [];
+  bool get canUndo => _history.isNotEmpty;
+
+  void undo() {
+    if (_history.isEmpty) return;
+    final (x, y, clockwise) = _history.removeLast();
+    rotate(x, y, !clockwise, count: false);
+    moves--;
+  }
+
   bool get solved {
     for (var i = 0; i < tiles.length; i++) {
       if (tiles[i] != i + 1) return false;
@@ -35,6 +46,7 @@ class TwiddleGame {
 
   /// Rotates the block whose top-left cell is (x, y).
   void rotate(int x, int y, bool clockwise, {bool count = true}) {
+    if (count) _history.add((x, y, clockwise));
     final old = List.of(tiles);
     for (var r = 0; r < block; r++) {
       for (var c = 0; c < block; c++) {
@@ -122,6 +134,7 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
     final anchors = n - b + 1;
     return GameScaffold(
       gameId: 'twiddle',
+      confirmNewGame: game.moves > 0,
       completed: game.solved,
       title: 'Twiddle',
       onNewGame: () => setState(() => game = _build(level, resume: false)),
@@ -151,11 +164,22 @@ class _TwiddleScreenState extends State<TwiddleScreen> {
             label: (m) => '$m moves',
           ),
         ),
-        StatusBanner(
-            game.solved
-                ? 'Solved in ${game.moves} moves!'
-                : 'Moves: ${game.moves}',
-            highlight: game.solved),
+        Row(children: [
+          Expanded(
+            child: StatusBanner(
+                game.solved
+                    ? 'Solved in ${game.moves} moves!'
+                    : 'Moves: ${game.moves}',
+                highlight: game.solved),
+          ),
+          IconButton.filledTonal(
+            tooltip: 'Undo',
+            onPressed: game.canUndo && !game.solved
+                ? () => setState(game.undo)
+                : null,
+            icon: const Icon(Icons.undo),
+          ),
+        ]),
         LandscapeBoard(
             child: AspectRatio(
           aspectRatio: 1,

@@ -61,7 +61,9 @@ class CampaignLevelBar extends StatefulWidget {
   final int count;
 
   /// Snapshot of the unfinished puzzle, saved whenever it changes so the
-  /// level can be resumed later. Cleared when the level is solved.
+  /// level can be resumed later. Pass null once an attempt is over without
+  /// a win (lost, stuck, dead): nothing is kept and the level starts fresh
+  /// next time. The save is also cleared when the level is solved.
   final List<int>? activeState;
 
   /// The result to record once [solved].
@@ -88,6 +90,9 @@ class _CampaignLevelBarState extends State<CampaignLevelBar> {
       CampaignProgress.loadResults(widget.gameId);
   List<int>? _savedState;
 
+  /// Whether the stored save for this level is known to be gone.
+  bool _cleared = false;
+
   /// The result just achieved, shown in the "Level complete" card.
   CampaignResult? _justWon;
 
@@ -104,6 +109,7 @@ class _CampaignLevelBarState extends State<CampaignLevelBar> {
     if (old.level != widget.level) {
       _justWon = null;
       _savedState = null;
+      _cleared = false;
     }
     if (widget.solved && (!old.solved || old.level != widget.level)) {
       _record(celebrate: old.level == widget.level);
@@ -112,16 +118,18 @@ class _CampaignLevelBarState extends State<CampaignLevelBar> {
   }
 
   void _autosave() {
-    if (widget.solved) {
-      if (_savedState != null || widget.activeState != null) {
+    final state = widget.solved ? null : widget.activeState;
+    if (state == null) {
+      if (!_cleared) {
+        _cleared = true;
         _savedState = null;
         unawaited(CampaignProgress.clearActive(widget.gameId, widget.level));
       }
       return;
     }
-    final state = widget.activeState;
-    if (state == null || listEquals(state, _savedState)) return;
+    if (listEquals(state, _savedState)) return;
     _savedState = List.of(state);
+    _cleared = false;
     unawaited(CampaignProgress.saveActive(widget.gameId, widget.level, state));
   }
 

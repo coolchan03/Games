@@ -110,19 +110,18 @@ class CampaignProgress {
     }
   }
 
-  /// Keeps the better of the stored and new result for [level] (more stars
-  /// first, then the better score). Returns the merged map.
+  /// Keeps the better of the stored and new result for [level]: more stars
+  /// first, then the better score. Stars and score always come from the
+  /// same attempt. Returns the merged map.
   static Map<int, (int, int)> recordResult(String gameId, int level,
       {required int stars, required int score, bool lowerIsBetter = true}) {
     final results = loadResults(gameId);
     final old = results[level];
     final s = stars.clamp(1, 3);
-    final best = old == null
-        ? score
-        : lowerIsBetter
-            ? (score < old.$2 ? score : old.$2)
-            : (score > old.$2 ? score : old.$2);
-    results[level] = (old == null || s > old.$1 ? s : old.$1, best);
+    final better = old == null ||
+        s > old.$1 ||
+        (s == old.$1 && (lowerIsBetter ? score < old.$2 : score > old.$2));
+    if (better) results[level] = (s, score);
     try {
       if (Hive.isBoxOpen(boxName)) {
         final levels = results.keys.toList()..sort();

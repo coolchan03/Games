@@ -74,6 +74,7 @@ class _InertiaScreenState extends State<InertiaScreen> {
             : '${game.gems} of ${game.totalGems} gems left · ${game.moves} moves';
     return GameScaffold(
       gameId: 'inertia',
+      confirmNewGame: game.moves > 0,
       completed: game.won,
       title: 'Inertia',
       onNewGame: () => setState(() => game = _build(level, resume: false)),
@@ -99,7 +100,7 @@ class _InertiaScreenState extends State<InertiaScreen> {
             final s = InertiaLevels.sizes[l - 1];
             return '$s×$s';
           },
-          activeState: game.snapshot,
+          activeState: game.dead ? null : game.snapshot,
           result: CampaignResult(
             score: game.moves,
             stars: starsForPar(game.moves, game.totalGems * 2),

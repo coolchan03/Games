@@ -13,7 +13,6 @@ import 'package:puzzle/widgets/super_streak_action.dart';
 import 'package:puzzle/widgets/tangible.dart';
 import 'package:puzzle/utils/design_system.dart';
 import 'package:puzzle/utils/haptic_feedback.dart';
-import 'package:puzzle/utils/navigation_utils.dart';
 
 import 'widgets/favorites_section.dart';
 import 'widgets/category_button.dart';
@@ -43,10 +42,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Map<String, String>? _localizedTitlesCache;
   Locale? _lastLocale;
 
-  static const _validCategories = {
-    'ALL', 'ATTENTION', 'LOGIC', 'BOARD', 'CARD', 'MATH', 'WORD', 'MEMORY',
-    'SPATIAL',
-  };
+  /// Set once the user picks a category, so a slow restore cannot
+  /// override their choice.
+  bool _categoryPicked = false;
 
   @override
   void initState() {
@@ -60,7 +58,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     try {
       final data = await GameStorage.load('library_category');
       final value = data?['category'];
-      if (mounted && value is String && _validCategories.contains(value)) {
+      if (mounted &&
+          !_categoryPicked &&
+          value is String &&
+          kCategoryStyles.containsKey(value)) {
         setState(() => _selectedCategory = value);
       }
     } catch (_) {
@@ -69,6 +70,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _selectCategory(String value) {
+    _categoryPicked = true;
     setState(() => _selectedCategory = value);
     GameStorage.save('library_category', {'version': 1, 'category': value})
         .catchError((Object _) {});
@@ -251,13 +253,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildRandomGameFab(BuildContext context, ThemeData theme) {
-    // A big red die: tap to roll a random game.
-    return Semantics(
-      button: true,
-      label: 'Play a random game',
-      child: GestureDetector(
-        key: const ValueKey('random_game_button'),
-        onTap: _playRandomPuzzle,
+    // A big red die: tap (or focus and press Enter) to roll a random game.
+    return Tooltip(
+      message: 'Play a random game',
+      child: Semantics(
+        button: true,
+        label: 'Play a random game',
         child: Container(
           width: 60,
           height: 60,
@@ -275,7 +276,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   color: Colors.black26, offset: Offset(0, 8), blurRadius: 10),
             ],
           ),
-          child: CustomPaint(painter: _DiePips()),
+          child: Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              key: const ValueKey('random_game_button'),
+              borderRadius: BorderRadius.circular(14),
+              onTap: _playRandomPuzzle,
+              child: CustomPaint(painter: _DiePips()),
+            ),
+          ),
         ),
       ),
     );
@@ -295,16 +304,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     HapticFeedbackUtil.lightImpact();
     final randomGame = (availableGames..shuffle(math.Random())).first;
 
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ref.read(gameSessionNotifierProvider.notifier).setSession(
-          gameId: randomGame.id,
-          category: _selectedCategory,
-          query: _searchQuery,
-        );
-    Navigator.push(
-      context,
-      CustomPageRoute(page: randomGame.builder(context)),
-    );
+    launchGame(context, ref, randomGame,
+        category: _selectedCategory, query: _searchQuery);
   }
 
   Widget _buildAppBar(

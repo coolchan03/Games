@@ -95,6 +95,7 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
             : '$left pegs left';
     return GameScaffold(
       gameId: 'peg_solitaire',
+      confirmNewGame: tri.history.isNotEmpty,
       completed: tri.started && tri.remaining == 1,
       title: 'Peg Solitaire',
       onNewGame: () => setState(() {
@@ -184,6 +185,7 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
         selected == null ? <int>{} : board.targets(selected!).toSet();
     return GameScaffold(
       gameId: 'peg_solitaire',
+      confirmNewGame: board.history.isNotEmpty,
       completed: board.remaining == 1,
       title: 'Peg Solitaire',
       onNewGame: () => setState(() {
@@ -212,7 +214,9 @@ class _PegSolitaireScreenState extends State<PegSolitaireScreen> {
             selected = null;
           }),
           describe: PegLevels.nameFor,
-          activeState: [undos, for (final p in board.pegs) p ? 1 : 0],
+          activeState: board.stuck
+              ? null
+              : [undos, for (final p in board.pegs) p ? 1 : 0],
           result: CampaignResult(
             score: undos,
             stars: undos == 0

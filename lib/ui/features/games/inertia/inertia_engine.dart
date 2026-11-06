@@ -171,7 +171,8 @@ class InertiaGame {
   /// from the original grid (they become blank when collected); anything
   /// else means the save is stale and nothing changes.
   bool restore(List<int> data) {
-    if (data.length != grid.length + 5) return false;
+    // A dead game is never resumed (its undo history is not saved).
+    if (data.length != grid.length + 5 || data[4] == 1) return false;
     final cells = data.sublist(5);
     for (var i = 0; i < grid.length; i++) {
       final c = cells[i];
@@ -190,7 +191,6 @@ class InertiaGame {
     px = x;
     py = y;
     gems = grid.where((c) => c == Cell.gem).length;
-    dead = data[4] == 1;
     return true;
   }
 

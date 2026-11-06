@@ -19,6 +19,7 @@ import 'package:puzzle/ui/features/games/common/game_kit.dart';
 import 'package:puzzle/ui/features/games/inertia/inertia_engine.dart';
 import 'package:puzzle/ui/features/games/peg_solitaire/peg_solitaire_screen.dart';
 import 'package:puzzle/ui/features/games/sixteen/sixteen_screen.dart';
+import 'package:puzzle/ui/features/games/twiddle/twiddle_screen.dart';
 import 'package:puzzle/ui/features/games/tower_of_hanoi/tower_of_hanoi_screen.dart';
 
 void main() {
@@ -45,7 +46,9 @@ void main() {
 
       // New game starts the level afresh.
       await tester.tap(find.byTooltip('New game'));
-      await tester.pump();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Start over')); // progress would be lost
+      await tester.pumpAndSettle();
       expect(find.text('Moves: 0'), findsOneWidget);
     });
 
@@ -92,8 +95,12 @@ void main() {
       CampaignProgress.recordResult('t', 2, stars: 1, score: 30);
       CampaignProgress.recordResult('t', 2, stars: 3, score: 40);
       final r = CampaignProgress.recordResult('t', 2, stars: 2, score: 12);
-      expect(r[2], (3, 12));
-      expect(CampaignProgress.loadResults('t')[2], (3, 12));
+      // Stars and score stay from the same attempt: 3 stars beat 2.
+      expect(r[2], (3, 40));
+      expect(CampaignProgress.loadResults('t')[2], (3, 40));
+      // Same stars, better score: replaces the pair.
+      expect(CampaignProgress.recordResult('t', 2, stars: 3, score: 25)[2],
+          (3, 25));
       // Higher-is-better scores keep the maximum.
       CampaignProgress.recordResult('h', 1,
           stars: 1, score: 500, lowerIsBetter: false);
@@ -261,6 +268,114 @@ void main() {
           findsOneWidget);
       expect(
           find.text('CONTINUE PLAYING', skipOffstage: false), findsOneWidget);
+    });
+  });
+
+  group('Quality of life', () {
+    test('Sixteen and Twiddle moves can be undone', () {
+      final sixteen = SixteenLevels.build(4);
+      final start = List.of(sixteen.tiles);
+      sixteen
+        ..shiftRow(0, 1)
+        ..shiftCol(2, -1);
+      expect(sixteen.moves, 2);
+      sixteen
+        ..undo()
+        ..undo();
+      expect(sixteen.tiles, start);
+      expect(sixteen.moves, 0);
+      expect(sixteen.canUndo, isFalse);
+
+      final twiddle = TwiddleLevels.build(8);
+      final before = List.of(twiddle.tiles);
+      twiddle.rotate(1, 0, true);
+      twiddle.undo();
+      expect(twiddle.tiles, before);
+    });
+
+    testWidgets('New game asks before discarding progress', (tester) async {
+      var restarted = 0;
+      await tester.pumpWidget(MaterialApp(
+        home: GameScaffold(
+          title: 'T',
+          rules: '',
+          onNewGame: () => restarted++,
+          confirmNewGame: true,
+          children: const [Text('board')],
+        ),
+      ));
+      await tester.tap(find.byTooltip('New game'));
+      await tester.pumpAndSettle();
+      expect(find.text('Start over?'), findsOneWidget);
+      await tester.tap(find.text('Keep playing'));
+      await tester.pumpAndSettle();
+      expect(restarted, 0);
+      await tester.tap(find.byTooltip('New game'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Start over'));
+      await tester.pumpAndSettle();
+      expect(restarted, 1);
+    });
+
+    testWidgets('a lost attempt is not kept for resuming', (tester) async {
+      List<int>? state = [1, 2, 3];
+      late StateSetter update;
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: StatefulBuilder(builder: (context, setState) {
+            update = setState;
+            return CampaignLevelBar(
+              gameId: 'lost',
+              level: 1,
+              solved: false,
+              onLevel: (_) {},
+              activeState: state,
+            );
+          }),
+        ),
+      ));
+      expect(CampaignLevelBar.restoreActive('lost', 1), [1, 2, 3]);
+      update(() => state = null); // e.g. out of guesses
+      await tester.pump();
+      expect(CampaignLevelBar.restoreActive('lost', 1), isNull);
+    });
+
+    testWidgets('rotating a phone keeps the level-complete card',
+        (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(380, 800);
+      addTearDown(tester.view.reset);
+      var solved = false;
+      late StateSetter update;
+      Widget app() => MaterialApp(
+            home: StatefulBuilder(builder: (context, setState) {
+              update = setState;
+              return GameScaffold(
+                title: 'T',
+                rules: '',
+                onNewGame: () {},
+                children: [
+                  CampaignLevelBar(
+                    gameId: 'rotate',
+                    level: 1,
+                    solved: solved,
+                    onLevel: (_) {},
+                  ),
+                  const LandscapeBoard(
+                    child: AspectRatio(aspectRatio: 1, child: Placeholder()),
+                  ),
+                ],
+              );
+            }),
+          );
+      await tester.pumpWidget(app());
+      update(() => solved = true);
+      await tester.pump();
+      expect(find.text('Level 1 complete!'), findsOneWidget);
+      tester.view.physicalSize = const Size(800, 380);
+      await tester.pump();
+      expect(find.text('Level 1 complete!'), findsOneWidget);
+      await tester.pumpAndSettle();
     });
   });
 }

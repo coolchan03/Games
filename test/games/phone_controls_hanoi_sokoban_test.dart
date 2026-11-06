@@ -16,8 +16,10 @@ void main() {
 
   testWidgets('Tower of Hanoi supports tap and drag without double moves',
       (tester) async {
-    await tester.binding.setSurfaceSize(const Size(360, 720));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
+    // A real portrait phone: screen size and surface agree.
+    tester.view.physicalSize = const Size(360, 720);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(const MaterialApp(home: TowerOfHanoiScreen()));
     // Level 2 is the classic four-disc tower.
     await tester.tap(find.byTooltip('Next level'));
