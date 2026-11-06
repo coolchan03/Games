@@ -200,6 +200,7 @@ class _TowerOfHanoiScreenState extends State<TowerOfHanoiScreen> {
         : 'Moves ${game.moves} · minimum ${game.optimal}';
     return GameScaffold(
       gameId: 'tower_of_hanoi',
+      confirmNewGame: game.moves > 0,
       completed: game.solved,
       title: 'Tower of Hanoi',
       onNewGame: () => setState(() {

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../providers/user_providers.dart';
+import '../../../../utils/haptic_feedback.dart';
 
 /// Records a win/completion in the app's streak and XP system. Safe to call
 /// where no ProviderScope or storage is available (it then does nothing).
@@ -77,6 +78,7 @@ class _DeadEndWatcherState extends State<_DeadEndWatcher> {
   void didUpdateWidget(_DeadEndWatcher old) {
     super.didUpdateWidget(old);
     if (widget.deadEnd && !old.deadEnd) {
+      HapticFeedbackUtil.mediumImpact();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && widget.deadEnd) _show();
       });
@@ -126,7 +128,7 @@ class _DeadEndWatcherState extends State<_DeadEndWatcher> {
 ///
 /// Every game gets the same app bar (rules + new game), a centred column
 /// constrained to a phone-friendly width, and the same status banner.
-class GameScaffold extends StatelessWidget {
+class GameScaffold extends StatefulWidget {
   const GameScaffold({
     super.key,
     required this.title,
@@ -140,8 +142,9 @@ class GameScaffold extends StatelessWidget {
     this.deadEnd = false,
     this.deadEndMessage =
         'This game can no longer be finished. Undo some moves to try another '
-        'line, or start a new deal.',
+            'line, or start a new deal.',
     this.onUndo,
+    this.confirmNewGame = false,
   });
 
   final String title;
@@ -162,8 +165,52 @@ class GameScaffold extends StatelessWidget {
   final String deadEndMessage;
   final VoidCallback? onUndo;
 
+  /// Ask before New game throws away a game in progress.
+  final bool confirmNewGame;
+
+  @override
+  State<GameScaffold> createState() => _GameScaffoldState();
+}
+
+class _GameScaffoldState extends State<GameScaffold> {
+  /// One stable key per child, so turning the phone (which moves children
+  /// between the column and the side-by-side layout) keeps their state.
+  final _keys = <GlobalKey>[];
+
+  Future<void> _newGame() async {
+    if (widget.confirmNewGame && !widget.completed) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Start over?'),
+          content: const Text('Your progress in this game will be lost.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Keep playing'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Start over'),
+            ),
+          ],
+        ),
+      );
+      if (ok != true || !mounted) return;
+    }
+    widget.onNewGame();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final children = widget.children;
+    while (_keys.length < children.length) {
+      _keys.add(GlobalKey());
+    }
+    final keyed = [
+      for (var i = 0; i < children.length; i++)
+        KeyedSubtree(key: _keys[i], child: children[i]),
+    ];
     final display = MediaQuery.sizeOf(context);
     final compactLandscape =
         display.width > display.height && display.height < 650;
@@ -173,79 +220,72 @@ class GameScaffold extends StatelessWidget {
     );
     final boardIndex = children.indexWhere((c) => c is LandscapeBoard);
     // On a sideways phone a square board would be taller than the screen,
-    // so it goes on the right with the controls scrolling beside it.
-    final sideBySide = compactLandscape && boardIndex >= 0;
+    // so it goes on the right with the controls scrolling beside it — unless
+    // that would leave the controls too narrow.
+    final insets = MediaQuery.paddingOf(context);
+    const toolbar = 44.0;
+    final side = math.min(
+      display.height - toolbar - insets.vertical - padding.vertical,
+      display.width * .58,
+    );
+    final sideBySide = compactLandscape &&
+        boardIndex >= 0 &&
+        display.width - insets.horizontal - side - padding.horizontal - 12 >=
+            260;
     final Widget content;
     if (sideBySide) {
-      content = LayoutBuilder(builder: (context, box) {
-        final side = math.min(box.maxHeight - padding.vertical,
-            box.maxWidth * .58);
-        // Too narrow to share: keep the usual single column.
-        if (box.maxWidth - side - padding.horizontal - 12 < 260) {
-          return SingleChildScrollView(
-            child: Padding(
-              padding: padding,
+      content = Padding(
+        padding: padding,
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
-                children: children,
+                children: [
+                  for (var i = 0; i < keyed.length; i++)
+                    if (i != boardIndex) keyed[i],
+                ],
               ),
             ),
-          );
-        }
-        return Padding(
-          padding: padding,
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var i = 0; i < children.length; i++)
-                      if (i != boardIndex) children[i],
-                  ],
-                ),
-              ),
+          ),
+          const SizedBox(width: 12),
+          SizedBox(
+            width: side,
+            height: side,
+            // Boards get the full width and are scaled down if their
+            // controls make them taller than the screen.
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: SizedBox(width: side, child: keyed[boardIndex]),
             ),
-            const SizedBox(width: 12),
-            SizedBox(
-              width: side,
-              height: side,
-              // Boards get the full width and are scaled down if their
-              // controls make them taller than the screen.
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: SizedBox(width: side, child: children[boardIndex]),
-              ),
-            ),
-          ]),
-        );
-      });
+          ),
+        ]),
+      );
     } else {
       content = Padding(
         padding: padding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
-          children: children,
+          children: keyed,
         ),
       );
     }
     final scaffold = Scaffold(
       appBar: AppBar(
-        toolbarHeight: compactLandscape ? 44 : null,
-        title: Text(title),
+        toolbarHeight: compactLandscape ? toolbar : null,
+        title: Text(widget.title),
         actions: [
           IconButton(
             tooltip: 'Rules',
             icon: const Icon(Icons.menu_book_rounded),
-            onPressed: () => showRules(context, title, rules),
+            onPressed: () => showRules(context, widget.title, widget.rules),
           ),
           IconButton(
             tooltip: 'New game',
             icon: const Icon(Icons.restart_alt_rounded),
-            onPressed: onNewGame,
+            onPressed: _newGame,
           ),
         ],
       ),
@@ -256,9 +296,9 @@ class GameScaffold extends StatelessWidget {
             constraints: BoxConstraints(
               maxWidth: compactLandscape
                   ? display.width
-                  : contentWidthFor(display, maxWidth),
+                  : contentWidthFor(display, widget.maxWidth),
             ),
-            child: scrollable && !sideBySide
+            child: widget.scrollable && !sideBySide
                 ? SingleChildScrollView(child: content)
                 : content,
           ),
@@ -266,16 +306,16 @@ class GameScaffold extends StatelessWidget {
       ),
     );
     final watched = _DeadEndWatcher(
-      deadEnd: deadEnd && !completed,
-      message: deadEndMessage,
-      onNewGame: onNewGame,
-      onUndo: onUndo,
+      deadEnd: widget.deadEnd && !widget.completed,
+      message: widget.deadEndMessage,
+      onNewGame: widget.onNewGame,
+      onUndo: widget.onUndo,
       child: scaffold,
     );
-    final celebrated = _Confetti(active: completed, child: watched);
-    if (gameId == null) return celebrated;
+    final celebrated = _Confetti(active: widget.completed, child: watched);
+    if (widget.gameId == null) return celebrated;
     return _CompletionReporter(
-        gameId: gameId!, completed: completed, child: celebrated);
+        gameId: widget.gameId!, completed: widget.completed, child: celebrated);
   }
 }
 
@@ -310,6 +350,7 @@ class _ConfettiState extends State<_Confetti>
     if (widget.active && !old.active) {
       _seed++;
       _controller.forward(from: 0);
+      HapticFeedbackUtil.heavyImpact();
     }
   }
 
@@ -346,8 +387,12 @@ class _ConfettiPainter extends CustomPainter {
   final int seed;
 
   static const _colours = [
-    Color(0xFFE53935), Color(0xFFFDD835), Color(0xFF43A047),
-    Color(0xFF1E88E5), Color(0xFF8E24AA), Color(0xFFFF7043),
+    Color(0xFFE53935),
+    Color(0xFFFDD835),
+    Color(0xFF43A047),
+    Color(0xFF1E88E5),
+    Color(0xFF8E24AA),
+    Color(0xFFFF7043),
   ];
 
   @override

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/data/game_registry.dart';
 import 'package:puzzle/providers/game_session_provider.dart';
+import 'package:puzzle/providers/user_providers.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
-import 'package:puzzle/utils/navigation_utils.dart';
+
+import 'game_tile.dart';
 
 /// "Continue" shortcut to the most recently played game, styled like a
 /// wooden tray holding that game's box.
@@ -14,17 +16,13 @@ class ContinueCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final lastId = ref.watch(gameSessionNotifierProvider
         .select((s) => s.recentGameIds.isEmpty ? null : s.recentGameIds.first));
-    if (lastId == null) return const SizedBox.shrink();
+    final hidden = ref.watch(userDataNotifierProvider
+        .select((d) => (d.hiddenGameIds ?? const <String>[]).contains(lastId)));
+    if (lastId == null || hidden) return const SizedBox.shrink();
     final matches = allGamesMetadata.where((g) => g.id == lastId);
     if (matches.isEmpty) return const SizedBox.shrink();
     final game = matches.first;
     final title = L10nGameHelpers.getGameTitle(context, game.id);
-
-    void open() {
-      ref.read(gameSessionNotifierProvider.notifier).setSession(
-          gameId: game.id, category: 'ALL', query: '');
-      Navigator.push(context, CustomPageRoute(page: game.builder(context)));
-    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
@@ -33,7 +31,7 @@ class ContinueCard extends ConsumerWidget {
         label: 'Continue $title',
         child: GestureDetector(
           key: const ValueKey('continue_card'),
-          onTap: open,
+          onTap: () => launchGame(context, ref, game),
           child: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(

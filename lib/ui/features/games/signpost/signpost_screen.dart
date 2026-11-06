@@ -17,17 +17,22 @@ class _SignpostScreenState extends State<SignpostScreen> {
   late SignpostGame game = _build(level);
   int? from;
 
-  /// Seconds spent on this level in earlier sessions, plus this session.
-  int _savedSeconds = 0;
-  DateTime _started = DateTime.now();
-  int get seconds =>
-      _savedSeconds + DateTime.now().difference(_started).inSeconds;
+  /// Active solving time: the gaps between moves, each capped at a
+  /// minute, so a locked phone or a break does not count.
+  int seconds = 0;
+  DateTime _lastMove = DateTime.now();
+
+  void _tick() {
+    final now = DateTime.now();
+    seconds += now.difference(_lastMove).inSeconds.clamp(0, 60);
+    _lastMove = now;
+  }
 
   /// Builds [level], resuming a saved unfinished attempt when [resume].
   SignpostGame _build(int level, {bool resume = true}) {
     final g = SignpostGame(SignpostLevels.build(level));
-    _savedSeconds = 0;
-    _started = DateTime.now();
+    seconds = 0;
+    _lastMove = DateTime.now();
     final n = g.puzzle.n;
     final saved =
         resume ? CampaignLevelBar.restoreActive('signpost', level) : null;
@@ -42,7 +47,7 @@ class _SignpostScreenState extends State<SignpostScreen> {
         for (var i = 0; i < n; i++) {
           if (links[i] > 0) g.link(i, links[i] - 1);
         }
-        _savedSeconds = saved[0].clamp(0, 1 << 20);
+        seconds = saved[0].clamp(0, 1 << 20);
       }
     }
     return g;
@@ -68,6 +73,7 @@ class _SignpostScreenState extends State<SignpostScreen> {
 
   void _tap(int cell) {
     setState(() {
+      _tick();
       if (from == null) {
         if (game.puzzle.arrows[cell] >= 0) from = cell;
       } else if (from == cell) {
@@ -107,6 +113,7 @@ class _SignpostScreenState extends State<SignpostScreen> {
     }
     return GameScaffold(
       gameId: 'signpost',
+      confirmNewGame: game.next.any((n) => n != null),
       completed: solved,
       title: 'Signpost',
       onNewGame: _newGame,

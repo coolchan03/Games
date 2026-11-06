@@ -12,6 +12,17 @@ import 'package:puzzle/utils/navigation_utils.dart';
 import 'package:puzzle/data/models/game_streak.dart';
 import 'game_guide_screen.dart';
 
+/// Opens [game], recording it as the latest game played. Shared by the
+/// game tiles, the random-game die and the Continue card.
+void launchGame(BuildContext context, WidgetRef ref, GameMetadata game,
+    {String category = 'ALL', String query = ''}) {
+  ScaffoldMessenger.of(context).clearSnackBars();
+  ref
+      .read(gameSessionNotifierProvider.notifier)
+      .setSession(gameId: game.id, category: category, query: query);
+  Navigator.push(context, CustomPageRoute(page: game.builder(context)));
+}
+
 class GameTile extends ConsumerWidget {
   final GameMetadata game;
   final GameStreak? streak;
@@ -49,18 +60,8 @@ class GameTile extends ConsumerWidget {
       label: L10nGameHelpers.getGameTitle(context, game.id),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () {
-          ScaffoldMessenger.of(context).clearSnackBars();
-          ref.read(gameSessionNotifierProvider.notifier).setSession(
-                gameId: gameId,
-                category: selectedCategory,
-                query: searchQuery,
-              );
-          Navigator.push(
-            context,
-            CustomPageRoute(page: game.builder(context)),
-          );
-        },
+        onTap: () => launchGame(context, ref, game,
+            category: selectedCategory, query: searchQuery),
         onLongPress: () {
           HapticFeedbackUtil.mediumImpact();
           ref.read(userDataNotifierProvider.notifier).toggleFavorite(gameId);

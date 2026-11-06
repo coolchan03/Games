@@ -85,6 +85,7 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
             : '${board.remaining} tiles · ${moves.length} possible match${moves.length == 1 ? '' : 'es'}';
     return GameScaffold(
       gameId: 'mahjong_solitaire',
+      confirmNewGame: board.tiles.contains(null),
       completed: board.won,
       title: 'Mahjong Solitaire',
       maxWidth: 900,
@@ -116,7 +117,7 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
             score: board.shuffles + hints,
             stars: board.shuffles + hints == 0
                 ? 3
-                : board.shuffles <= 1
+                : board.shuffles + hints <= 3
                     ? 2
                     : 1,
             label: (n) => n == 0

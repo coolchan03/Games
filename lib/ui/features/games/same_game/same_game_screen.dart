@@ -71,6 +71,7 @@ class _SameGameScreenState extends State<SameGameScreen> {
                 : 'Score ${game.score} · ${game.remaining} tiles left';
     return GameScaffold(
       gameId: 'same_game',
+      confirmNewGame: game.score > 0,
       completed: game.cleared,
       title: 'Same Game',
       onNewGame: () => _newGame(),
@@ -95,7 +96,7 @@ class _SameGameScreenState extends State<SameGameScreen> {
             final (w, h, c) = SameGameLevels.specs[l - 1];
             return '$w×$h, $c colours';
           },
-          activeState: [game.score, undos, ...game.grid],
+          activeState: game.stuck ? null : [game.score, undos, ...game.grid],
           result: CampaignResult(
             score: game.score,
             stars: undos == 0

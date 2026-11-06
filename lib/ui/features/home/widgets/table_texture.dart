@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
@@ -22,15 +23,29 @@ class TableTextureBackground extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Stack(children: [
       Positioned.fill(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 450),
-          child: RepaintBoundary(
-            key: ValueKey('table_texture_${category}_$dark'),
-            child: CustomPaint(
-              painter: TableTexturePainter(category: category, dark: dark),
-              size: Size.infinite,
-            ),
-          ),
+        // Painted at (at least) the full screen height so the texture keeps
+        // its size, and is not redrawn, while the keyboard opens and closes.
+        child: ClipRect(
+          child: LayoutBuilder(builder: (context, box) {
+            final height =
+                max(box.maxHeight, MediaQuery.sizeOf(context).height);
+            return OverflowBox(
+              alignment: Alignment.topCenter,
+              minHeight: height,
+              maxHeight: height,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 450),
+                child: RepaintBoundary(
+                  key: ValueKey('table_texture_${category}_$dark'),
+                  child: CustomPaint(
+                    painter:
+                        TableTexturePainter(category: category, dark: dark),
+                    size: Size.infinite,
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
       ),
       child,
@@ -206,15 +221,20 @@ class TableTexturePainter extends CustomPainter {
   }
 
   void _speckles(Canvas canvas, Size size, Color ink, Random rng) {
-    final speck = Paint()..color = _a(ink, .06, .05);
     final count = (size.width * size.height / 160).clamp(0, 40000).toInt();
-    for (var i = 0; i < count; i++) {
-      canvas.drawCircle(
+    final points = [
+      for (var i = 0; i < count; i++)
         Offset(rng.nextDouble() * size.width, rng.nextDouble() * size.height),
-        .4 + rng.nextDouble() * .6,
-        speck,
-      );
-    }
+    ];
+    // One batched call instead of thousands of circles.
+    canvas.drawPoints(
+      ui.PointMode.points,
+      points,
+      Paint()
+        ..color = _a(ink, .06, .05)
+        ..strokeWidth = 1.3
+        ..strokeCap = StrokeCap.round,
+    );
   }
 
   /// Jittered positions on a staggered grid, the same every time.
@@ -246,6 +266,7 @@ class TableTexturePainter extends CustomPainter {
     canvas.translate(at.dx, at.dy);
     canvas.rotate(angle);
     tp.paint(canvas, Offset(-tp.width / 2, -tp.height / 2));
+    tp.dispose();
     canvas.restore();
   }
 
@@ -344,6 +365,7 @@ class TableTexturePainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       )..layout();
       pip.paint(canvas, Offset(-pip.width / 2, -pip.height / 2));
+      pip.dispose();
       canvas.restore();
     }
   }

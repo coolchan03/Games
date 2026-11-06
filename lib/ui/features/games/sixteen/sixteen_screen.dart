@@ -28,6 +28,17 @@ class SixteenGame {
   late List<int> tiles;
   int moves = 0;
 
+  /// Moves made this session as (row?, index, step), for undo.
+  final List<(bool, int, int)> _history = [];
+  bool get canUndo => _history.isNotEmpty;
+
+  void undo() {
+    if (_history.isEmpty) return;
+    final (row, i, by) = _history.removeLast();
+    row ? shiftRow(i, -by, count: false) : shiftCol(i, -by, count: false);
+    moves--;
+  }
+
   bool get solved {
     for (var i = 0; i < tiles.length; i++) {
       if (tiles[i] != i + 1) return false;
@@ -36,6 +47,7 @@ class SixteenGame {
   }
 
   void shiftRow(int r, int by, {bool count = true}) {
+    if (count) _history.add((true, r, by));
     final row = [for (var c = 0; c < n; c++) tiles[r * n + c]];
     for (var c = 0; c < n; c++) {
       tiles[r * n + (c + by) % n] = row[c];
@@ -44,6 +56,7 @@ class SixteenGame {
   }
 
   void shiftCol(int c, int by, {bool count = true}) {
+    if (count) _history.add((false, c, by));
     final col = [for (var r = 0; r < n; r++) tiles[r * n + c]];
     for (var r = 0; r < n; r++) {
       tiles[((r + by) % n) * n + c] = col[r];
@@ -125,6 +138,7 @@ class _SixteenScreenState extends State<SixteenScreen> {
         );
     return GameScaffold(
       gameId: 'sixteen',
+      confirmNewGame: game.moves > 0,
       completed: game.solved,
       title: 'Sixteen',
       onNewGame: () => setState(() => game = _build(level, resume: false)),
@@ -154,11 +168,22 @@ class _SixteenScreenState extends State<SixteenScreen> {
             label: (m) => '$m moves',
           ),
         ),
-        StatusBanner(
-            game.solved
-                ? 'Solved in ${game.moves} moves!'
-                : 'Moves: ${game.moves}',
-            highlight: game.solved),
+        Row(children: [
+          Expanded(
+            child: StatusBanner(
+                game.solved
+                    ? 'Solved in ${game.moves} moves!'
+                    : 'Moves: ${game.moves}',
+                highlight: game.solved),
+          ),
+          IconButton.filledTonal(
+            tooltip: 'Undo',
+            onPressed: game.canUndo && !game.solved
+                ? () => setState(game.undo)
+                : null,
+            icon: const Icon(Icons.undo),
+          ),
+        ]),
         LandscapeBoard(child: LayoutBuilder(builder: (context, box) {
           final cell = (box.maxWidth - 80) / n;
           return Column(children: [

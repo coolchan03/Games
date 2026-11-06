@@ -121,7 +121,8 @@ class BlackBoxGame {
       final hidden = take();
       final guesses = take();
       final ports = take();
-      if (hidden.length != balls ||
+      if (revealed ||
+          hidden.toSet().length != balls ||
           [...hidden, ...guesses].any((c) => c < 0 || c >= n * n) ||
           guesses.length > balls ||
           ports.any((p) => p < 0 || p >= 4 * n)) {
@@ -132,7 +133,6 @@ class BlackBoxGame {
       for (final p in ports) {
         game.fire(p);
       }
-      game.revealed = revealed;
       return game;
     } catch (_) {
       return null;
