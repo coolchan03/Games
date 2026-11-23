@@ -22,10 +22,27 @@ class ThemeNotifier extends _$ThemeNotifier {
     return _cachedBox!;
   }
 
+  static AppThemeMode _initial = AppThemeMode.system;
+
+  /// Reads the saved mode before the first frame so the app never flashes the
+  /// system theme and then jumps to the saved one.
+  static Future<void> preload() async {
+    try {
+      final box = await _getBox();
+      _initial = _parse(box.get(_themeKey));
+    } catch (_) {}
+  }
+
+  static AppThemeMode _parse(Object? saved) => switch (saved) {
+        'light' => AppThemeMode.light,
+        'dark' => AppThemeMode.dark,
+        _ => AppThemeMode.system,
+      };
+
   @override
   AppThemeMode build() {
     _loadThemeMode();
-    return AppThemeMode.system;
+    return _initial;
   }
 
   Future<void> _loadThemeMode() async {
@@ -33,11 +50,7 @@ class ThemeNotifier extends _$ThemeNotifier {
       final box = await _getBox();
       final savedTheme = box.get(_themeKey, defaultValue: 'system');
 
-      final loaded = switch (savedTheme) {
-        'light' => AppThemeMode.light,
-        'dark' => AppThemeMode.dark,
-        _ => AppThemeMode.system,
-      };
+      final loaded = _parse(savedTheme);
 
       if (state != loaded) {
         state = loaded;

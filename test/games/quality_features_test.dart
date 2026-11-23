@@ -246,6 +246,10 @@ void main() {
       addTearDown(tester.view.reset);
       await openLibrary(tester);
 
+      // The category chips sit below the banner cards; scroll them into the
+      // lazily built range first.
+      await tester.drag(find.byType(CustomScrollView).first, const Offset(0, -250));
+      await tester.pump();
       await tester.ensureVisible(find.text('CARDS'));
       await tester.tap(find.text('CARDS'));
       await tester.pump();
@@ -254,6 +258,8 @@ void main() {
       expect(saved?['category'], 'CARD');
 
       // Back on All, the last game played can be continued.
+      await tester.drag(find.byType(CustomScrollView).first, const Offset(0, 400));
+      await tester.pump();
       await tester.ensureVisible(find.text('ALL'));
       await tester.tap(find.text('ALL'));
       await tester.pump();

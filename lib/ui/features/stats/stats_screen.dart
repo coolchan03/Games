@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 import 'package:puzzle/providers/game_providers.dart';
+import 'package:puzzle/domain/progress_engine.dart' as engine;
+import 'package:puzzle/providers/progress_providers.dart';
 import 'package:puzzle/providers/user_providers.dart';
+import 'activity_widgets.dart';
 import 'package:puzzle/ui/features/home/widgets/daily_progress_banner.dart';
 import 'package:puzzle/utils/design_system.dart';
 import 'package:puzzle/widgets/tangible.dart';
@@ -142,12 +145,35 @@ class StatsScreen extends ConsumerWidget {
                         }
                         if (index == 5) return const SizedBox(height: DesignSystem.spaceMD);
                         final achievementIndex = index - 6;
+                        if (achievementIndex == achievements.length) {
+                          return Padding(
+                            padding: const EdgeInsets.only(top: DesignSystem.spaceMD),
+                            child: Text('MILESTONES',
+                                style: theme.textTheme.displaySmall?.copyWith(
+                                  fontSize: DesignSystem.fontSizeLG,
+                                  color: theme.colorScheme.primary,
+                                  letterSpacing: 1.5,
+                                )),
+                          );
+                        }
+                        if (achievementIndex == achievements.length + 1) {
+                          return const SizedBox(height: DesignSystem.spaceMD);
+                        }
+                        if (achievementIndex > achievements.length + 1) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: DesignSystem.spaceMD),
+                            child: Consumer(builder: (context, ref, _) => MilestoneCard(
+                                  milestone: engine.milestones[achievementIndex - achievements.length - 2],
+                                  snapshot: ref.watch(progressSnapshotProvider),
+                                )),
+                          );
+                        }
                         return Padding(
                           padding: const EdgeInsets.only(bottom: DesignSystem.spaceMD),
                           child: _AchievementCard(achievement: achievements[achievementIndex], l10n: l10n),
                         );
                       },
-                      childCount: 6 + achievements.length,
+                      childCount: 6 + achievements.length + 2 + engine.milestones.length,
                     ),
                   ),
                 ),
@@ -168,19 +194,16 @@ class _UserStatsCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final userData = ref.watch(userDataNotifierProvider);
-    final notifier = ref.read(userDataNotifierProvider.notifier);
-    
-    final level = userData.level;
     final xp = userData.xp;
-    final currentLevelXp = notifier.xpForLevel(level);
-    final nextLevelXp = notifier.xpForLevel(level + 1);
-
-    final diff = nextLevelXp - currentLevelXp;
-    final progress = diff > 0 ? (xp - currentLevelXp) / diff : 1.0;
+    final lp = engine.levelProgress(xp);
+    final level = lp.level;
+    final progress = lp.fraction;
 
     return Column(
       children: [
         _StreakTracker(l10n: l10n),
+        const SizedBox(height: DesignSystem.spaceMD),
+        const ActivityHeatmapCard(),
         const SizedBox(height: DesignSystem.spaceMD),
         const DailyProgressBanner(),
         const SizedBox(height: DesignSystem.spaceMD),
@@ -192,16 +215,21 @@ class _UserStatsCard extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
+                  Expanded(
+                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      FittedBox(
+                       fit: BoxFit.scaleDown,
+                       alignment: Alignment.centerLeft,
+                       child: Text(
                         l10n.statsLevel(level),
                         style: theme.textTheme.displayLarge?.copyWith(
                           fontSize: 42,
                           color: Colors.white,
                           letterSpacing: 1.0,
                         ),
+                       ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -213,7 +241,9 @@ class _UserStatsCard extends ConsumerWidget {
                         ),
                       ),
                     ],
+                   ),
                   ),
+                  const SizedBox(width: DesignSystem.spaceMD),
                   Container(
                     width: 64,
                     height: 64,
@@ -257,7 +287,7 @@ class _UserStatsCard extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    l10n.statsPercentToLevel((progress * 100).toInt(), level + 1),
+                    lp.isMax ? 'MAX LEVEL' : l10n.statsPercentToLevel((progress * 100).toInt(), level + 1),
                     style: theme.textTheme.labelLarge?.copyWith(
                       fontFamily: 'Bebas Neue',
                       fontSize: DesignSystem.fontSizeSM,
@@ -305,14 +335,12 @@ class _StreakTracker extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final userData = ref.watch(userDataNotifierProvider);
-    final superStreak = userData.superStreak ?? 0;
-    final lastDate = userData.lastSuperStreakDate;
-    
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final currentWeekday = now.weekday;
-    final mondayOfThisWeek = today.subtract(Duration(days: currentWeekday - 1));
+    final log = ref.watch(activityLogProvider);
+    final today = ref.watch(todayProvider);
+    final superStreak = engine.currentActiveStreak(log, today);
+    final loc = MaterialLocalizations.of(context);
+    final weekStart = loc.firstDayOfWeekIndex == 0 ? DateTime.sunday : loc.firstDayOfWeekIndex;
+    final startOfWeek = DateTime(today.year, today.month, today.day - ((today.weekday - weekStart + 7) % 7));
 
     return TangibleContainer(
       padding: const EdgeInsets.all(DesignSystem.spaceMD),
@@ -322,15 +350,20 @@ class _StreakTracker extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                l10n.statsWeeklyActivity,
-                style: theme.textTheme.displaySmall?.copyWith(
-                  fontSize: DesignSystem.fontSizeMD,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  letterSpacing: 1.0,
+              Flexible(
+                child: Text(
+                  l10n.statsWeeklyActivity,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.displaySmall?.copyWith(
+                    fontSize: DesignSystem.fontSizeMD,
+                    color: DesignSystem.mutedInk(context),
+                    letterSpacing: 1.0,
+                  ),
                 ),
               ),
+              const SizedBox(width: DesignSystem.spaceSM),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.local_fire_department_rounded,
                       color: DesignSystem.gameOrange, size: 20),
@@ -350,24 +383,10 @@ class _StreakTracker extends ConsumerWidget {
           const SizedBox(height: DesignSystem.spaceMD),
           Row(
             children: List.generate(7, (index) {
-              final dayDate = mondayOfThisWeek.add(Duration(days: index));
-              final dayLabel = ['M', 'T', 'W', 'T', 'F', 'S', 'S'][index];
-              final isToday = dayDate.isAtSameMomentAs(today);
-
-              bool isSolved = false;
-              if (lastDate != null && superStreak > 0) {
-                final lastNormalized =
-                    DateTime(lastDate.year, lastDate.month, lastDate.day);
-                final streakStart =
-                    lastNormalized.subtract(Duration(days: superStreak - 1));
-
-                if ((dayDate.isAtSameMomentAs(streakStart) ||
-                        dayDate.isAfter(streakStart)) &&
-                    (dayDate.isAtSameMomentAs(lastNormalized) ||
-                        dayDate.isBefore(lastNormalized))) {
-                  isSolved = true;
-                }
-              }
+              final dayDate = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day + index);
+              final dayLabel = loc.narrowWeekdays[dayDate.weekday % 7];
+              final isToday = dayDate == today;
+              final isSolved = (log[engine.dayKey(dayDate)] ?? 0) > 0;
 
               return Expanded(
                 child: Padding(
@@ -456,7 +475,7 @@ class _CognitiveProfileCard extends ConsumerWidget {
           child: Column(
             children: categories.map((cat) {
               final solved = solvedStatsMap[cat] ?? 0;
-              final total = totalStats[cat] ?? 1;
+              final total = (totalStats[cat] ?? 1).clamp(1, 1 << 30);
               final color = categoryColors[cat] ?? DesignSystem.primary;
 
               return Padding(
@@ -563,7 +582,6 @@ class _SmallStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return TangibleContainer(
       padding: const EdgeInsets.all(DesignSystem.spaceMD),
@@ -575,13 +593,16 @@ class _SmallStatCard extends StatelessWidget {
             children: [
               Icon(icon, size: 18, color: color),
               const SizedBox(width: 8),
-              Text(
+              Flexible(
+               child: Text(
                 label,
+                overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                  color: DesignSystem.mutedInk(context),
                   letterSpacing: 0.5,
                 ),
+               ),
               ),
             ],
           ),
@@ -636,7 +657,7 @@ class _AchievementCard extends ConsumerWidget {
               size: 32,
               color: isUnlocked
                   ? DesignSystem.accentAmber
-                  : colorScheme.onSurface.withValues(alpha: 0.1),
+                  : DesignSystem.mutedInk(context).withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(width: DesignSystem.spaceMD),
@@ -650,7 +671,7 @@ class _AchievementCard extends ConsumerWidget {
                     fontSize: DesignSystem.fontSizeLG,
                     color: isUnlocked
                         ? colorScheme.onSurface
-                        : colorScheme.onSurface.withValues(alpha: 0.3),
+                        : DesignSystem.mutedInk(context),
                     letterSpacing: 1.5,
                   ),
                 ),
@@ -661,7 +682,7 @@ class _AchievementCard extends ConsumerWidget {
                     fontWeight: FontWeight.w700,
                     color: isUnlocked
                         ? colorScheme.onSurface.withValues(alpha: 0.6)
-                        : colorScheme.onSurface.withValues(alpha: 0.2),
+                        : DesignSystem.mutedInk(context),
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -688,7 +709,7 @@ class _AchievementCard extends ConsumerWidget {
                   fontWeight: FontWeight.w900,
                   fontSize: 9,
                   letterSpacing: 1.5,
-                  color: colorScheme.onSurface.withValues(alpha: 0.3),
+                  color: DesignSystem.mutedInk(context),
                 ),
               ),
             ),

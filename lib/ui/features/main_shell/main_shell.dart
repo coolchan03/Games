@@ -1,12 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:puzzle/l10n/app_localizations.dart';
+import '../../../domain/progress_engine.dart' as engine;
+import '../../../providers/progress_providers.dart';
 import '../../../providers/user_providers.dart';
 import '../../../utils/design_system.dart';
 import '../home/home_screen.dart';
 import '../stats/stats_screen.dart';
 import '../settings/settings_screen.dart';
 
+/// Top-level navigation: a bottom [NavigationBar] on phones and a
+/// [NavigationRail] on wider screens. Tabs are built lazily and kept alive in
+/// an [IndexedStack] so scroll position, search text and filters survive
+/// switching tabs.
 class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key});
 
@@ -16,41 +23,39 @@ class MainShell extends ConsumerStatefulWidget {
 
 class _MainShellState extends ConsumerState<MainShell>
     with WidgetsBindingObserver {
-  int _selectedIndex = 1;
-  final Map<int, Widget> _screenCache = {};
-  Timer? _dayCheckTimer;
-  DateTime? _lastCheckedDate;
+  static const int _statsTab = 0, _homeTab = 1, _settingsTab = 2;
 
-  Widget _getScreen(int index) {
-    return _screenCache.putIfAbsent(index, () {
-      switch (index) {
-        case 0: return const StatsScreen();
-        case 1: return const HomeScreen();
-        case 2: return const SettingsScreen();
-        default: return const HomeScreen();
-      }
-    });
-  }
+  int _selectedIndex = _homeTab;
+  final Set<int> _visited = {_homeTab};
+  Timer? _dayCheckTimer;
+  DateTime _lastCheckedDate = engine.dayOf(DateTime.now());
+
+  Widget _screen(int index) => switch (index) {
+        _statsTab => const StatsScreen(),
+        _settingsTab => const SettingsScreen(),
+        _ => const HomeScreen(),
+      };
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(gameStreakNotifierProvider.notifier).refreshStatus();
-    });
-    _lastCheckedDate = DateTime.now();
-    _dayCheckTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-      _checkDayChange();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refreshDay());
+    _dayCheckTimer =
+        Timer.periodic(const Duration(minutes: 1), (_) => _checkDayChange());
+  }
+
+  void _refreshDay() {
+    if (!mounted) return;
+    ref.read(todayProvider.notifier).state = engine.dayOf(DateTime.now());
+    ref.read(gameStreakNotifierProvider.notifier).refreshStatus();
   }
 
   void _checkDayChange() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    if (_lastCheckedDate == null || today != _lastCheckedDate) {
+    final today = engine.dayOf(DateTime.now());
+    if (today != _lastCheckedDate) {
       _lastCheckedDate = today;
-      ref.read(gameStreakNotifierProvider.notifier).refreshStatus();
+      _refreshDay();
     }
   }
 
@@ -64,228 +69,104 @@ class _MainShellState extends ConsumerState<MainShell>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      ref.read(gameStreakNotifierProvider.notifier).refreshStatus();
+      _lastCheckedDate = engine.dayOf(DateTime.now());
+      _refreshDay();
     }
+  }
+
+  void _select(int index) {
+    if (index == _selectedIndex) return;
+    setState(() {
+      _selectedIndex = index;
+      _visited.add(index);
+    });
+  }
+
+  void _showMilestones(List<engine.Milestone> unlocked) {
+    if (unlocked.isEmpty || !mounted) return;
+    final text = unlocked.length == 1
+        ? 'Achievement unlocked: ${unlocked.first.title}'
+        : 'Achievements unlocked: ${unlocked.map((m) => m.title).join(', ')}';
+    // Routes pushed above the shell (the game itself) own their own messenger
+    // scope; the root messenger shows this when the player returns.
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(
+        content: Row(children: [
+          const Icon(Icons.emoji_events_rounded, color: DesignSystem.gold),
+          const SizedBox(width: DesignSystem.spaceSM),
+          Expanded(child: Text(text)),
+        ]),
+        action: SnackBarAction(
+          label: 'VIEW',
+          textColor: DesignSystem.gold,
+          onPressed: () => _select(_statsTab),
+        ),
+      ));
+    ref.read(milestoneToastProvider.notifier).state = const [];
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isMobile = MediaQuery.sizeOf(context).width <= 600;
+    ref.listen<List<engine.Milestone>>(
+        milestoneToastProvider, (_, next) => _showMilestones(next));
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          if (!isMobile) {
-            return Row(
-              children: [
-                _buildSideNav(context),
-                Expanded(
-                  child: _getScreen(_selectedIndex),
-                ),
-              ],
-            );
-          } else {
-            return _getScreen(_selectedIndex);
-          }
-        },
-      ),
-      bottomNavigationBar: isMobile
-          ? Container(
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                border: Border(
-                  top: BorderSide(
-                    color: colorScheme.outline.withValues(alpha: 0.1),
-                    width: 1.5,
-                  ),
-                ),
-              ),
-              child: SafeArea(
-                child: Container(
-                  height: 72,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: DesignSystem.spaceMD,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildNavItem(
-                        context: context,
-                        index: 0,
-                        icon: Icons.bar_chart_rounded,
-                        label: 'STATS',
-                        isSelected: _selectedIndex == 0,
-                      ),
-                      _buildNavItem(
-                        context: context,
-                        index: 1,
-                        icon: Icons.grid_view_rounded,
-                        label: 'GAMES',
-                        isSelected: _selectedIndex == 1,
-                      ),
-                      _buildNavItem(
-                        context: context,
-                        index: 2,
-                        icon: Icons.settings_rounded,
-                        label: 'SETTINGS',
-                        isSelected: _selectedIndex == 2,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            )
-          : null,
+    final l10n = AppLocalizations.of(context)!;
+    final isCompact = DesignSystem.isMobile(context);
+    final destinations = <({IconData icon, IconData selected, String label})>[
+      (icon: Icons.bar_chart_outlined, selected: Icons.bar_chart_rounded, label: l10n.statsTitle),
+      (icon: Icons.grid_view_outlined, selected: Icons.grid_view_rounded, label: l10n.games),
+      (icon: Icons.settings_outlined, selected: Icons.settings_rounded, label: l10n.settings),
+    ];
+
+    final body = IndexedStack(
+      index: _selectedIndex,
+      children: [
+        for (var i = 0; i < destinations.length; i++)
+          _visited.contains(i)
+              ? TickerMode(enabled: i == _selectedIndex, child: _screen(i))
+              : const SizedBox.shrink(),
+      ],
     );
-  }
 
-  Widget _buildSideNav(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      width: 100,
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        border: Border(
-          right: BorderSide(
-            color: colorScheme.outline.withValues(alpha: 0.1),
-            width: 1.5,
-          ),
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: DesignSystem.spaceSM,
-        vertical: DesignSystem.spaceLG,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildSideNavItem(
-            context: context,
-            index: 0,
-            icon: Icons.bar_chart_rounded,
-            label: 'STATS',
-            isSelected: _selectedIndex == 0,
-          ),
-          const SizedBox(height: DesignSystem.spaceXL),
-          _buildSideNavItem(
-            context: context,
-            index: 1,
-            icon: Icons.grid_view_rounded,
-            label: 'GAMES',
-            isSelected: _selectedIndex == 1,
-          ),
-          const SizedBox(height: DesignSystem.spaceXL),
-          _buildSideNavItem(
-            context: context,
-            index: 2,
-            icon: Icons.settings_rounded,
-            label: 'SETTINGS',
-            isSelected: _selectedIndex == 2,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSideNavItem({
-    required BuildContext context,
-    required int index,
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final color = isSelected
-        ? colorScheme.primary
-        : colorScheme.onSurface.withValues(alpha: 0.5);
-
-    return GestureDetector(
-      onTap: () {
-        if (_selectedIndex != index) {
-          setState(() => _selectedIndex = index);
-        }
-      },
-      behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedScale(
-            scale: isSelected ? 1.1 : 1.0,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutBack,
-            child: Icon(
-              icon,
-              size: 32,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: DesignSystem.spaceXS),
-          Text(
-            label,
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: color,
-              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-              letterSpacing: 1.0,
-              fontSize: 10,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem({
-    required BuildContext context,
-    required int index,
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final color =
-        isSelected ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.5);
-
-    return Expanded(
-      child: GestureDetector(
-        onTap: () {
-          if (_selectedIndex != index) {
-            setState(() => _selectedIndex = index);
-          }
-        },
-        behavior: HitTestBehavior.opaque,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedScale(
-              scale: isSelected ? 1.1 : 1.0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutBack,
-              child: Icon(
-                icon,
-                size: 28,
-                color: color,
+    if (isCompact) {
+      return Scaffold(
+        body: body,
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: _select,
+          destinations: [
+            for (final d in destinations)
+              NavigationDestination(
+                icon: Icon(d.icon),
+                selectedIcon: Icon(d.selected),
+                label: d.label,
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: color,
-                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-                letterSpacing: 1.0,
-                fontSize: 10,
-              ),
-            ),
           ],
         ),
-      ),
+      );
+    }
+
+    return Scaffold(
+      body: Row(children: [
+        SafeArea(
+          child: NavigationRail(
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: _select,
+            groupAlignment: 0,
+            destinations: [
+              for (final d in destinations)
+                NavigationRailDestination(
+                  icon: Icon(d.icon),
+                  selectedIcon: Icon(d.selected),
+                  label: Text(d.label),
+                ),
+            ],
+          ),
+        ),
+        VerticalDivider(width: 1, color: Theme.of(context).colorScheme.outline),
+        Expanded(child: body),
+      ]),
     );
   }
 }
-
-

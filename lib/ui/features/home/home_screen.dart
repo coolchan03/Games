@@ -20,6 +20,7 @@ import 'widgets/search_bar.dart' as custom;
 import 'widgets/game_tile.dart';
 import 'widgets/table_texture.dart';
 import 'widgets/continue_card.dart';
+import 'widgets/daily_challenge_card.dart';
 import '../games/shared/game_storage.dart';
 import 'widgets/empty_games_state.dart';
 import 'game_browse_order.dart';
@@ -128,6 +129,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           _buildAppBar(theme, colorScheme, l10n),
           if (_browseSubset == GameBrowseSubset.all &&
               _searchQuery.isEmpty && _selectedCategory == 'ALL')
+            const SliverToBoxAdapter(child: DailyChallengeCard()),
+          if (_browseSubset == GameBrowseSubset.all &&
+              _searchQuery.isEmpty && _selectedCategory == 'ALL')
             const SliverToBoxAdapter(child: ContinueCard()),
           if (_browseSubset == GameBrowseSubset.all &&
               _searchQuery.isEmpty && _selectedCategory == 'ALL')
@@ -146,10 +150,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onSearchChanged: (value) {
                 if (_debounce?.isActive ?? false) _debounce!.cancel();
                 _debounce = Timer(const Duration(milliseconds: 300), () {
-                  setState(() => _searchQuery = value);
+                  if (!mounted) return;
+                  setState(() => _searchQuery = value.trim());
                 });
               },
               onSearchClear: () {
+                _debounce?.cancel();
                 _searchController.clear();
                 setState(() => _searchQuery = "");
               },
@@ -267,11 +273,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFEF5350), Color(0xFFC62828)],
+              colors: [DesignSystem.dieRedLight, DesignSystem.dieRed],
             ),
             border: Border.all(color: Colors.white, width: 2),
             boxShadow: const [
-              BoxShadow(color: Color(0xFF7F1414), offset: Offset(0, 4)),
+              BoxShadow(color: DesignSystem.dieRedEdge, offset: Offset(0, 4)),
               BoxShadow(
                   color: Colors.black26, offset: Offset(0, 8), blurRadius: 10),
             ],
@@ -291,19 +297,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
 
+  /// Rolls a random game, preferring ones never played and, when a category
+  /// is selected, staying inside it. Falls back to the whole catalogue so the
+  /// die always does something.
   void _playRandomPuzzle() {
-    final hiddenGameIds = ref.read(
-        userDataNotifierProvider.select((d) => d.hiddenGameIds ?? []));
-    final hiddenSet = hiddenGameIds.toSet();
-    final availableGames = allGamesMetadata
-        .where((game) => !hiddenSet.contains(game.id))
-        .toList();
+    final hidden = (ref.read(userDataNotifierProvider).hiddenGameIds ?? const <String>[]).toSet();
+    final played = ref.read(gameStreakNotifierProvider).keys.toSet();
+    final visible = allGamesMetadata.where((g) => !hidden.contains(g.id)).toList();
+    if (visible.isEmpty) return;
 
-    if (availableGames.isEmpty) return;
+    final inCategory = _selectedCategory == 'ALL'
+        ? visible
+        : visible.where((g) => g.category == _selectedCategory).toList();
+    final pool = inCategory.isEmpty ? visible : inCategory;
+    final unplayed = pool.where((g) => !played.contains(g.id)).toList();
+    final choices = unplayed.isEmpty ? pool : unplayed;
 
     HapticFeedbackUtil.lightImpact();
-    final randomGame = (availableGames..shuffle(math.Random())).first;
-
+    final randomGame = choices[math.Random().nextInt(choices.length)];
     launchGame(context, ref, randomGame,
         category: _selectedCategory, query: _searchQuery);
   }
@@ -313,21 +324,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return SliverAppBar(
       floating: true,
       pinned: false,
-      backgroundColor: const Color(0xFF7A4724),
-      foregroundColor: const Color(0xFFFFF3E0),
+      backgroundColor: DesignSystem.shelfDark,
+      foregroundColor: DesignSystem.shelfText,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: true,
       // A wooden games-shelf banner.
       flexibleSpace: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF9A5E33), Color(0xFF6E3F20)],
-          ),
+          gradient: DesignSystem.shelfGradient,
           border: Border(
-            bottom: BorderSide(color: Color(0xFF4A2812), width: 3),
+            bottom: BorderSide(color: DesignSystem.shelfEdge, width: 3),
           ),
         ),
       ),
@@ -343,10 +350,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             padding: const EdgeInsets.all(4),
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFF3B1F6E),
+              color: DesignSystem.shelfEdge,
             ),
             child: const Icon(Icons.extension_rounded,
-                color: Color(0xFFFFC94D), size: 24),
+                color: DesignSystem.gold, size: 24),
           ),
           const SizedBox(width: 10),
           Flexible(
@@ -356,9 +363,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 l10n.appTitle.toUpperCase(),
                 style: theme.textTheme.displaySmall?.copyWith(
                   letterSpacing: 2.0,
-                  color: const Color(0xFFFFF3E0),
+                  color: DesignSystem.shelfText,
                   shadows: const [
-                    Shadow(color: Color(0xFF3A1D0A), offset: Offset(0, 2)),
+                    Shadow(color: DesignSystem.shelfEdge, offset: Offset(0, 2)),
                   ],
                 ),
               ),
@@ -378,7 +385,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onTap: () {
               setState(() {
                 if (_searchQuery.isNotEmpty) {
-                  // While searching, the button clears the search.
+                  // While searching, the button clears the search. A pending
+                  // debounce would otherwise re-apply the old query.
+                  _debounce?.cancel();
                   _searchQuery = "";
                   _searchController.clear();
                 } else {
@@ -390,7 +399,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               _searchQuery.isNotEmpty
                   ? Icons.close_rounded
                   : Icons.search_rounded,
-              color: const Color(0xFFFFF3E0),
+              color: DesignSystem.shelfText,
               size: 22,
             ),
           ),

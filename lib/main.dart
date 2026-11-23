@@ -55,6 +55,7 @@ void main() async {
 
   final userRepository = UserRepository();
   await userRepository.init();
+  await ThemeNotifier.preload();
 
 
 

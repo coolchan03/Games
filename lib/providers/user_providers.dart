@@ -1,9 +1,11 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../data/models/user_data.dart';
 import '../data/models/game_streak.dart';
 import '../data/repositories/user_repository.dart';
+import '../domain/progress_engine.dart' as engine;
+import 'progress_providers.dart';
 
 part 'user_providers.g.dart';
 
@@ -19,20 +21,17 @@ class UserDataNotifier extends _$UserDataNotifier {
     return ref.read(userRepositoryProvider).getUserData();
   }
 
-  int calculateLevel(int xp) {
-    final level = pow(xp / 100, 1 / 2.04).floor() + 1;
-    return level.clamp(1, 100);
-  }
+  int calculateLevel(int xp) => engine.levelForXp(xp);
 
-  static final Map<int, int> _xpForLevelCache = {};
+  int xpForLevel(int level) => engine.xpForLevel(level);
 
-  int xpForLevel(int level) {
-    if (level <= 1) return 0;
-    if (level >= 100) return 1000000;
-    if (_xpForLevelCache.containsKey(level)) return _xpForLevelCache[level]!;
-    final xp = (100 * pow(level - 1, 2.04)).floor();
-    _xpForLevelCache[level] = xp;
-    return xp;
+  /// Fire-and-forget persistence that can never surface as an unhandled
+  /// async error; the in-memory state stays authoritative for this session.
+  void _persist(UserData data) {
+    unawaited(ref
+        .read(userRepositoryProvider)
+        .saveUserData(data)
+        .catchError((Object _) {}));
   }
 
   Future<void> addXp(int amount) async {
@@ -40,13 +39,13 @@ class UserDataNotifier extends _$UserDataNotifier {
     final newLevel = calculateLevel(newXp);
     final newState = state.copyWith(xp: newXp, level: newLevel);
     state = newState;
-    await ref.read(userRepositoryProvider).saveUserData(newState);
+    _persist(newState);
   }
 
   Future<void> incrementTotalSolved() async {
     final newState = state.copyWith(totalSolved: (state.totalSolved ?? 0) + 1);
     state = newState;
-    unawaited(ref.read(userRepositoryProvider).saveUserData(newState));
+    _persist(newState);
   }
 
   Future<void> updateSuperStreak(Map<String, GameStreak> streaks) async {
@@ -63,7 +62,7 @@ class UserDataNotifier extends _$UserDataNotifier {
     final solvedTodayCount = streaks.values.where((s) => s.solvedToday).length;
     if (solvedTodayCount >= 1) {
       int newStreak = 1;
-      if (today.difference(lastNormalized).inDays == 1) {
+      if (engine.calendarDaysBetween(lastNormalized, today) == 1) {
         newStreak = (state.superStreak ?? 0) + 1;
       }
 
@@ -72,7 +71,7 @@ class UserDataNotifier extends _$UserDataNotifier {
         lastSuperStreakDate: now,
       );
       state = newState;
-      unawaited(ref.read(userRepositoryProvider).saveUserData(newState));
+      _persist(newState);
     }
   }
 
@@ -84,12 +83,12 @@ class UserDataNotifier extends _$UserDataNotifier {
     if (lastSuperStreak == null) return;
 
     final lastNormalized = DateTime(lastSuperStreak.year, lastSuperStreak.month, lastSuperStreak.day);
-    final daysSince = today.difference(lastNormalized).inDays;
+    final daysSince = engine.calendarDaysBetween(lastNormalized, today);
 
     if (daysSince > 1 && (state.superStreak ?? 0) > 0) {
       final newState = state.copyWith(superStreak: 0);
       state = newState;
-      ref.read(userRepositoryProvider).saveUserData(newState);
+      _persist(newState);
     }
   }
 
@@ -102,7 +101,7 @@ class UserDataNotifier extends _$UserDataNotifier {
     }
     final newState = state.copyWith(favoriteGameIds: favorites);
     state = newState;
-    unawaited(ref.read(userRepositoryProvider).saveUserData(newState));
+    _persist(newState);
   }
 
   Future<void> toggleHideGame(String gameId) async {
@@ -114,20 +113,23 @@ class UserDataNotifier extends _$UserDataNotifier {
     }
     final newState = state.copyWith(hiddenGameIds: hidden);
     state = newState;
-    unawaited(ref.read(userRepositoryProvider).saveUserData(newState));
+    _persist(newState);
   }
 
   Future<void> setTrialMode(bool enabled) async {
     final newState = state.copyWith(isTrialModeEnabled: enabled);
     state = newState;
-    await ref.read(userRepositoryProvider).saveUserData(newState);
+    _persist(newState);
   }
 
   Future<void> setKeepScreenAwake(bool enabled) async {
     final newState = state.copyWith(isKeepScreenAwakeEnabled: enabled);
     state = newState;
-    await ref.read(userRepositoryProvider).saveUserData(newState);
+    _persist(newState);
   }
+
+  /// Replaces in-memory state after a backup import.
+  void replace(UserData data) => state = data;
 }
 
 @Riverpod(keepAlive: true)
@@ -138,39 +140,39 @@ class GameStreakNotifier extends _$GameStreakNotifier {
     return {for (var s in streaks) s.gameId: s};
   }
 
+  /// Clears "solved today" flags from earlier days and zeroes streaks that
+  /// missed a day. Streaks are reset even when the game was not solved on its
+  /// last active day, so a stale count is never displayed after a long break.
   void applyDailyReset() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final List<GameStreak> toSave = [];
-    final Map<String, GameStreak> updated = Map.from(state);
+    final today = engine.dayOf(DateTime.now());
+    final updated = Map<String, GameStreak>.from(state);
+    final toSave = <GameStreak>[];
 
-    for (final entry in updated.entries) {
-      final gameId = entry.key;
+    for (final entry in state.entries) {
       final streak = entry.value;
-
-      if (!streak.solvedToday) continue;
-
-      final lastNormalized = DateTime(
-        streak.lastSolvedDate.year,
-        streak.lastSolvedDate.month,
-        streak.lastSolvedDate.day,
-      );
-
-      if (lastNormalized == today) continue;
-
-      final changed = streak.copyWith(solvedToday: false);
-      final daysSince = today.difference(lastNormalized).inDays;
-      final finalStreak = daysSince > 1 && changed.currentStreak > 0
-          ? changed.copyWith(currentStreak: 0)
-          : changed;
-
-      updated[gameId] = finalStreak;
-      toSave.add(finalStreak);
+      final lastSolved = engine.dayOf(streak.lastSolvedDate);
+      final isNeverSolved = streak.lastSolvedDate.millisecondsSinceEpoch == 0;
+      var next = streak;
+      if (streak.solvedToday && lastSolved != today) {
+        next = next.copyWith(solvedToday: false);
+      }
+      if (!isNeverSolved &&
+          next.currentStreak > 0 &&
+          engine.isStreakBroken(lastSolved, today)) {
+        next = next.copyWith(currentStreak: 0);
+      }
+      if (next != streak) {
+        updated[entry.key] = next;
+        toSave.add(next);
+      }
     }
 
     if (toSave.isNotEmpty) {
-      ref.read(userRepositoryProvider).saveAllGameStreaks(toSave);
       state = updated;
+      unawaited(ref
+          .read(userRepositoryProvider)
+          .saveAllGameStreaks(toSave)
+          .catchError((Object _) {}));
     }
   }
 
@@ -178,29 +180,27 @@ class GameStreakNotifier extends _$GameStreakNotifier {
     return state[gameId] ?? GameStreak.initial(gameId);
   }
 
+  /// Records a solve. Returns true once the completion is recorded (also when
+  /// the game was already completed today). Awards a one-time daily-challenge
+  /// bonus, logs activity and reports newly unlocked milestones.
   Future<bool> completeGame(String gameId, {int xpAmount = 20}) async {
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final today = engine.dayOf(now);
+    final repo = ref.read(userRepositoryProvider);
 
     final currentStreak = getStreak(gameId);
-    final lastNormalized = DateTime(
-      currentStreak.lastSolvedDate.year,
-      currentStreak.lastSolvedDate.month,
-      currentStreak.lastSolvedDate.day,
-    );
+    final lastNormalized = engine.dayOf(currentStreak.lastSolvedDate);
+    if (currentStreak.solvedToday && lastNormalized == today) return true;
 
-    if (currentStreak.solvedToday && lastNormalized == today) {
-      return true;
-    }
-
-    int newStreakCount = currentStreak.currentStreak;
-    if (currentStreak.lastSolvedDate.millisecondsSinceEpoch == 0) {
-      newStreakCount = 1;
-    } else if (today.difference(lastNormalized).inDays == 1) {
-      newStreakCount++;
-    } else if (today.difference(lastNormalized).inDays > 1) {
-      newStreakCount = 1;
-    }
+    final neverSolved = currentStreak.lastSolvedDate.millisecondsSinceEpoch == 0;
+    final gap = engine.calendarDaysBetween(lastNormalized, today);
+    final newStreakCount = neverSolved
+        ? 1
+        : gap == 1
+            ? currentStreak.currentStreak + 1
+            : gap > 1
+                ? 1
+                : math.max(currentStreak.currentStreak, 1);
 
     final newStreak = currentStreak.copyWith(
       currentStreak: newStreakCount,
@@ -208,23 +208,43 @@ class GameStreakNotifier extends _$GameStreakNotifier {
       solvedToday: true,
     );
 
-    // Batch user data updates
-    final newXp = ref.read(userDataNotifierProvider).xp + xpAmount;
-    final newLevel = ref.read(userDataNotifierProvider.notifier).calculateLevel(newXp);
-    final newUserData = ref.read(userDataNotifierProvider).copyWith(
+    final before = buildProgressSnapshot(
+        ref.read(userDataNotifierProvider), state, ref.read(activityLogProvider));
+
+    // Daily challenge: one bonus per calendar day.
+    final challengeId = ref.read(dailyChallengeIdProvider);
+    final claimKey = engine.dayKey(today);
+    final bonus = challengeId == gameId && repo.getDailyClaim() != claimKey
+        ? engine.dailyChallengeBonusXp
+        : 0;
+
+    final user = ref.read(userDataNotifierProvider);
+    final newXp = user.xp + xpAmount + bonus;
+    final newUserData = user.copyWith(
       xp: newXp,
-      level: newLevel,
-      totalSolved: (ref.read(userDataNotifierProvider).totalSolved ?? 0) + 1,
+      level: engine.levelForXp(newXp),
+      totalSolved: (user.totalSolved ?? 0) + 1,
     );
 
     state = {...state, gameId: newStreak};
+    ref.read(userDataNotifierProvider.notifier).replace(newUserData);
+    ref.read(activityLogProvider.notifier).record(now);
+    if (bonus > 0) unawaited(repo.saveDailyClaim(claimKey));
 
-    // Single batched save
-    await ref.read(userRepositoryProvider).saveGameCompletion(newUserData, newStreak);
-    ref.read(userDataNotifierProvider.notifier).state = newUserData;
+    final after =
+        buildProgressSnapshot(newUserData, state, ref.read(activityLogProvider));
+    final unlocked = engine.newlyUnlocked(before, after);
+    if (unlocked.isNotEmpty) {
+      ref.read(milestoneToastProvider.notifier).state = unlocked;
+    }
 
+    try {
+      await repo.saveGameCompletion(newUserData, newStreak);
+    } catch (_) {
+      // Progress stays in memory for this session; storage errors are logged
+      // by the repository and must not fail the game that just ended.
+    }
     await ref.read(userDataNotifierProvider.notifier).updateSuperStreak(state);
-
     return true;
   }
 

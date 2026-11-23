@@ -61,15 +61,16 @@ class DesignSystem {
   static const double tabletMax = 1024;
   static const double desktopMax = 1440;
 
-  static bool isMobile(BuildContext context) => MediaQuery.of(context).size.width < mobileMax;
+  // sizeOf: rebuild only on size changes, not on every MediaQuery update.
+  static bool isMobile(BuildContext context) => MediaQuery.sizeOf(context).width < mobileMax;
   static bool isTablet(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     return width >= mobileMax && width < tabletMax;
   }
-  static bool isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= tabletMax;
+  static bool isDesktop(BuildContext context) => MediaQuery.sizeOf(context).width >= tabletMax;
 
   static double responsiveWidth(BuildContext context, {double mobile = 1.0, double tablet = 0.8, double desktop = 0.6}) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.sizeOf(context).width;
     final factor = width >= tabletMax ? desktop : width >= mobileMax ? tablet : mobile;
     return width * factor;
   }
@@ -146,17 +147,17 @@ class DesignSystem {
           fontFamily: 'Bebas Neue',
           color: mainInk,
           fontSize: fontSizeXL,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w400,
           letterSpacing: 0.8,
         ),
       ),
       textTheme: TextTheme(
-        displayLarge: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSizeHero, fontWeight: FontWeight.w700, letterSpacing: 1.0, color: mainInk, height: 1.15),
-        displayMedium: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSize3XL, fontWeight: FontWeight.w700, letterSpacing: 0.8, color: mainInk, height: 1.15),
-        displaySmall: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSize2XL, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: mainInk, height: 1.2),
-        headlineLarge: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSize3XL, fontWeight: FontWeight.w700, letterSpacing: 0.8, color: mainInk, height: 1.2),
-        headlineMedium: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSize2XL, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: mainInk, height: 1.25),
-        headlineSmall: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSizeXL, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: mainInk, height: 1.25),
+        displayLarge: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSizeHero, fontWeight: FontWeight.w400, letterSpacing: 1.0, color: mainInk, height: 1.15),
+        displayMedium: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSize3XL, fontWeight: FontWeight.w400, letterSpacing: 0.8, color: mainInk, height: 1.15),
+        displaySmall: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSize2XL, fontWeight: FontWeight.w400, letterSpacing: 0.6, color: mainInk, height: 1.2),
+        headlineLarge: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSize3XL, fontWeight: FontWeight.w400, letterSpacing: 0.8, color: mainInk, height: 1.2),
+        headlineMedium: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSize2XL, fontWeight: FontWeight.w400, letterSpacing: 0.6, color: mainInk, height: 1.25),
+        headlineSmall: TextStyle(fontFamily: 'Bebas Neue', fontSize: fontSizeXL, fontWeight: FontWeight.w400, letterSpacing: 0.6, color: mainInk, height: 1.25),
         titleLarge: TextStyle(fontFamily: 'Geist', fontSize: fontSizeXL, fontWeight: FontWeight.w700, letterSpacing: 0.2, color: mainInk, height: 1.25),
         titleMedium: TextStyle(fontFamily: 'Geist', fontSize: fontSizeLG, fontWeight: FontWeight.w600, letterSpacing: 0.15, color: mainInk, height: 1.3),
         titleSmall: TextStyle(fontFamily: 'Geist', fontSize: fontSizeMD, fontWeight: FontWeight.w600, letterSpacing: 0.15, color: mainInk, height: 1.3),
@@ -168,6 +169,72 @@ class DesignSystem {
         labelSmall: TextStyle(fontFamily: 'Geist', fontSize: fontSize2XS, fontWeight: FontWeight.w600, letterSpacing: 0.2, color: mainInk, height: 1.2),
       ),
       iconTheme: IconThemeData(color: mainInk, size: 24),
+      dividerTheme: DividerThemeData(color: outColor, thickness: 1, space: 1),
+      cardTheme: CardThemeData(
+        color: surfColor,
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusMD),
+          side: BorderSide(color: outColor, width: 1.5),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: surfColor,
+        selectedColor: primary.withValues(alpha: 0.16),
+        side: BorderSide(color: outVarColor),
+        shape: const StadiumBorder(),
+        labelStyle: TextStyle(fontFamily: 'Geist', fontSize: fontSizeSM, fontWeight: FontWeight.w600, color: mainInk),
+        checkmarkColor: primary,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surfColor,
+        indicatorColor: primary.withValues(alpha: 0.16),
+        height: 72,
+        labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
+              fontFamily: 'Geist',
+              fontSize: fontSize2XS,
+              fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w600,
+              letterSpacing: 0.4,
+              color: states.contains(WidgetState.selected) ? primary : subInk,
+            )),
+        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
+              size: 26,
+              color: states.contains(WidgetState.selected) ? primary : subInk,
+            )),
+      ),
+      navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: surfColor,
+        indicatorColor: primary.withValues(alpha: 0.16),
+        selectedIconTheme: const IconThemeData(color: primary, size: 28),
+        unselectedIconTheme: IconThemeData(color: subInk, size: 28),
+        selectedLabelTextStyle: const TextStyle(fontFamily: 'Geist', fontSize: fontSize2XS, fontWeight: FontWeight.w700, color: primary),
+        unselectedLabelTextStyle: TextStyle(fontFamily: 'Geist', fontSize: fontSize2XS, fontWeight: FontWeight.w600, color: subInk),
+        labelType: NavigationRailLabelType.all,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: surfColor,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusLG)),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isDark ? darkInk : ink,
+        contentTextStyle: TextStyle(fontFamily: 'Geist', fontSize: fontSizeSM, fontWeight: FontWeight.w600, color: isDark ? ink : darkInk),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radiusSM)),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: primary,
+        linearTrackColor: outColor,
+        linearMinHeight: 8,
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          minimumSize: const WidgetStatePropertyAll(Size(48, 44)),
+          side: WidgetStatePropertyAll(BorderSide(color: outVarColor)),
+        ),
+      ),
+      tooltipTheme: const TooltipThemeData(waitDuration: Duration(milliseconds: 400)),
     );
   }
 
@@ -183,6 +250,24 @@ class DesignSystem {
   static const EdgeInsets paddingLG = EdgeInsets.all(spaceLG);
   static const EdgeInsets paddingXL = EdgeInsets.all(spaceXL);
   static const EdgeInsets padding2XL = EdgeInsets.all(32.0);
+
+  // --- Brand: games-shelf wood, gold and the random-game die ---
+  // The library banner, continue/daily trays and nav accents share these so
+  // the "board-game shelf" look is one palette rather than scattered hex.
+  static const Color shelfLight = Color(0xFF9A5E33);
+  static const Color shelfDark = Color(0xFF6E3F20);
+  static const Color shelfEdge = Color(0xFF4A2812);
+  static const Color shelfText = Color(0xFFFFF3E0);
+  static const Color gold = Color(0xFFFFD54F);
+  static const Color dieRed = Color(0xFFC62828);
+  static const Color dieRedLight = Color(0xFFEF5350);
+  static const Color dieRedEdge = Color(0xFF7F1414);
+
+  static const LinearGradient shelfGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [shelfLight, shelfDark],
+  );
 
   // --- Game Accents ---
   static const Color gameRed = Color(0xFFEF4444);
@@ -215,6 +300,10 @@ class DesignSystem {
   static const Color lightOutline = outline;
   static const Color lightOutlineVariant = outlineVariant;
   static const Color lightOnSurfaceMuted = inkSlate;
+
+  /// Readable muted text (>= 4.5:1 on surface) for secondary labels; use
+  /// instead of ad-hoc onSurface alpha values below 0.6.
+  static Color mutedInk(BuildContext context) => Theme.of(context).brightness == Brightness.dark ? darkInkSlate : inkSlate;
 
   static const Color accentIndigo = primary;
   static const Color accentOrange = accentAmber;
