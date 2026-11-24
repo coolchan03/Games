@@ -191,7 +191,7 @@ class _LetterGridSwapperScreenState extends ConsumerState<LetterGridSwapperScree
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
+                  Flexible(child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
@@ -207,7 +207,7 @@ class _LetterGridSwapperScreenState extends ConsumerState<LetterGridSwapperScree
                             ),
                       ),
                     ],
-                  ),
+                  )),
                   Flexible(child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(

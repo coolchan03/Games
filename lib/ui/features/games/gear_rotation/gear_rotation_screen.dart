@@ -169,7 +169,7 @@ class _GearRotationScreenState extends ConsumerState<GearRotationScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
+                Flexible(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -186,7 +186,7 @@ class _GearRotationScreenState extends ConsumerState<GearRotationScreen>
                       ),
                     ),
                   ],
-                ),
+                )),
                 Flexible(child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(

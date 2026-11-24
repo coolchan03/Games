@@ -210,11 +210,11 @@ class _PythagoreanTripleBuilderScreenState extends ConsumerState<PythagoreanTrip
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildSideCard('LEG a', aLabel, _currentQuestion.missingIndex == 0, colorScheme),
+              Flexible(child: _buildSideCard('LEG a', aLabel, _currentQuestion.missingIndex == 0, colorScheme)),
               const Flexible(child: Text('+', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-              _buildSideCard('LEG b', bLabel, _currentQuestion.missingIndex == 1, colorScheme),
+              Flexible(child: _buildSideCard('LEG b', bLabel, _currentQuestion.missingIndex == 1, colorScheme)),
               const Flexible(child: Text('=', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-              _buildSideCard('HYP c', cLabel, _currentQuestion.missingIndex == 2, colorScheme),
+              Flexible(child: _buildSideCard('HYP c', cLabel, _currentQuestion.missingIndex == 2, colorScheme)),
             ],
           ),
         ],

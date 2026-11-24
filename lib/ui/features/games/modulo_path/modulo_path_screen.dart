@@ -222,7 +222,7 @@ class _ModuloPathScreenState extends ConsumerState<ModuloPathScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Column(
+                Flexible(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(AppLocalizations.of(context)!.target, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
@@ -232,7 +232,7 @@ class _ModuloPathScreenState extends ConsumerState<ModuloPathScreen> {
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: DesignSystem.gameOrange),
                     ),
                   ],
-                ),
+                )),
                 Flexible(child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(

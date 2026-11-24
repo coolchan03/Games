@@ -214,7 +214,7 @@ class _MatrixMultiplierScreenState extends ConsumerState<MatrixMultiplierScreen>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Matrix A (Row selector)
-                  Column(
+                  Flexible(child: Column(
                     children: [
                       Text('MATRIX A (Row)', style: Theme.of(context).textTheme.labelMedium),
                       const SizedBox(height: 8),
@@ -265,10 +265,10 @@ class _MatrixMultiplierScreenState extends ConsumerState<MatrixMultiplierScreen>
                         ),
                       ),
                     ],
-                  ),
+                  )),
                   const Flexible(child: Text('×', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold))),
                   // Matrix B (Column selector)
-                  Column(
+                  Flexible(child: Column(
                     children: [
                       Text('MATRIX B (Col)', style: Theme.of(context).textTheme.labelMedium),
                       const SizedBox(height: 8),
@@ -319,7 +319,7 @@ class _MatrixMultiplierScreenState extends ConsumerState<MatrixMultiplierScreen>
                         ),
                       ),
                     ],
-                  ),
+                  )),
                 ],
               ),
               const SizedBox(height: 40),

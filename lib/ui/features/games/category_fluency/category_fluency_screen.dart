@@ -95,7 +95,7 @@ class _CategoryFluencyScreenState extends ConsumerState<CategoryFluencyScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
+                Flexible(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -107,8 +107,8 @@ class _CategoryFluencyScreenState extends ConsumerState<CategoryFluencyScreen> {
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ],
-                ),
-                Container(
+                )),
+                Flexible(child: Container(
                   padding: const EdgeInsets.all(DesignSystem.spaceMD),
                   decoration: BoxDecoration(
                     color: state.timeLeft <= 10 ? DesignSystem.error.withValues(alpha: 0.1) : colorScheme.surface,
@@ -123,7 +123,7 @@ class _CategoryFluencyScreenState extends ConsumerState<CategoryFluencyScreen> {
                       color: state.timeLeft <= 10 ? DesignSystem.error : colorScheme.onSurface,
                     ),
                   ),
-                ),
+                )),
               ],
             ),
             SizedBox(height: DesignSystem.spaceXL),

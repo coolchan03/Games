@@ -320,9 +320,7 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
                   child: Text('DIRECTIONS LIST:', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey, fontSize: 12)),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: _steps.map((step) {
+                Wrap(alignment: WrapAlignment.spaceAround, spacing: 8, runSpacing: 8, children: _steps.map((step) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
@@ -341,8 +339,7 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
                         ],
                       ),
                     );
-                  }).toList(),
-                ),
+                  }).toList()),
               ] else ...[
                 SizedBox(
                   width: 200,

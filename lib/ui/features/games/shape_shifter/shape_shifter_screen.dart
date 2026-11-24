@@ -236,7 +236,7 @@ class _ShapeShifterScreenState extends ConsumerState<ShapeShifterScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Column(
+                Flexible(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -264,7 +264,7 @@ class _ShapeShifterScreenState extends ConsumerState<ShapeShifterScreen> {
                       ],
                     ),
                   ],
-                ),
+                )),
                 Flexible(child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: DesignSystem.spaceMD,

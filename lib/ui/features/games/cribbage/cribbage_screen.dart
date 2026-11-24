@@ -104,7 +104,7 @@ class _CribbageScreenState extends State<CribbageScreen> {
           onTap: null,
         ),
         Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Column(children: [const Text('Starter'), CardView(card: g.starter, faceDown: g.starter == null, width: 48)]),
+          Flexible(child: Column(children: [const Text('Starter'), CardView(card: g.starter, faceDown: g.starter == null, width: 48)])),
           const SizedBox(width: 16),
           Expanded(
             child: Column(children: [
@@ -113,13 +113,13 @@ class _CribbageScreenState extends State<CribbageScreen> {
             ]),
           ),
           const SizedBox(width: 16),
-          Column(children: [
+          Flexible(child: Column(children: [
             Text(g.dealer == 0 ? 'Your crib' : 'Crib'),
             if (g.phase == CribPhase.show || g.phase == CribPhase.gameOver)
               Wrap(children: [for (final c in g.crib) CardView(card: c, width: 26)])
             else
               CardView(faceDown: g.crib.isNotEmpty, width: 34),
-          ]),
+          ])),
         ]),
         const SizedBox(height: 8),
         Text('Your hand${g.dealer == 0 ? ' (dealer)' : ''}', textAlign: TextAlign.center, style: theme.textTheme.titleSmall),

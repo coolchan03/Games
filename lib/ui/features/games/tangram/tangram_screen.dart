@@ -302,9 +302,7 @@ class _TangramScreenState extends ConsumerState<TangramScreen> {
                   style: Theme.of(context).textTheme.labelSmall,
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(_pieces.length, (index) {
+                Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: List.generate(_pieces.length, (index) {
                     final piece = _pieces[index];
                     final isSelected = _selectedPieceId == piece.id;
                     final isPlaced = _piecePlacements[index] != null;
@@ -392,8 +390,7 @@ class _TangramScreenState extends ConsumerState<TangramScreen> {
                         ),
                       ),
                     );
-                  }),
-                ),
+                  })),
               ],
             ),
           ),
