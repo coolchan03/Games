@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 import 'package:puzzle/providers/user_providers.dart';
@@ -119,7 +118,7 @@ class _VectorDotProductScreenState extends ConsumerState<VectorDotProductScreen>
             horizontal: DesignSystem.spaceLG,
             vertical: DesignSystem.spaceMD,
           ),
-          child: ScrollIfTall(child: Column(
+          child: Column(
             children: [
               _buildHeader(colorScheme),
               const Spacer(flex: 1),
@@ -128,7 +127,7 @@ class _VectorDotProductScreenState extends ConsumerState<VectorDotProductScreen>
               _buildChoicesGrid(colorScheme),
               const Spacer(flex: 1),
             ],
-          )),
+          ),
         ),
       ),
     );

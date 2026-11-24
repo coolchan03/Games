@@ -215,7 +215,7 @@ class _PolyominoTilingScreenState extends ConsumerState<PolyominoTilingScreen> {
             children: [
               const Icon(Icons.dashboard_customize_rounded, size: 18, color: DesignSystem.gamePurple),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'TILING',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -224,7 +224,7 @@ class _PolyominoTilingScreenState extends ConsumerState<PolyominoTilingScreen> {
                   letterSpacing: 1.0,
                   color: DesignSystem.gamePurple,
                 ),
-              ),
+              )),
             ],
           ),
         )),

@@ -206,7 +206,7 @@ class _ColorWordMatchUpScreenState extends ConsumerState<ColorWordMatchUpScreen>
           ),
           Expanded(
             child: Center(
-              child: Column(
+              child: ScrollIfTall(child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Active Rule Display
@@ -273,7 +273,7 @@ class _ColorWordMatchUpScreenState extends ConsumerState<ColorWordMatchUpScreen>
                     ],
                   ),
                 ],
-              ),
+              )),
             ),
           ),
           // Action Buttons

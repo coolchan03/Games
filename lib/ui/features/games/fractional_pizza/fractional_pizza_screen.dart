@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -159,7 +158,7 @@ class _FractionalPizzaScreenState extends ConsumerState<FractionalPizzaScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(DesignSystem.spaceMD),
-          child: ScrollIfTall(child: Column(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
@@ -281,7 +280,7 @@ class _FractionalPizzaScreenState extends ConsumerState<FractionalPizzaScreen> {
                 ),
               ),
             ],
-          )),
+          ),
         ),
       ),
     );

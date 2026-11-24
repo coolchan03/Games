@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -213,7 +214,7 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(DesignSystem.spaceMD),
-          child: Column(
+          child: ScrollIfTall(child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Score / Timer Banner
@@ -361,7 +362,7 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
                 ),
               ],
             ],
-          ),
+          )),
         ),
       ),
     );
