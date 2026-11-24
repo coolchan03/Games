@@ -43,6 +43,9 @@ class VennNumbersNotifier extends _$VennNumbersNotifier {
 
   @override
   VennNumbersState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return VennNumbersState(
       currentProblem: VennProblem(
         number: 0,

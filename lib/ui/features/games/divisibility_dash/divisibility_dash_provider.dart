@@ -51,6 +51,9 @@ class DivisibilityDashNotifier extends _$DivisibilityDashNotifier {
 
   @override
   DivisibilityDashState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return DivisibilityDashState(
       currentProblem: DivisibilityProblem(number: 0, correctDivisors: []),
     );

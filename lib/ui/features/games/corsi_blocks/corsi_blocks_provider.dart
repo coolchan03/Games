@@ -66,6 +66,10 @@ class CorsiBlocksNotifier extends _$CorsiBlocksNotifier {
 
   @override
   CorsiBlocksState build() {
+    ref.onDispose(() {
+    _gameTimer?.cancel();
+    _displayTimer?.cancel();
+    });
     return CorsiBlocksState(sequence: []);
   }
 

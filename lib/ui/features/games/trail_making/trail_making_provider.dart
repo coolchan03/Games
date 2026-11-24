@@ -47,6 +47,9 @@ class TrailMakingNotifier extends _$TrailMakingNotifier {
 
   @override
   TrailMakingState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return TrailMakingState(points: []);
   }
 

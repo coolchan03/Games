@@ -58,6 +58,9 @@ class VigilanceNotifier extends _$VigilanceNotifier {
 
   @override
   VigilanceState build() {
+    ref.onDispose(() {
+    _tickTimer?.cancel();
+    });
     return VigilanceState();
   }
 

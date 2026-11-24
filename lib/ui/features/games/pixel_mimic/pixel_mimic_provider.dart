@@ -51,6 +51,9 @@ class PixelMimicNotifier extends _$PixelMimicNotifier {
 
   @override
   PixelMimicState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return PixelMimicState(targetGrid: [], userGrid: []);
   }
 

@@ -49,6 +49,11 @@ class StopSignalNotifier extends _$StopSignalNotifier {
 
   @override
   StopSignalState build() {
+    ref.onDispose(() {
+    _gameTimer?.cancel();
+    _trialTimer?.cancel();
+    _stopSignalTimer?.cancel();
+    });
     return StopSignalState();
   }
 

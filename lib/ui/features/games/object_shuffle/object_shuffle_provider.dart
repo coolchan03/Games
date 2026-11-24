@@ -65,6 +65,9 @@ class ObjectShuffleNotifier extends _$ObjectShuffleNotifier {
 
   @override
   ObjectShuffleState build() {
+    ref.onDispose(() {
+    _shuffleTimer?.cancel();
+    });
     return ObjectShuffleState(objectSlots: List.generate(5, (i) => i), targetObjectIndex: 0);
   }
 

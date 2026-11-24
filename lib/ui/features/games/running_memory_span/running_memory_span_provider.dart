@@ -79,6 +79,10 @@ class RunningMemorySpanNotifier extends _$RunningMemorySpanNotifier {
 
   @override
   RunningMemorySpanState build() {
+    ref.onDispose(() {
+    _gameTimer?.cancel();
+    _streamTimer?.cancel();
+    });
     return RunningMemorySpanState();
   }
 

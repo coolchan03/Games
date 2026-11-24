@@ -125,6 +125,10 @@ class ObjectDisplacementNotifier extends _$ObjectDisplacementNotifier {
 
   @override
   ObjectDisplacementState build() {
+    ref.onDispose(() {
+    _gameTimer?.cancel();
+    _phaseTimer?.cancel();
+    });
     return ObjectDisplacementState();
   }
 

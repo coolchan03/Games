@@ -47,6 +47,9 @@ class CommonDenominatorNotifier extends _$CommonDenominatorNotifier {
 
   @override
   CommonDenominatorState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return CommonDenominatorState(
       currentProblem: CommonDenominatorProblem(
         numbers: [0, 0],

@@ -1,129 +1,270 @@
-import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/utils/l10n_game_helpers.dart';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'water_sort_provider.dart';
-import 'water_sort_engine.dart';
-import '../../../../widgets/game_completion_dialog.dart';
-import '../../../../utils/design_system.dart';
-import '../../../../utils/haptic_feedback.dart';
-import '../../../../widgets/tangible.dart';
-import '../../../core/juice/game_scaffold.dart';
-import '../../../../providers/user_providers.dart';
+import 'package:flutter/services.dart';
 
-class WaterSortScreen extends ConsumerWidget {
+import '../../../../utils/l10n_game_helpers.dart';
+import '../common/campaign_level_bar.dart';
+import '../common/game_kit.dart';
+import '../common/level_kit.dart';
+import 'water_sort_engine.dart';
+import 'water_sort_levels.dart';
+
+/// Water Sort with 30 numbered levels, endless random levels, undo, hints and
+/// trap detection. Every level is winnable; when the player's own pours make
+/// the position unwinnable the solver proves it and offers Undo.
+class WaterSortScreen extends StatefulWidget {
   const WaterSortScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
-    final state = ref.watch(waterSortNotifierProvider);
-    final notifier = ref.read(waterSortNotifierProvider.notifier);
+  State<WaterSortScreen> createState() => _WaterSortScreenState();
+}
 
-    ref.listen(waterSortNotifierProvider, (previous, next) {
-      if (next.isSolved && !(previous?.isSolved ?? false)) {
-        HapticFeedbackUtil.victory();
-        ref.read(gameStreakNotifierProvider.notifier).completeGame('water_sort').then((_) {
-          if (context.mounted) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => GameCompletionDialog(
-                onHome: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                },
-                onPlayAgain: () {
-                  notifier.reset();
-                  Navigator.of(context).pop();
-                },
-                title: l10n.waterSortTitle.toUpperCase(),
-                message: AppLocalizations.of(context)!.waterSortMessage,
-              ),
-            );
-          }
-        });
+class _WaterSortScreenState extends State<WaterSortScreen> {
+  static const _id = 'water_sort';
+
+  late int level = CampaignLevelBar.initialLevel(_id, count: WaterSortLevels.count);
+  bool randomMode = false;
+  late WaterSortLevel lvl;
+  late Tubes tubes;
+  final List<Tubes> history = [];
+  int moves = 0;
+  int? selected;
+  ({int from, int to})? hint;
+  bool trapped = false;
+  String? notice;
+  final monitor = TrapMonitor<Tubes>(WaterSortPuzzle(), maxNodes: 25000);
+
+  @override
+  void initState() {
+    super.initState();
+    _load(level);
+  }
+
+  void _load(int n, {bool resume = true}) {
+    level = n;
+    randomMode = false;
+    lvl = WaterSortLevels.build(n);
+    tubes = WaterSortLevels.copy(lvl.tubes);
+    moves = 0;
+    if (resume) {
+      final saved = CampaignLevelBar.restoreActive(_id, n);
+      final restored = saved == null ? null : WaterSortLevels.decode(saved, lvl);
+      if (restored != null) {
+        tubes = restored.$1;
+        moves = restored.$2;
       }
+    }
+    _reset();
+  }
+
+  void _loadRandom() {
+    randomMode = true;
+    lvl = WaterSortLevels.random(level);
+    tubes = WaterSortLevels.copy(lvl.tubes);
+    moves = 0;
+    _reset();
+  }
+
+  void _reset() {
+    history.clear();
+    selected = null;
+    hint = null;
+    notice = null;
+    trapped = !WaterSortLevels.isSolved(tubes) && monitor.isTrapped(tubes);
+  }
+
+  bool get solved => WaterSortLevels.isSolved(tubes);
+
+  void _tap(int index) {
+    if (solved) return;
+    HapticFeedback.selectionClick();
+    setState(() {
+      hint = null;
+      notice = null;
+      final from = selected;
+      if (from == null) {
+        if (tubes[index].isNotEmpty) selected = index;
+        return;
+      }
+      selected = null;
+      if (from == index || !WaterSortLevels.canPour(tubes[from], tubes[index])) {
+        return;
+      }
+      history.add(WaterSortLevels.copy(tubes));
+      WaterSortLevels.pour(tubes[from], tubes[index]);
+      moves++;
+      trapped = !solved && monitor.isTrapped(tubes);
     });
+  }
 
+  void _undo() {
+    if (history.isEmpty) return;
+    setState(() {
+      tubes = history.removeLast();
+      moves = moves > 0 ? moves - 1 : 0;
+      selected = null;
+      hint = null;
+      notice = null;
+      trapped = !solved && monitor.isTrapped(tubes);
+    });
+  }
+
+  void _hint() {
+    if (solved) return;
+    final next = monitor.hint(tubes);
+    setState(() {
+      selected = null;
+      if (next == null) {
+        hint = null;
+        notice = trapped
+            ? 'No winning line from here. Undo to go back.'
+            : 'This position is too big to analyse - try your own plan.';
+        return;
+      }
+      // Find the pour that leads to the suggested position.
+      final puzzle = WaterSortPuzzle();
+      final target = puzzle.key(next);
+      int? from, to;
+      for (var i = 0; i < tubes.length && from == null; i++) {
+        for (var j = 0; j < tubes.length; j++) {
+          if (i == j || !WaterSortLevels.canPour(tubes[i], tubes[j])) continue;
+          final probe = WaterSortLevels.copy(tubes);
+          WaterSortLevels.pour(probe[i], probe[j]);
+          if (puzzle.key(probe) == target) {
+            from = i;
+            to = j;
+            break;
+          }
+        }
+      }
+      hint = from == null ? null : (from: from, to: to!);
+      notice = hint == null ? 'Try a different pour.' : null;
+      if (hint != null) selected = hint!.from;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = Theme.of(context).colorScheme;
+    final stars = starsForPar(moves, lvl.par);
+    final banner = solved
+        ? 'Solved in $moves moves! ${'★' * stars}'
+        : trapped
+            ? 'Stuck: no pour can finish this. Undo or restart.'
+            : 'Moves: $moves  ·  Par ${lvl.par}';
     return GameScaffold(
-      title: L10nGameHelpers.getGameTitle(context, 'water_sort'),
-      subtitle: l10n.waterSortSubtitle,
-      actions: [
-        TangibleButton(
-          color: Theme.of(context).colorScheme.surface,
-          shadowColor: Theme.of(context).colorScheme.outline,
-          onTap: () {
-            HapticFeedbackUtil.mediumImpact();
-            notifier.reset();
-          },
-          padding: const EdgeInsets.all(12),
-          child: Icon(
-            Icons.refresh_rounded,
-            color: Theme.of(context).colorScheme.onSurface,
-            size: 20,
+      gameId: _id,
+      title: L10nGameHelpers.getGameTitle(context, _id),
+      confirmNewGame: moves > 0 && !solved,
+      completed: solved,
+      deadEnd: trapped,
+      deadEndMessage:
+          'No sequence of pours can sort the tubes from here. Undo a few '
+          'moves, or restart the level.',
+      onUndo: history.isEmpty ? null : _undo,
+      onNewGame: () => setState(() => randomMode ? _loadRandom() : _load(level, resume: false)),
+      rules: 'Pour colours between tubes until every tube holds one colour. '
+          'You can pour onto an empty tube or onto the same colour, as long as '
+          'there is room. Tap a tube, then the tube to pour into.\n\n'
+          'There are ${WaterSortLevels.count} levels (3 to 8 colours) and endless random levels; '
+          'every one is winnable from the start. Hint shows a safe pour, and '
+          'the game tells you when your moves have made the puzzle unwinnable.',
+      children: [
+        if (!randomMode)
+          CampaignLevelBar(
+            gameId: _id,
+            level: level,
+            count: WaterSortLevels.count,
+            solved: solved,
+            onLevel: (n) => setState(() => _load(n)),
+            describe: WaterSortLevels.describe,
+            activeState: trapped ? null : WaterSortLevels.encode(tubes, moves),
+            result: CampaignResult(
+              score: moves,
+              stars: stars,
+              label: (m) => '$m moves',
+            ),
+          )
+        else
+          Row(children: [
+            const Icon(Icons.casino_rounded),
+            const SizedBox(width: 8),
+            const Expanded(child: Text('Random level')),
+            TextButton(
+              onPressed: () => setState(() => _load(level, resume: false)),
+              child: const Text('Back to levels'),
+            ),
+          ]),
+        Row(children: [
+          Expanded(child: StatusBanner(banner, highlight: solved)),
+          IconButton.filledTonal(
+            tooltip: 'Undo',
+            onPressed: history.isEmpty || solved ? null : _undo,
+            icon: const Icon(Icons.undo),
           ),
-        ),
-      ],
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final tubeWidth = constraints.maxWidth * 0.12;
-          final tubeHeight = constraints.maxHeight * 0.25;
-
-          return Column(
+          IconButton.filledTonal(
+            tooltip: 'Hint',
+            onPressed: solved ? null : _hint,
+            icon: const Icon(Icons.lightbulb_outline_rounded),
+          ),
+          IconButton.filledTonal(
+            tooltip: 'Random level',
+            onPressed: () => setState(_loadRandom),
+            icon: const Icon(Icons.casino_outlined),
+          ),
+        ]),
+        if (notice != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(notice!, style: TextStyle(color: s.error)),
+          ),
+        const SizedBox(height: 12),
+        LayoutBuilder(builder: (context, box) {
+          final perRow = tubes.length <= 5 ? tubes.length : (tubes.length + 1) ~/ 2;
+          const gap = 12.0;
+          final width = ((box.maxWidth - gap * (perRow + 1)) / perRow).clamp(34.0, 64.0);
+          return Wrap(
+            alignment: WrapAlignment.center,
+            spacing: gap,
+            runSpacing: 36,
             children: [
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceMD),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    crossAxisSpacing: DesignSystem.spaceSM,
-                    mainAxisSpacing: DesignSystem.spaceXL,
-                    childAspectRatio: 0.45, 
-                  ),
-                  itemCount: state.tubes.length,
-                  itemBuilder: (context, index) {
-                    final isSelected = state.selectedTubeIndex == index;
-                    return Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          HapticFeedbackUtil.lightImpact();
-                          notifier.selectTube(index);
-                        },
-                        child: _TubeWidget(
-                          colors: state.tubes[index],
-                          isSelected: isSelected,
-                          width: tubeWidth.clamp(35.0, 50.0),
-                          height: tubeHeight.clamp(100.0, 150.0),
-                        ),
+              for (var i = 0; i < tubes.length; i++)
+                Semantics(
+                  button: true,
+                  label: 'Tube ${i + 1}, ${tubes[i].length} of ${WaterSortLevels.capacity}',
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _tap(i),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 22),
+                      child: _TubeWidget(
+                        colors: tubes[i],
+                        isSelected: selected == i,
+                        isHintTarget: hint?.to == i,
+                        width: width,
+                        height: 150,
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
-              ),
-              const Spacer(),
-              const SizedBox(height: DesignSystem.spaceMD),
             ],
           );
-        },
-      ),
+        }),
+      ],
     );
   }
 }
 
 class _TubeWidget extends StatelessWidget {
-  final List<Color> colors;
+  final List<int> colors;
   final bool isSelected;
+  final bool isHintTarget;
   final double width;
   final double height;
 
   const _TubeWidget({
     required this.colors,
     required this.isSelected,
+    this.isHintTarget = false,
     required this.width,
     required this.height,
   });
@@ -166,8 +307,10 @@ class _TubeWidget extends StatelessWidget {
               color: colorScheme.surface,
               borderRadius: outerRadius,
               border: Border.all(
-                color: colorScheme.outline.withValues(alpha: 0.5),
-                width: 2.0,
+                color: isHintTarget
+                    ? colorScheme.primary
+                    : colorScheme.outline.withValues(alpha: 0.5),
+                width: isHintTarget ? 4.0 : 2.0,
               ),
             ),
             child: ClipRRect(
@@ -181,12 +324,12 @@ class _TubeWidget extends StatelessWidget {
                   Column(
                     verticalDirection: VerticalDirection.up,
                     children: [
-                      for (int i = 0; i < WaterSortEngine.tubeCapacity; i++)
+                      for (int i = 0; i < WaterSortLevels.capacity; i++)
                         Expanded(
                           child: AnimatedContainer(
                             duration: Duration(milliseconds: 300),
                             decoration: BoxDecoration(
-                              color: i < colors.length ? colors[i] : Colors.transparent,
+                              color: i < colors.length ? WaterSortEngine.availableColors[colors[i] % WaterSortEngine.availableColors.length] : Colors.transparent,
                               border: i < colors.length 
                                 ? Border(
                                     top: BorderSide(

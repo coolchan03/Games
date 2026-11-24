@@ -52,6 +52,9 @@ class TypingSpeedNotifier extends _$TypingSpeedNotifier {
 
   @override
   TypingSpeedState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return TypingSpeedState(targetPhrase: '');
   }
 

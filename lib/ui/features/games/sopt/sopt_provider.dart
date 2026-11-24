@@ -99,6 +99,9 @@ class SoptNotifier extends _$SoptNotifier {
 
   @override
   SoptState build() {
+    ref.onDispose(() {
+    _gameTimer?.cancel();
+    });
     return SoptState(items: []);
   }
 

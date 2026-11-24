@@ -50,6 +50,9 @@ class RomanArithmeticNotifier extends _$RomanArithmeticNotifier {
 
   @override
   RomanArithmeticState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return RomanArithmeticState();
   }
 

@@ -106,6 +106,14 @@ const Map<String, GameGuide> addedGameGuides = {
     walkthrough: ['The deck is split between you and the computer.', 'Both flip the top card; the higher card wins both.', 'On a tie it\'s war: each puts three cards face down and one face up, and the higher face-up card takes the whole pile.'],
     strategies: ['Check the possible moves or options before committing.', 'Reopen this guide or the in-game Rules button whenever needed.'],
   ),
+  'chopsticks': GameGuide(
+    title: 'Chopsticks',
+    category: 'LOGIC',
+    objective: 'Knock out both of your opponent\'s hands. Each hand starts with one finger. On your turn attack (your hand adds its fingers to an enemy hand; 5 or more is out) or split (re-deal your own fingers between your hands).',
+    controls: 'Tap one of your hands, then an enemy hand to attack. Press Split to choose a new finger layout. Hint shows the best move and Show analysis tells you who is winning.',
+    walkthrough: ['Each hand starts with one finger.', 'Attack: tap your hand, then an enemy hand. The enemy hand gains as many fingers as yours shows.', 'A hand reaching 5 or more is out (in Rollover it wraps around).', 'Split: re-deal your own fingers between your two hands.', 'Knock out both enemy hands to win.'],
+    strategies: ['Keep two live hands so one attack cannot end the game.', 'Turn the analysis on to learn which positions are winning.', 'Hard plays perfectly - aim for a draw by repetition if you cannot win.'],
+  ),
   'nim': GameGuide(
     title: 'Nim',
     category: 'LOGIC',

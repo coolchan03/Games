@@ -87,6 +87,10 @@ class CountingSpanNotifier extends _$CountingSpanNotifier {
 
   @override
   CountingSpanState build() {
+    ref.onDispose(() {
+    _gameTimer?.cancel();
+    _phaseTimer?.cancel();
+    });
     return CountingSpanState();
   }
 

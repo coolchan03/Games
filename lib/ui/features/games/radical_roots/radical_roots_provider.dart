@@ -50,6 +50,9 @@ class RadicalRootsNotifier extends _$RadicalRootsNotifier {
 
   @override
   RadicalRootsState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return RadicalRootsState();
   }
 

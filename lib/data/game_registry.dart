@@ -10,6 +10,7 @@ import '../ui/features/games/air_hockey/air_hockey_metadata.dart';
 import '../ui/features/games/cribbage/cribbage_metadata.dart';
 import '../ui/features/games/war/war_metadata.dart';
 import '../ui/features/games/nim/nim_metadata.dart';
+import '../ui/features/games/chopsticks/chopsticks_metadata.dart';
 import '../ui/features/games/oware/oware_metadata.dart';
 import '../ui/features/games/sokoban/sokoban_metadata.dart';
 import '../ui/features/games/forty_thieves/forty_thieves_metadata.dart';
@@ -570,6 +571,7 @@ List<GameMetadata> _buildGameList() {
     cribbageMetadata,
     warMetadata,
     nimMetadata,
+    chopsticksMetadata,
     owareMetadata,
     sokobanMetadata,
     fortyThievesMetadata,

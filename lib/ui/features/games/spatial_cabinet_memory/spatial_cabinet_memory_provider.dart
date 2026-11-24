@@ -94,6 +94,10 @@ class SpatialCabinetMemoryNotifier extends _$SpatialCabinetMemoryNotifier {
 
   @override
   SpatialCabinetMemoryState build() {
+    ref.onDispose(() {
+    _gameTimer?.cancel();
+    _displayTimer?.cancel();
+    });
     return SpatialCabinetMemoryState();
   }
 

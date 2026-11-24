@@ -57,6 +57,9 @@ class ArithmeticChainNotifier extends _$ArithmeticChainNotifier {
 
   @override
   ArithmeticChainState build() {
+    ref.onDispose(() {
+    _sequenceTimer?.cancel();
+    });
     return ArithmeticChainState(
       startValue: 0,
       operations: [],

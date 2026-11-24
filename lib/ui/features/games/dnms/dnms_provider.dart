@@ -105,6 +105,10 @@ class DnmsNotifier extends _$DnmsNotifier {
 
   @override
   DnmsState build() {
+    ref.onDispose(() {
+    _gameTimer?.cancel();
+    _phaseTimer?.cancel();
+    });
     return DnmsState();
   }
 

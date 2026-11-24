@@ -60,6 +60,9 @@ class SwitchTaskNotifier extends _$SwitchTaskNotifier {
 
   @override
   SwitchTaskState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return SwitchTaskState(
       rule: SwitchRule.color,
       item: SwitchItem(color: Colors.transparent, colorName: '', shape: Icons.error, shapeName: ''),

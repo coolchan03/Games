@@ -51,6 +51,9 @@ class SequenceSleuthNotifier extends _$SequenceSleuthNotifier {
 
   @override
   SequenceSleuthState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return SequenceSleuthState(
       currentProblem: SequenceProblem(sequence: [], answer: 0, description: ''),
     );

@@ -47,6 +47,9 @@ class PercentagePeakNotifier extends _$PercentagePeakNotifier {
 
   @override
   PercentagePeakState build() {
+    ref.onDispose(() {
+    _timer?.cancel();
+    });
     return PercentagePeakState(
       currentQuestion: PercentageQuestion(
         question: '',
