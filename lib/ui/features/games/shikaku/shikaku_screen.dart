@@ -184,7 +184,7 @@ class _ShikakuScreenState extends ConsumerState<ShikakuScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(l10n.phaseSolveTheGrid, style: Theme.of(context).textTheme.titleMedium),
+                  Flexible(child: Text(l10n.phaseSolveTheGrid, style: Theme.of(context).textTheme.titleMedium)),
                   Row(
                     children: [
                       IconButton(

@@ -184,7 +184,7 @@ class _ContinuousPairedAssociateScreenState extends ConsumerState<ContinuousPair
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
@@ -195,7 +195,7 @@ class _ContinuousPairedAssociateScreenState extends ConsumerState<ContinuousPair
                 color: DesignSystem.gameIndigo,
               ),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 _isStudyPhase ? 'STUDY: $_studySecondsLeft s' : 'RECALL: ${_queryIndex >= _currentRound.queryQueue.length ? _currentRound.queryQueue.length : _queryIndex + 1}/${_currentRound.queryQueue.length}',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -204,18 +204,18 @@ class _ContinuousPairedAssociateScreenState extends ConsumerState<ContinuousPair
                   letterSpacing: 1.0,
                   color: DesignSystem.gameIndigo,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -224,10 +224,10 @@ class _ContinuousPairedAssociateScreenState extends ConsumerState<ContinuousPair
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }

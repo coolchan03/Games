@@ -126,14 +126,14 @@ class _Target10ScreenState extends ConsumerState<Target10Screen> {
                           children: [
                             Icon(Icons.stars_rounded, color: DesignSystem.accentAmber, size: 20),
                             const SizedBox(width: DesignSystem.spaceXS),
-                            Text(
+                            Flexible(child: Text(
                               'SCORE: ${state.score}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 13,
                                 letterSpacing: 0.5,
                               ),
-                            ),
+                            )),
                           ],
                         ),
                       ),
@@ -159,7 +159,7 @@ class _Target10ScreenState extends ConsumerState<Target10Screen> {
                               size: 20,
                             ),
                             const SizedBox(width: DesignSystem.spaceXS),
-                            Text(
+                            Flexible(child: Text(
                               '${state.timeLeft}s',
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
@@ -167,7 +167,7 @@ class _Target10ScreenState extends ConsumerState<Target10Screen> {
                                 color: state.timeLeft <= 5 ? colorScheme.error : null,
                                 letterSpacing: 0.5,
                               ),
-                            ),
+                            )),
                           ],
                         ),
                       ),
@@ -201,7 +201,7 @@ class _Target10ScreenState extends ConsumerState<Target10Screen> {
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
-                            Text(
+                            Flexible(child: Text(
                               '$currentSelectionSum',
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
@@ -212,15 +212,15 @@ class _Target10ScreenState extends ConsumerState<Target10Screen> {
                                         ? DesignSystem.accentEmerald
                                         : colorScheme.primary,
                               ),
-                            ),
-                            Text(
+                            )),
+                            Flexible(child: Text(
                               ' / 10',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 18,
                                 color: colorScheme.onSurface.withValues(alpha: 0.4),
                               ),
-                            ),
+                            )),
                           ],
                         ),
                       ],

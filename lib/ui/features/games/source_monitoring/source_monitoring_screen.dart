@@ -82,8 +82,8 @@ class _SourceMonitoringScreenState extends ConsumerState<SourceMonitoringScreen>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(item.word, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                          Text(item.sourceName, style: TextStyle(color: item.color, fontWeight: FontWeight.w900)),
+                          Flexible(child: Text(item.word, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                          Flexible(child: Text(item.sourceName, style: TextStyle(color: item.color, fontWeight: FontWeight.w900))),
                         ],
                       ),
                     ),

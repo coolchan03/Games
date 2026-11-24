@@ -163,7 +163,7 @@ class _ShellGameScreenState extends ConsumerState<ShellGameScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(AppLocalizations.of(context)!.phaseTrackTheBall, style: Theme.of(context).textTheme.titleMedium),
+                  Flexible(child: Text(AppLocalizations.of(context)!.phaseTrackTheBall, style: Theme.of(context).textTheme.titleMedium)),
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded),
                     onPressed: _resetGame,

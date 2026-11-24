@@ -173,14 +173,14 @@ class _ProbeDigitSpanScreenState extends ConsumerState<ProbeDigitSpanScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.dialpad_rounded, size: 18, color: DesignSystem.gameIndigo),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'TRIAL $_trialCount / $totalTrials',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -189,18 +189,18 @@ class _ProbeDigitSpanScreenState extends ConsumerState<ProbeDigitSpanScreen> {
                   letterSpacing: 1.0,
                   color: DesignSystem.gameIndigo,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'SCORE: $_score',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -209,10 +209,10 @@ class _ProbeDigitSpanScreenState extends ConsumerState<ProbeDigitSpanScreen> {
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -256,7 +256,7 @@ class _ProbeDigitSpanScreenState extends ConsumerState<ProbeDigitSpanScreen> {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        Flexible(child: Text(
                           'PROBE: ${_currentTrial.probeDigit}',
                           style: const TextStyle(
                             fontFamily: 'Bebas Neue',
@@ -265,11 +265,11 @@ class _ProbeDigitSpanScreenState extends ConsumerState<ProbeDigitSpanScreen> {
                             color: DesignSystem.gameIndigo,
                             letterSpacing: 2.0,
                           ),
-                        ),
+                        )),
                         const SizedBox(width: 14),
                         const Icon(Icons.arrow_forward_rounded, size: 28),
                         const SizedBox(width: 14),
-                        Text(
+                        Flexible(child: Text(
                           _selectedDigit != null ? '$_selectedDigit' : '?',
                           style: TextStyle(
                             fontFamily: 'Bebas Neue',
@@ -279,7 +279,7 @@ class _ProbeDigitSpanScreenState extends ConsumerState<ProbeDigitSpanScreen> {
                                 ? (_selectedDigit == _currentTrial.targetNextDigit ? DesignSystem.success : DesignSystem.error)
                                 : colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
-                        ),
+                        )),
                       ],
                     ),
             ),

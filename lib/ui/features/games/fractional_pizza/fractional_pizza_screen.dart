@@ -224,10 +224,10 @@ class _FractionalPizzaScreenState extends ConsumerState<FractionalPizzaScreen> {
                           ],
                         ),
                         const SizedBox(width: 20),
-                        Text(
+                        Flexible(child: Text(
                           'of a $_totalSlices-slice pizza',
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
-                        )
+                        ))
                       ],
                     ),
                   ],

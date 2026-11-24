@@ -166,20 +166,20 @@ class _ModuloClockScreenState extends ConsumerState<ModuloClockScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                Flexible(child: Text(
                   "SOLVED: $_correctAnswers / $targetAnswers",
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w900,
                     color: colorScheme.onSurface,
                   ),
-                ),
-                Text(
+                )),
+                Flexible(child: Text(
                   "TIME: $_timeLeft s",
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w900,
                     color: _timeLeft < 8 ? DesignSystem.error : DesignSystem.accentAmber,
                   ),
-                ),
+                )),
               ],
             ),
             const SizedBox(height: DesignSystem.spaceXL),

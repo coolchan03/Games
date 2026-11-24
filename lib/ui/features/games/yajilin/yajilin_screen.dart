@@ -155,7 +155,7 @@ class _YajilinScreenState extends ConsumerState<YajilinScreen> {
                   children: [
                     Icon(Icons.refresh_rounded, color: colorScheme.primary, size: 20),
                     const SizedBox(width: 8),
-                    Text(
+                    Flexible(child: Text(
                       l10n.playAgain.toUpperCase(),
                       style: TextStyle(
                         fontFamily: 'Geist',
@@ -163,7 +163,7 @@ class _YajilinScreenState extends ConsumerState<YajilinScreen> {
                         fontWeight: FontWeight.w700,
                         color: colorScheme.primary,
                       ),
-                    ),
+                    )),
                   ],
                 ),
               ),
@@ -195,10 +195,10 @@ class _YajilinScreenState extends ConsumerState<YajilinScreen> {
           decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(3)),
         ),
         const SizedBox(width: 6),
-        Text(
+        Flexible(child: Text(
           label,
           style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w700, letterSpacing: 0.5),
-        ),
+        )),
       ],
     );
   }
@@ -300,7 +300,7 @@ class _YajilinScreenState extends ConsumerState<YajilinScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
+        Flexible(child: Text(
           '${clue.count}',
           style: const TextStyle(
             fontFamily: 'Bebas Neue',
@@ -308,7 +308,7 @@ class _YajilinScreenState extends ConsumerState<YajilinScreen> {
             fontWeight: FontWeight.bold,
             color: DesignSystem.gameAmber,
           ),
-        ),
+        )),
         Icon(icon, size: 16, color: DesignSystem.gameAmber),
       ],
     );

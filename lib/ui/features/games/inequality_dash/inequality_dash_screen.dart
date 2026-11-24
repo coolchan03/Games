@@ -115,14 +115,14 @@ class _InequalityDashScreenState extends ConsumerState<InequalityDashScreen> {
                           children: [
                             Icon(Icons.stars_rounded, color: DesignSystem.accentAmber, size: 20),
                             const SizedBox(width: DesignSystem.spaceXS),
-                            Text(
+                            Flexible(child: Text(
                               'SCORE: ${state.score}',
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 13,
                                 letterSpacing: 0.5,
                               ),
-                            ),
+                            )),
                           ],
                         ),
                       ),
@@ -149,7 +149,7 @@ class _InequalityDashScreenState extends ConsumerState<InequalityDashScreen> {
                               size: 20,
                             ),
                             const SizedBox(width: DesignSystem.spaceXS),
-                            Text(
+                            Flexible(child: Text(
                               '${state.timeLeft}s',
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
@@ -157,7 +157,7 @@ class _InequalityDashScreenState extends ConsumerState<InequalityDashScreen> {
                                 color: state.timeLeft <= 5 ? colorScheme.error : null,
                                 letterSpacing: 0.5,
                               ),
-                            ),
+                            )),
                           ],
                         ),
                       ),

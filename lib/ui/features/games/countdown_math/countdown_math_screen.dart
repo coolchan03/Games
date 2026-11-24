@@ -203,7 +203,7 @@ class _CountdownMathScreenState extends ConsumerState<CountdownMathScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(AppLocalizations.of(context)!.phaseFindTheTarget, style: Theme.of(context).textTheme.titleMedium),
+                  Flexible(child: Text(AppLocalizations.of(context)!.phaseFindTheTarget, style: Theme.of(context).textTheme.titleMedium)),
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded),
                     onPressed: () => setState(_generatePuzzle),

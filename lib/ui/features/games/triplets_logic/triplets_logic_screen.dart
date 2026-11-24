@@ -388,10 +388,10 @@ class _TripletsLogicScreenState extends ConsumerState<TripletsLogicScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                const Flexible(child: Text(
                   'Select a shape tool to paint',
                   style: TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
-                ),
+                )),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(

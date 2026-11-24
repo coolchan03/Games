@@ -160,14 +160,14 @@ class _Wireframe3DRotationScreenState extends ConsumerState<Wireframe3DRotationS
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.architecture_rounded, size: 18, color: DesignSystem.gamePurple),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'WIREFRAME 3D',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -176,18 +176,18 @@ class _Wireframe3DRotationScreenState extends ConsumerState<Wireframe3DRotationS
                   letterSpacing: 1.0,
                   color: DesignSystem.gamePurple,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -196,10 +196,10 @@ class _Wireframe3DRotationScreenState extends ConsumerState<Wireframe3DRotationS
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }

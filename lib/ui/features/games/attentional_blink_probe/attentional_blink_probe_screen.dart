@@ -166,14 +166,14 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.flash_on_rounded, size: 18, color: DesignSystem.gameRose),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'TRIAL $_trialCount / $totalTrials',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -182,18 +182,18 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
                   letterSpacing: 1.0,
                   color: DesignSystem.gameRose,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'SCORE: $_score',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -202,10 +202,10 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -271,7 +271,7 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
               children: [
                 Icon(Icons.check_circle_rounded, color: DesignSystem.success, size: 24),
                 SizedBox(width: 8),
-                Text(
+                Flexible(child: Text(
                   'YES ("X" SEEN)',
                   style: TextStyle(
                     fontFamily: 'Bebas Neue',
@@ -279,7 +279,7 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
-                ),
+                )),
               ],
             ),
           ),
@@ -295,7 +295,7 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
               children: [
                 Icon(Icons.cancel_rounded, color: DesignSystem.error, size: 24),
                 SizedBox(width: 8),
-                Text(
+                Flexible(child: Text(
                   'NO ("X" ABSENT)',
                   style: TextStyle(
                     fontFamily: 'Bebas Neue',
@@ -303,7 +303,7 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
-                ),
+                )),
               ],
             ),
           ),

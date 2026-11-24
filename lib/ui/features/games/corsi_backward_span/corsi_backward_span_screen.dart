@@ -186,7 +186,7 @@ class _CorsiBackwardSpanScreenState extends ConsumerState<CorsiBackwardSpanScree
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
@@ -197,7 +197,7 @@ class _CorsiBackwardSpanScreenState extends ConsumerState<CorsiBackwardSpanScree
                 color: DesignSystem.gameIndigo,
               ),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 _isDemonstrating ? 'WATCH SEQUENCE' : 'RECALL IN REVERSE',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -206,18 +206,18 @@ class _CorsiBackwardSpanScreenState extends ConsumerState<CorsiBackwardSpanScree
                   letterSpacing: 1.0,
                   color: DesignSystem.gameIndigo,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -226,10 +226,10 @@ class _CorsiBackwardSpanScreenState extends ConsumerState<CorsiBackwardSpanScree
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }

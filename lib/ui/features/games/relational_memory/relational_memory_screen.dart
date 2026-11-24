@@ -210,20 +210,20 @@ class _RelationalMemoryScreenState extends ConsumerState<RelationalMemoryScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Flexible(child: Text(
                       "ROUND: $_round / $totalRounds",
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w900,
                         color: colorScheme.onSurface,
                       ),
-                    ),
-                    Text(
+                    )),
+                    Flexible(child: Text(
                       _isMemorizationPhase ? "MEMORIZE: $_secondsLeftToMemorize s" : "PLACE ICONS",
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w900,
                         color: _isMemorizationPhase ? DesignSystem.error : DesignSystem.accentEmerald,
                       ),
-                    ),
+                    )),
                   ],
                 ),
                 const SizedBox(height: DesignSystem.spaceLG),

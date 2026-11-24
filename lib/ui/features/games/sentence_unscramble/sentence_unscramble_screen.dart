@@ -126,7 +126,7 @@ class _SentenceUnscrambleScreenState extends ConsumerState<SentenceUnscrambleScr
                       children: [
                         Icon(Icons.edit_note_rounded, size: 20, color: colorScheme.onSurface.withValues(alpha: 0.4)),
                         const SizedBox(width: 8),
-                        Text(
+                        Flexible(child: Text(
                           'CONSTRUCTED SENTENCE',
                           style: TextStyle(
                             fontSize: 10,
@@ -134,7 +134,7 @@ class _SentenceUnscrambleScreenState extends ConsumerState<SentenceUnscrambleScr
                             letterSpacing: 1.5,
                             color: colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
-                        ),
+                        )),
                       ],
                     ),
                     const Divider(),

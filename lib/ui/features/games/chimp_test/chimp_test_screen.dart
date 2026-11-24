@@ -156,13 +156,13 @@ class _ChimpTestScreenState extends ConsumerState<ChimpTestScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Flexible(child: Text(
                       "ROUND: $_round / $totalRounds",
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w900,
                         color: colorScheme.onSurface,
                       ),
-                    ),
+                    )),
                     Row(
                       children: List.generate(3, (index) {
                         return Icon(

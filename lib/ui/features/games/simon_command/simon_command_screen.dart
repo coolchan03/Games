@@ -161,20 +161,20 @@ class _SimonCommandScreenState extends ConsumerState<SimonCommandScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                Flexible(child: Text(
                   "MATCHES: $_correctAnswers / $targetScore",
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w900,
                     color: colorScheme.onSurface,
                   ),
-                ),
-                Text(
+                )),
+                Flexible(child: Text(
                   "TIME: $_timeLeft s",
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w900,
                     color: _timeLeft < 10 ? DesignSystem.error : DesignSystem.accentTeal,
                   ),
-                ),
+                )),
               ],
             ),
             const SizedBox(height: DesignSystem.spaceXL),

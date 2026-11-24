@@ -177,7 +177,7 @@ class _RotatingMazeScreenState extends ConsumerState<RotatingMazeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        TangibleContainer(
+                        Flexible(child: TangibleContainer(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           radius: DesignSystem.radiusSM,
                           color: theme.colorScheme.surface,
@@ -190,25 +190,25 @@ class _RotatingMazeScreenState extends ConsumerState<RotatingMazeScreen> {
                                 size: 18,
                               ),
                               const SizedBox(width: 8),
-                              Text(
+                              Flexible(child: Text(
                                 'ROTATION IN: ',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                                 ),
-                              ),
-                              Text(
+                              )),
+                              Flexible(child: Text(
                                 '${state.movesUntilRotation} MOVES',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w900,
                                   color: state.movesUntilRotation <= 2 ? DesignSystem.error : theme.colorScheme.onSurface,
                                 ),
-                              ),
+                              )),
                             ],
                           ),
-                        ),
+                        )),
                       ],
                     ),
                     const SizedBox(height: DesignSystem.spaceLG),

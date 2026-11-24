@@ -201,18 +201,18 @@ class ConjunctionSearchScreen extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      Flexible(child: Text(
                         l10n.conjunctionSearchFind,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1.0,
                         ),
-                      ),
+                      )),
                       const SizedBox(width: DesignSystem.spaceSM),
                       _buildShape(state.target.shape, targetColor, 28),
                       const SizedBox(width: DesignSystem.spaceSM),
-                      Text(
+                      Flexible(child: Text(
                         '${_getColorLabel(state.target.color, l10n)} ${_getShapeLabel(state.target.shape, l10n)}',
                         style: TextStyle(
                           fontSize: 15,
@@ -220,7 +220,7 @@ class ConjunctionSearchScreen extends ConsumerWidget {
                           color: targetColor,
                           letterSpacing: 0.5,
                         ),
-                      ),
+                      )),
                     ],
                   ),
                 ),

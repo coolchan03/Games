@@ -175,14 +175,14 @@ class _ExponentTowerScreenState extends ConsumerState<ExponentTowerScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.flash_on_rounded, size: 18, color: DesignSystem.gameIndigo),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'EXPONENTS',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -191,18 +191,18 @@ class _ExponentTowerScreenState extends ConsumerState<ExponentTowerScreen> {
                   letterSpacing: 1.0,
                   color: DesignSystem.gameIndigo,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -211,10 +211,10 @@ class _ExponentTowerScreenState extends ConsumerState<ExponentTowerScreen> {
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -268,14 +268,14 @@ class _ExponentTowerScreenState extends ConsumerState<ExponentTowerScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
+                          Flexible(child: Text(
                             '#$levelNum  ',
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
                               color: DesignSystem.gameIndigo,
                             ),
-                          ),
+                          )),
                           _buildPowerText(item.base, item.exp, DesignSystem.gameIndigo, 24),
                         ],
                       ),
@@ -310,7 +310,7 @@ class _ExponentTowerScreenState extends ConsumerState<ExponentTowerScreen> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        Flexible(child: Text(
           '$base',
           style: TextStyle(
             fontFamily: 'Bebas Neue',
@@ -319,8 +319,8 @@ class _ExponentTowerScreenState extends ConsumerState<ExponentTowerScreen> {
             color: color,
             height: 1.0,
           ),
-        ),
-        Text(
+        )),
+        Flexible(child: Text(
           '$exp',
           style: TextStyle(
             fontFamily: 'Bebas Neue',
@@ -329,7 +329,7 @@ class _ExponentTowerScreenState extends ConsumerState<ExponentTowerScreen> {
             color: color,
             height: 1.0,
           ),
-        ),
+        )),
       ],
     );
   }

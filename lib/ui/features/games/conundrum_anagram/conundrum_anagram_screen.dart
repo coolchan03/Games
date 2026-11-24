@@ -157,14 +157,14 @@ class _ConundrumAnagramScreenState extends ConsumerState<ConundrumAnagramScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.spellcheck_rounded, size: 18, color: DesignSystem.gameRose),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '9-LETTER CONUNDRUM',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -173,18 +173,18 @@ class _ConundrumAnagramScreenState extends ConsumerState<ConundrumAnagramScreen>
                   letterSpacing: 1.0,
                   color: DesignSystem.gameRose,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -193,10 +193,10 @@ class _ConundrumAnagramScreenState extends ConsumerState<ConundrumAnagramScreen>
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -310,7 +310,7 @@ class _ConundrumAnagramScreenState extends ConsumerState<ConundrumAnagramScreen>
             children: [
               Icon(Icons.backspace_rounded, size: 20),
               SizedBox(width: 8),
-              Text(
+              Flexible(child: Text(
                 'BACKSPACE',
                 style: TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -318,7 +318,7 @@ class _ConundrumAnagramScreenState extends ConsumerState<ConundrumAnagramScreen>
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.0,
                 ),
-              ),
+              )),
             ],
           ),
         ),

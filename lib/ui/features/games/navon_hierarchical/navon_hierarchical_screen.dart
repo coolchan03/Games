@@ -125,14 +125,14 @@ class _NavonHierarchicalScreenState extends ConsumerState<NavonHierarchicalScree
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.remove_red_eye_rounded, size: 18, color: DesignSystem.gameAmber),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'NAVON TASK',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -141,18 +141,18 @@ class _NavonHierarchicalScreenState extends ConsumerState<NavonHierarchicalScree
                   letterSpacing: 1.0,
                   color: DesignSystem.gameAmber,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -161,10 +161,10 @@ class _NavonHierarchicalScreenState extends ConsumerState<NavonHierarchicalScree
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }

@@ -217,14 +217,14 @@ class _VektorVectorScreenState extends ConsumerState<VektorVectorScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Flexible(child: Text(
                       'Scale Vector u: $_scaleA',
                       style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
+                    )),
+                    Flexible(child: Text(
                       'Result: ($_scaleA * u) = (${_scaleA * _u.x}, ${_scaleA * _u.y})',
                       style: TextStyle(color: Colors.blue[400], fontSize: 12),
-                    ),
+                    )),
                   ],
                 ),
                 Slider(
@@ -246,14 +246,14 @@ class _VektorVectorScreenState extends ConsumerState<VektorVectorScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    Flexible(child: Text(
                       'Scale Vector v: $_scaleB',
                       style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
+                    )),
+                    Flexible(child: Text(
                       'Result: ($_scaleB * v) = (${_scaleB * _v.x}, ${_scaleB * _v.y})',
                       style: TextStyle(color: Colors.purple[400], fontSize: 12),
-                    ),
+                    )),
                   ],
                 ),
                 Slider(

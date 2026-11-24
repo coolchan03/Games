@@ -135,14 +135,14 @@ class _StroopNumberSizeScreenState extends ConsumerState<StroopNumberSizeScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.format_size_rounded, size: 18, color: DesignSystem.gameRose),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'TRIAL $_trialCount / $totalTrials',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -151,18 +151,18 @@ class _StroopNumberSizeScreenState extends ConsumerState<StroopNumberSizeScreen>
                   letterSpacing: 1.0,
                   color: DesignSystem.gameRose,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'ACCURACY: $_score',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -171,10 +171,10 @@ class _StroopNumberSizeScreenState extends ConsumerState<StroopNumberSizeScreen>
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -216,7 +216,7 @@ class _StroopNumberSizeScreenState extends ConsumerState<StroopNumberSizeScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Text(
+          Flexible(child: Text(
             '${_currentTrial.leftNumber}',
             style: TextStyle(
               fontFamily: 'Bebas Neue',
@@ -224,13 +224,13 @@ class _StroopNumberSizeScreenState extends ConsumerState<StroopNumberSizeScreen>
               fontWeight: FontWeight.w900,
               color: colorScheme.onSurface,
             ),
-          ),
-          Container(
+          )),
+          Flexible(child: Container(
             width: 1,
             height: 80,
             color: colorScheme.outline.withValues(alpha: 0.3),
-          ),
-          Text(
+          )),
+          Flexible(child: Text(
             '${_currentTrial.rightNumber}',
             style: TextStyle(
               fontFamily: 'Bebas Neue',
@@ -238,7 +238,7 @@ class _StroopNumberSizeScreenState extends ConsumerState<StroopNumberSizeScreen>
               fontWeight: FontWeight.w900,
               color: colorScheme.onSurface,
             ),
-          ),
+          )),
         ],
       ),
     );

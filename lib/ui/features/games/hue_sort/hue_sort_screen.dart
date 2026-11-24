@@ -80,14 +80,14 @@ class HueSortScreen extends ConsumerWidget {
               color: colorScheme.primary,
             ),
             const SizedBox(width: DesignSystem.spaceSM),
-            Text(
+            Flexible(child: Text(
               l10n.hueSortWrongTiles(state.wrongTilesCount),
               style: TextStyle(
                 fontSize: DesignSystem.fontSizeSM,
                 fontWeight: FontWeight.w600,
                 color: colorScheme.onSurface.withValues(alpha: 0.8),
               ),
-            ),
+            )),
           ],
         ),
       ),

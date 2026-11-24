@@ -179,7 +179,7 @@ class _WordPairAssociateMemoryScreenState extends ConsumerState<WordPairAssociat
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
@@ -190,7 +190,7 @@ class _WordPairAssociateMemoryScreenState extends ConsumerState<WordPairAssociat
                 color: DesignSystem.gameIndigo,
               ),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 _isStudyPhase ? 'STUDY: $_studySecondsLeft s' : 'RECALL ${_queryIndex + 1} / ${_currentRound.queryPairs.length}',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -199,18 +199,18 @@ class _WordPairAssociateMemoryScreenState extends ConsumerState<WordPairAssociat
                   letterSpacing: 1.0,
                   color: DesignSystem.gameIndigo,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -219,10 +219,10 @@ class _WordPairAssociateMemoryScreenState extends ConsumerState<WordPairAssociat
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -262,7 +262,7 @@ class _WordPairAssociateMemoryScreenState extends ConsumerState<WordPairAssociat
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    Flexible(child: Text(
                       pair.wordA,
                       style: const TextStyle(
                         fontFamily: 'Bebas Neue',
@@ -270,12 +270,12 @@ class _WordPairAssociateMemoryScreenState extends ConsumerState<WordPairAssociat
                         fontWeight: FontWeight.bold,
                         color: DesignSystem.gameIndigo,
                       ),
-                    ),
+                    )),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Icon(Icons.arrow_forward_rounded, size: 18),
                     ),
-                    Text(
+                    Flexible(child: Text(
                       pair.wordB,
                       style: TextStyle(
                         fontFamily: 'Bebas Neue',
@@ -283,7 +283,7 @@ class _WordPairAssociateMemoryScreenState extends ConsumerState<WordPairAssociat
                         fontWeight: FontWeight.bold,
                         color: colorScheme.onSurface,
                       ),
-                    ),
+                    )),
                   ],
                 ),
               ),

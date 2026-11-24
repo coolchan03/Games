@@ -136,7 +136,7 @@ class _SokobanScreenState extends State<SokobanScreen> {
         ),
         Row(children: [
           const SizedBox(width: 8),
-          const Text('First 20 levels:'),
+          const Flexible(child: Text('First 20 levels:')),
           const SizedBox(width: 8),
           Expanded(child: DropdownButton<int>(
             key: const ValueKey('sokoban_level_selector'),

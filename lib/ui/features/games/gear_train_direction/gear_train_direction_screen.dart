@@ -156,14 +156,14 @@ class _GearTrainDirectionScreenState extends ConsumerState<GearTrainDirectionScr
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.settings_rounded, size: 18, color: DesignSystem.gamePurple),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'GEAR TRAIN',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -172,18 +172,18 @@ class _GearTrainDirectionScreenState extends ConsumerState<GearTrainDirectionScr
                   letterSpacing: 1.0,
                   color: DesignSystem.gamePurple,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -192,10 +192,10 @@ class _GearTrainDirectionScreenState extends ConsumerState<GearTrainDirectionScr
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -307,7 +307,7 @@ class _GearTrainDirectionScreenState extends ConsumerState<GearTrainDirectionScr
               children: [
                 Icon(Icons.rotate_right_rounded, color: DesignSystem.primary, size: 24),
                 SizedBox(width: 8),
-                Text(
+                Flexible(child: Text(
                   'CLOCKWISE',
                   style: TextStyle(
                     fontFamily: 'Bebas Neue',
@@ -315,7 +315,7 @@ class _GearTrainDirectionScreenState extends ConsumerState<GearTrainDirectionScr
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
-                ),
+                )),
               ],
             ),
           ),
@@ -331,7 +331,7 @@ class _GearTrainDirectionScreenState extends ConsumerState<GearTrainDirectionScr
               children: [
                 Icon(Icons.rotate_left_rounded, color: DesignSystem.gameRose, size: 24),
                 SizedBox(width: 8),
-                Text(
+                Flexible(child: Text(
                   'COUNTER-CW',
                   style: TextStyle(
                     fontFamily: 'Bebas Neue',
@@ -339,7 +339,7 @@ class _GearTrainDirectionScreenState extends ConsumerState<GearTrainDirectionScr
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
-                ),
+                )),
               ],
             ),
           ),

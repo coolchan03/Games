@@ -160,7 +160,7 @@ class _ChalkAndTalkScreenState extends ConsumerState<ChalkAndTalkScreen> {
                   children: [
                     const Icon(Icons.volume_up_rounded, color: Colors.blue, size: 28),
                     const SizedBox(width: 12),
-                    Text(
+                    Flexible(child: Text(
                       'YOU HEAR:  "$_voiceWord"',
                       style: const TextStyle(
                         fontSize: 18,
@@ -168,7 +168,7 @@ class _ChalkAndTalkScreenState extends ConsumerState<ChalkAndTalkScreen> {
                         letterSpacing: 1.0,
                         color: Colors.blue,
                       ),
-                    ),
+                    )),
                   ],
                 ),
               ),

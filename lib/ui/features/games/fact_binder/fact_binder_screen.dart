@@ -257,10 +257,10 @@ class _FactBinderScreenState extends ConsumerState<FactBinderScreen> {
                           children: [
                             const Icon(Icons.work_rounded, size: 16, color: DesignSystem.accentBerry),
                             const SizedBox(width: 8),
-                            Text(
+                            Flexible(child: Text(
                               "JOB: ${_profiles[_memorizationIndex]['job']}",
                               style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
-                            ),
+                            )),
                           ],
                         ),
                         const SizedBox(height: DesignSystem.spaceSM),
@@ -268,10 +268,10 @@ class _FactBinderScreenState extends ConsumerState<FactBinderScreen> {
                           children: [
                             const Icon(Icons.sports_esports_rounded, size: 16, color: DesignSystem.accentEmerald),
                             const SizedBox(width: 8),
-                            Text(
+                            Flexible(child: Text(
                               "HOBBY: ${_profiles[_memorizationIndex]['hobby']}",
                               style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
-                            ),
+                            )),
                           ],
                         ),
                       ],

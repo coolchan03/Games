@@ -266,7 +266,7 @@ class _MatrixMultiplierScreenState extends ConsumerState<MatrixMultiplierScreen>
                       ),
                     ],
                   ),
-                  const Text('×', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                  const Flexible(child: Text('×', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold))),
                   // Matrix B (Column selector)
                   Column(
                     children: [
@@ -333,7 +333,7 @@ class _MatrixMultiplierScreenState extends ConsumerState<MatrixMultiplierScreen>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Calculation: ', style: TextStyle(fontSize: 15)),
+                        const Flexible(child: Text('Calculation: ', style: TextStyle(fontSize: 15))),
                         ...List.generate(3, (i) {
                           final aStr = _selectedRow != null ? '${_matrixA[_selectedRow!][i]}' : 'a$i';
                           final bStr = _selectedCol != null ? '${_matrixB[i][_selectedCol!]}' : 'b$i';

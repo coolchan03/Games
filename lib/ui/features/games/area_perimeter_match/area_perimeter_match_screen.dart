@@ -265,14 +265,14 @@ class _AreaPerimeterMatchScreenState extends ConsumerState<AreaPerimeterMatchScr
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text(
+                    Flexible(child: Text(
                       'Current Area: ${_currentW * _currentH}',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
-                    Text(
+                    )),
+                    Flexible(child: Text(
                       'Current Perimeter: ${2 * (_currentW + _currentH)}',
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    ),
+                    )),
                   ],
                 ),
               ],

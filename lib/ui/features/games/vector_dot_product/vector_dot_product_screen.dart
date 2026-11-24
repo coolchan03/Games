@@ -137,14 +137,14 @@ class _VectorDotProductScreenState extends ConsumerState<VectorDotProductScreen>
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.linear_scale_rounded, size: 18, color: DesignSystem.gameIndigo),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'DOT PRODUCT',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -153,18 +153,18 @@ class _VectorDotProductScreenState extends ConsumerState<VectorDotProductScreen>
                   letterSpacing: 1.0,
                   color: DesignSystem.gameIndigo,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -173,10 +173,10 @@ class _VectorDotProductScreenState extends ConsumerState<VectorDotProductScreen>
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -203,7 +203,7 @@ class _VectorDotProductScreenState extends ConsumerState<VectorDotProductScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              Flexible(child: Text(
                 _currentQuestion.vecAStr,
                 style: TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -212,12 +212,12 @@ class _VectorDotProductScreenState extends ConsumerState<VectorDotProductScreen>
                   color: colorScheme.primary,
                   letterSpacing: 1.5,
                 ),
-              ),
+              )),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
                 child: Text('•', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
               ),
-              Text(
+              Flexible(child: Text(
                 _currentQuestion.vecBStr,
                 style: TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -226,7 +226,7 @@ class _VectorDotProductScreenState extends ConsumerState<VectorDotProductScreen>
                   color: DesignSystem.gameIndigo,
                   letterSpacing: 1.5,
                 ),
-              ),
+              )),
             ],
           ),
         ],

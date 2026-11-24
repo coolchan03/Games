@@ -114,7 +114,7 @@ class _TapaScreenState extends ConsumerState<TapaScreen> {
                   children: [
                     Icon(Icons.refresh_rounded, color: colorScheme.primary, size: 20),
                     const SizedBox(width: 8),
-                    Text(
+                    Flexible(child: Text(
                       l10n.playAgain.toUpperCase(),
                       style: TextStyle(
                         fontFamily: 'Geist',
@@ -122,7 +122,7 @@ class _TapaScreenState extends ConsumerState<TapaScreen> {
                         fontWeight: FontWeight.w700,
                         color: colorScheme.primary,
                       ),
-                    ),
+                    )),
                   ],
                 ),
               ),
@@ -160,7 +160,7 @@ class _TapaScreenState extends ConsumerState<TapaScreen> {
           ),
         ),
         const SizedBox(width: 6),
-        Text(
+        Flexible(child: Text(
           label,
           style: TextStyle(
             fontSize: 10,
@@ -168,7 +168,7 @@ class _TapaScreenState extends ConsumerState<TapaScreen> {
             color: textColor,
             letterSpacing: 0.5,
           ),
-        ),
+        )),
       ],
     );
   }

@@ -202,10 +202,10 @@ class _WordSnakeTrailScreenState extends ConsumerState<WordSnakeTrailScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold, color: DesignSystem.primary, fontSize: 16),
                   ),
                 ),
-                Text(
+                Flexible(child: Text(
                   '${AppLocalizations.of(context)!.statScore}: $_score / $_targetScore',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
+                )),
               ],
             ),
             const SizedBox(height: 24),

@@ -190,22 +190,22 @@ class _WordAssociationRecallScreenState extends ConsumerState<WordAssociationRec
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              Flexible(child: Text(
                 currentPair.key,
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
                       color: DesignSystem.gameBlue,
                     ),
-              ),
+              )),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Icon(Icons.link_rounded, size: 32, color: Colors.grey),
               ),
-              Text(
+              Flexible(child: Text(
                 currentPair.value,
                 style: Theme.of(context).textTheme.displayMedium?.copyWith(
                       color: DesignSystem.gamePurple,
                     ),
-              ),
+              )),
             ],
           ),
         ),

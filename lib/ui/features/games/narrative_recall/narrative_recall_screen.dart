@@ -210,7 +210,7 @@ class _NarrativeRecallScreenState extends ConsumerState<NarrativeRecallScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l10n.phaseMemorizeDetails, style: Theme.of(context).textTheme.titleMedium),
+                Flexible(child: Text(l10n.phaseMemorizeDetails, style: Theme.of(context).textTheme.titleMedium)),
                 if (_showingStory)
                   Text(l10n.phaseTimeLeft(_timeLeft), style: const TextStyle(fontWeight: FontWeight.bold, color: DesignSystem.gameRose)),
                 ],

@@ -137,14 +137,14 @@ class _AlgebraicInequalitySolverScreenState extends ConsumerState<AlgebraicInequ
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.code_rounded, size: 18, color: DesignSystem.gameIndigo),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'INEQUALITIES',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -153,18 +153,18 @@ class _AlgebraicInequalitySolverScreenState extends ConsumerState<AlgebraicInequ
                   letterSpacing: 1.0,
                   color: DesignSystem.gameIndigo,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -173,10 +173,10 @@ class _AlgebraicInequalitySolverScreenState extends ConsumerState<AlgebraicInequ
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }

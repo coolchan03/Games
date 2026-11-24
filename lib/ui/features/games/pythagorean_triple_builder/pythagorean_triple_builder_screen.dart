@@ -137,14 +137,14 @@ class _PythagoreanTripleBuilderScreenState extends ConsumerState<PythagoreanTrip
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.change_history_rounded, size: 18, color: DesignSystem.gameIndigo),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'PYTHAGORAS',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -153,18 +153,18 @@ class _PythagoreanTripleBuilderScreenState extends ConsumerState<PythagoreanTrip
                   letterSpacing: 1.0,
                   color: DesignSystem.gameIndigo,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 '$_score / $targetScore',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -173,10 +173,10 @@ class _PythagoreanTripleBuilderScreenState extends ConsumerState<PythagoreanTrip
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -211,9 +211,9 @@ class _PythagoreanTripleBuilderScreenState extends ConsumerState<PythagoreanTrip
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildSideCard('LEG a', aLabel, _currentQuestion.missingIndex == 0, colorScheme),
-              const Text('+', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const Flexible(child: Text('+', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
               _buildSideCard('LEG b', bLabel, _currentQuestion.missingIndex == 1, colorScheme),
-              const Text('=', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const Flexible(child: Text('=', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
               _buildSideCard('HYP c', cLabel, _currentQuestion.missingIndex == 2, colorScheme),
             ],
           ),

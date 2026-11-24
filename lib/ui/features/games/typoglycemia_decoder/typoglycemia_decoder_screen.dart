@@ -145,7 +145,7 @@ class _TypoglycemiaDecoderScreenState extends ConsumerState<TypoglycemiaDecoderS
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(AppLocalizations.of(context)!.phaseDecodeTheSentence, style: Theme.of(context).textTheme.titleMedium),
+                  Flexible(child: Text(AppLocalizations.of(context)!.phaseDecodeTheSentence, style: Theme.of(context).textTheme.titleMedium)),
                 ],
               ),
             ),

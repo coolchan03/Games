@@ -202,10 +202,10 @@ class _DoubleNBackScreenState extends ConsumerState<DoubleNBackScreen> {
         children: [
           Icon(Icons.timer_outlined, size: 16, color: timeLeft < 10 ? DesignSystem.error : Theme.of(context).colorScheme.onSurface),
           SizedBox(width: 4),
-          Text(
+          Flexible(child: Text(
             timeLeft.toString(),
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: timeLeft < 10 ? DesignSystem.error : Theme.of(context).colorScheme.onSurface),
-          ),
+          )),
         ],
       ),
     );

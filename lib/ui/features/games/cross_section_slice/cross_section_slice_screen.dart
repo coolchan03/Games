@@ -162,14 +162,14 @@ class _CrossSectionSliceScreenState extends ConsumerState<CrossSectionSliceScree
               children: [
                 Icon(_getShapeIcon(shape), size: 20),
                 const SizedBox(width: 8),
-                Text(
+                Flexible(child: Text(
                   _getShapeLabel(shape, l10n),
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                     letterSpacing: 0.5,
                   ),
-                ),
+                )),
               ],
             ),
           );

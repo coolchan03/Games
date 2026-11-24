@@ -253,14 +253,14 @@ class _SumPyramidScreenState extends ConsumerState<SumPyramidScreen> {
                           children: [
                             Icon(Icons.stars_rounded, color: DesignSystem.accentAmber, size: 20),
                             const SizedBox(width: DesignSystem.spaceXS),
-                            Text(
+                            Flexible(child: Text(
                               'SCORE: ${state.score}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.w900,
                                 fontSize: 13,
                                 letterSpacing: 0.5,
                               ),
-                            ),
+                            )),
                           ],
                         ),
                       ),
@@ -286,7 +286,7 @@ class _SumPyramidScreenState extends ConsumerState<SumPyramidScreen> {
                               size: 20,
                             ),
                             const SizedBox(width: DesignSystem.spaceXS),
-                            Text(
+                            Flexible(child: Text(
                               '${state.timeLeft}s',
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
@@ -294,7 +294,7 @@ class _SumPyramidScreenState extends ConsumerState<SumPyramidScreen> {
                                 color: state.timeLeft <= 10 ? colorScheme.error : null,
                                 letterSpacing: 0.5,
                               ),
-                            ),
+                            )),
                           ],
                         ),
                       ),

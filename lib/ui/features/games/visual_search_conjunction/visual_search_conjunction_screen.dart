@@ -130,14 +130,14 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.manage_search_rounded, size: 18, color: DesignSystem.gameRose),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'TRIAL $_trialCount / $totalTrials',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -146,18 +146,18 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
                   letterSpacing: 1.0,
                   color: DesignSystem.gameRose,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
-        TangibleContainer(
+        )),
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
             children: [
               const Icon(Icons.stars_rounded, size: 18, color: DesignSystem.primary),
               const SizedBox(width: 6),
-              Text(
+              Flexible(child: Text(
                 'ACCURACY: $_score',
                 style: const TextStyle(
                   fontFamily: 'Bebas Neue',
@@ -166,10 +166,10 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
                   letterSpacing: 1.0,
                   color: DesignSystem.primary,
                 ),
-              ),
+              )),
             ],
           ),
-        ),
+        )),
       ],
     );
   }
@@ -186,7 +186,7 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          const Flexible(child: Text(
             'TARGET: ',
             style: TextStyle(
               fontFamily: 'Geist',
@@ -194,10 +194,10 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
               fontWeight: FontWeight.w800,
               letterSpacing: 0.8,
             ),
-          ),
+          )),
           Icon(_currentRound.targetShape, color: _currentRound.targetColor, size: 24),
           const SizedBox(width: 6),
-          const Text(
+          const Flexible(child: Text(
             'RED SQUARE',
             style: TextStyle(
               fontFamily: 'Bebas Neue',
@@ -205,7 +205,7 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
               fontWeight: FontWeight.bold,
               color: DesignSystem.gameRed,
             ),
-          ),
+          )),
         ],
       ),
     );
@@ -251,7 +251,7 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
               children: [
                 Icon(Icons.check_circle_rounded, color: DesignSystem.success, size: 24),
                 SizedBox(width: 8),
-                Text(
+                Flexible(child: Text(
                   'PRESENT',
                   style: TextStyle(
                     fontFamily: 'Bebas Neue',
@@ -259,7 +259,7 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
-                ),
+                )),
               ],
             ),
           ),
@@ -275,7 +275,7 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
               children: [
                 Icon(Icons.cancel_rounded, color: DesignSystem.error, size: 24),
                 SizedBox(width: 8),
-                Text(
+                Flexible(child: Text(
                   'ABSENT',
                   style: TextStyle(
                     fontFamily: 'Bebas Neue',
@@ -283,7 +283,7 @@ class _VisualSearchConjunctionScreenState extends ConsumerState<VisualSearchConj
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
                   ),
-                ),
+                )),
               ],
             ),
           ),

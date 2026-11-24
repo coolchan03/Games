@@ -276,7 +276,7 @@ class _AlgebraicBalanceScreenState extends ConsumerState<AlgebraicBalanceScreen>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _buildExpression(_eq1StarCoeff, _eq1HeartCoeff, 0),
-                            Text(' = $_eq1Value', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                            Flexible(child: Text(' = $_eq1Value', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -284,7 +284,7 @@ class _AlgebraicBalanceScreenState extends ConsumerState<AlgebraicBalanceScreen>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _buildExpression(_eq2StarCoeff, 0, _eq2SunCoeff),
-                            Text(' = $_eq2Value', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                            Flexible(child: Text(' = $_eq2Value', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -292,7 +292,7 @@ class _AlgebraicBalanceScreenState extends ConsumerState<AlgebraicBalanceScreen>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _buildExpression(0, _eq3HeartCoeff, _eq3SunCoeff),
-                            Text(' = $_eq3Value', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                            Flexible(child: Text(' = $_eq3Value', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
                           ],
                         ),
                       ],
@@ -309,7 +309,7 @@ class _AlgebraicBalanceScreenState extends ConsumerState<AlgebraicBalanceScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(_getSymbolIcon(_questionSymbol), color: _getSymbolColor(_questionSymbol), size: 40),
-                    const Text(' =  ?', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+                    const Flexible(child: Text(' =  ?', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold))),
                   ],
                 ),
                 const SizedBox(height: 30),

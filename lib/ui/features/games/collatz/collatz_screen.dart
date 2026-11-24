@@ -79,14 +79,14 @@ class _CollatzScreenState extends ConsumerState<CollatzScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  Flexible(child: Text(
                     'STEPS: ${state.stepsTaken}',
                     style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary),
-                  ),
-                  Text(
+                  )),
+                  Flexible(child: Text(
                     'TARGET: ${state.currentLevel?.minSteps}',
                     style: TextStyle(fontWeight: FontWeight.bold, color: DesignSystem.accentAmber),
-                  ),
+                  )),
                 ],
               ),
               const SizedBox(height: DesignSystem.spaceLG),
