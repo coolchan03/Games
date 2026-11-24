@@ -1,4 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
 
 import 'package:flutter/material.dart';
@@ -74,7 +75,7 @@ class _VerbalAnalogiesScreenState extends ConsumerState<VerbalAnalogiesScreen> {
       subtitle: l10n.verbalAnalogiesSubtitle,
       body: Padding(
         padding: const EdgeInsets.all(DesignSystem.spaceLG),
-        child: Column(
+        child: ScrollSpread(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             LinearProgressIndicator(

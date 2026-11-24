@@ -1,4 +1,5 @@
 import "package:puzzle/l10n/app_localizations.dart";
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -86,10 +87,8 @@ class _SpoonerismSolverScreenState extends ConsumerState<SpoonerismSolverScreen>
           ? const Center(child: CircularProgressIndicator(color: DesignSystem.primary))
           : LayoutBuilder(
               builder: (context, constraints) {
-                return Column(
-                  children: [
-                    const Spacer(),
-                    Padding(
+                return ScrollSpread(children: [
+Padding(
                       padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceLG),
                       child: TangibleContainer(
                         padding: const EdgeInsets.all(24),
@@ -108,8 +107,7 @@ class _SpoonerismSolverScreenState extends ConsumerState<SpoonerismSolverScreen>
                         ),
                       ),
                     ),
-                    const Spacer(),
-                    Padding(
+Padding(
                       padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceLG),
                       child: Column(
                         children: state.options.map((option) {
@@ -143,9 +141,7 @@ class _SpoonerismSolverScreenState extends ConsumerState<SpoonerismSolverScreen>
                         }).toList(),
                       ),
                     ),
-                    const Spacer(),
-                  ],
-                );
+]);
               },
             ),
     );

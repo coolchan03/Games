@@ -57,11 +57,11 @@ class LetterBridgeScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildWordPart(context, state.firstPart, true),
+                Flexible(child: _buildWordPart(context, state.firstPart, true)),
                 const SizedBox(width: 8),
-                _buildBridgeInput(context, state),
+                Flexible(child: _buildBridgeInput(context, state)),
                 const SizedBox(width: 8),
-                _buildWordPart(context, state.secondPart, false),
+                Flexible(child: _buildWordPart(context, state.secondPart, false)),
               ],
             ),
             const SizedBox(height: 48),

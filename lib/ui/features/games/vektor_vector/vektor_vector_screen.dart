@@ -137,7 +137,7 @@ class _VektorVectorScreenState extends ConsumerState<VektorVectorScreen> {
           },
         ),
       ],
-      body: MinHeightScroll(minHeight: 720, child: Column(
+      body: MinHeightScroll(minHeight: 780, child: Column(
         children: [
           // Info and Target board
           Padding(

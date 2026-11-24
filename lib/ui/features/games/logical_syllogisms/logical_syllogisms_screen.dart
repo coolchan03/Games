@@ -72,7 +72,7 @@ class _LogicalSyllogismsScreenState extends ConsumerState<LogicalSyllogismsScree
     return GameScaffold(
       title: l10n.logicalSyllogismsTitle.toUpperCase(),
       subtitle: l10n.logicalSyllogismsSubtitle,
-      body: MinHeightScroll(minHeight: 720, child: Column(
+      body: MinHeightScroll(minHeight: 800, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(DesignSystem.spaceMD),
