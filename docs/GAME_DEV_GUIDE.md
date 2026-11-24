@@ -275,3 +275,38 @@ dart run build_runner build --delete-conflicting-outputs
 5. **Add semantics**: Include `semanticsLabel` on interactive elements
 6. **Handle errors**: Use try/catch in provider methods
 7. **Add tests**: Cover engine logic with unit tests
+
+## Levels, random levels and "am I trapped?" (level kit)
+
+`lib/ui/features/games/common/level_kit.dart` gives any game numbered levels,
+random levels, proof that a level can be won, and dead-end detection. See
+Water Sort (`water_sort/`) and Lights Out (`lights_out/`) for complete uses.
+
+1. **Describe the puzzle as a graph** by extending `SearchPuzzle<S>`: `key` (a
+   canonical string; merge symmetric positions), `isGoal`, `successors`.
+2. **Generate levels so they are winnable by construction**: start from the
+   solved position and apply *reverse* moves (Water Sort), or press a random
+   set of cells (Lights Out). Seed with `levelSeed(gameId, level)` so level N is
+   the same everywhere, and `randomLevelSeed()` for endless random levels.
+   `generateVerified` retries seeds until your `verify` accepts one.
+3. **Verify with the solver** in tests: `solvePuzzle` returns `solvable`,
+   `unsolvable` (the whole space was searched) or `unknown` (budget ran out).
+   Test every numbered level plus many random seeds.
+4. **Detect traps at play time** with `TrapMonitor`. `isTrapped` is true only
+   when a position is *proven* lost; an inconclusive search never claims it.
+   `hint` returns the next position on a shortest solution, or null when the
+   position is lost or too large, so a hint is never offered from a dead end.
+5. **Show it**: pass `deadEnd: trapped` and `onUndo` to the shared
+   `GameScaffold` (it shows the "No moves left" dialog), and use
+   `CampaignLevelBar` for the level picker, stars, resume and best scores.
+
+Games whose state space is too large for BFS (Sokoban, large grids) should use
+a domain-specific proof instead, such as deadlock patterns or the GF(2) solver
+used by Lights Out, and keep the same `Solvability` vocabulary.
+
+## Phone layout audit
+
+`SWEEP=1 flutter test test/games/phone_layout_sweep_test.dart` opens every game
+on a 360x640 phone at a chosen text scale (`SWEEP_SCALE`, default 1.5) and
+fails on any overflow. Shard it with `SWEEP_SHARD=i/4`. The current list of
+games that still overflow is in `docs/PHONE_LAYOUT_AUDIT.md`.
