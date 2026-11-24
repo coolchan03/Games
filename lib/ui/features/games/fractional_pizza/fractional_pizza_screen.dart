@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -158,10 +159,8 @@ class _FractionalPizzaScreenState extends ConsumerState<FractionalPizzaScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(DesignSystem.spaceMD),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
+          child: ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
+Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: DesignSystem.primary.withValues(alpha: 0.15),
@@ -175,9 +174,8 @@ class _FractionalPizzaScreenState extends ConsumerState<FractionalPizzaScreen> {
                       ),
                 ),
               ),
-              const SizedBox(height: 20),
-              // Target Fraction Card
-              Container(
+const SizedBox(height: 20),
+Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: isDark ? DesignSystem.darkSurface : DesignSystem.surface,
@@ -233,9 +231,8 @@ class _FractionalPizzaScreenState extends ConsumerState<FractionalPizzaScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
-              // Interactive Pizza CustomPaint
-              LayoutBuilder(
+const SizedBox(height: 30),
+LayoutBuilder(
                 builder: (context, constraints) {
                   final size = min(constraints.maxWidth * 0.75, 260.0);
                   return GestureDetector(
@@ -254,14 +251,13 @@ class _FractionalPizzaScreenState extends ConsumerState<FractionalPizzaScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 16),
-              Text(
+const SizedBox(height: 16),
+Text(
                 'Selected: ${_selectedSlices.length} / $_totalSlices slices',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 30),
-              // Submit button
-              SizedBox(
+const SizedBox(height: 30),
+SizedBox(
                 width: 200,
                 height: 50,
                 child: ElevatedButton(
@@ -279,8 +275,7 @@ class _FractionalPizzaScreenState extends ConsumerState<FractionalPizzaScreen> {
                   ),
                 ),
               ),
-            ],
-          ),
+]),
         ),
       ),
     );

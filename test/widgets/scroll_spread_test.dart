@@ -10,7 +10,7 @@ void main() {
             child: ScrollSpread(children: [
               for (var i = 0; i < items; i++) SizedBox(key: ValueKey('c$i'), height: 100, width: 50),
               // Children without intrinsic sizes must work (GridView, LayoutBuilder).
-              GridView.count(shrinkWrap: true, crossAxisCount: 2, children: const [Text('a'), Text('b')]),
+              SizedBox(width: 60, child: GridView.count(shrinkWrap: true, crossAxisCount: 2, children: const [Text('a'), Text('b')])),
               LayoutBuilder(builder: (_, __) => const SizedBox(height: 10)),
             ]),
           ),

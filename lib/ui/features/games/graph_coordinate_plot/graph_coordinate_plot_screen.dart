@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -151,10 +152,8 @@ class _GraphCoordinatePlotScreenState extends ConsumerState<GraphCoordinatePlotS
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(DesignSystem.spaceMD),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
+          child: ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
+Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: DesignSystem.primary.withValues(alpha: 0.15),
@@ -168,9 +167,8 @@ class _GraphCoordinatePlotScreenState extends ConsumerState<GraphCoordinatePlotS
                       ),
                 ),
               ),
-              const SizedBox(height: 16),
-              // Equation & Target Prompt Card
-              Container(
+const SizedBox(height: 16),
+Container(
                 padding: const EdgeInsets.all(16),
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -198,9 +196,8 @@ class _GraphCoordinatePlotScreenState extends ConsumerState<GraphCoordinatePlotS
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
-              // The Coordinate Graph
-              LayoutBuilder(
+const SizedBox(height: 20),
+LayoutBuilder(
                 builder: (context, constraints) {
                   final size = min(constraints.maxWidth * 0.85, 270.0);
                   return GestureDetector(
@@ -226,17 +223,15 @@ class _GraphCoordinatePlotScreenState extends ConsumerState<GraphCoordinatePlotS
                   );
                 },
               ),
-              const SizedBox(height: 16),
-              // Current point label
-              Text(
+const SizedBox(height: 16),
+Text(
                 _selectedPoint != null
                     ? 'Selected Point: (${_selectedPoint!.x}, ${_selectedPoint!.y})'
                     : 'Tap the graph to plot a point',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 24),
-              // Submit button
-              SizedBox(
+const SizedBox(height: 24),
+SizedBox(
                 width: 200,
                 height: 50,
                 child: ElevatedButton(
@@ -254,8 +249,7 @@ class _GraphCoordinatePlotScreenState extends ConsumerState<GraphCoordinatePlotS
                   ),
                 ),
               ),
-            ],
-          ),
+]),
         ),
       ),
     );

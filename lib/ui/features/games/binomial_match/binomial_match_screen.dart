@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -175,10 +176,8 @@ class _BinomialMatchScreenState extends ConsumerState<BinomialMatchScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(DesignSystem.spaceMD),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
+          child: ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
+Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
                   color: DesignSystem.primary.withValues(alpha: 0.15),
@@ -192,8 +191,8 @@ class _BinomialMatchScreenState extends ConsumerState<BinomialMatchScreen> {
                       ),
                 ),
               ),
-              const SizedBox(height: 40),
-              Container(
+const SizedBox(height: 40),
+Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: isDark ? DesignSystem.darkSurface : DesignSystem.surface,
@@ -212,8 +211,8 @@ class _BinomialMatchScreenState extends ConsumerState<BinomialMatchScreen> {
                       ),
                 ),
               ),
-              const SizedBox(height: 40),
-              Text(
+const SizedBox(height: 40),
+Text(
                 'Select the correct factored form:',
                 style: TextStyle(
                   fontSize: 16,
@@ -221,8 +220,8 @@ class _BinomialMatchScreenState extends ConsumerState<BinomialMatchScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 24),
-              ListView.builder(
+const SizedBox(height: 24),
+ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _options.length,
@@ -254,8 +253,7 @@ class _BinomialMatchScreenState extends ConsumerState<BinomialMatchScreen> {
                   );
                 },
               ),
-            ],
-          ),
+]),
         ),
       ),
     );

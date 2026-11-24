@@ -1,4 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../utils/design_system.dart';
@@ -74,17 +75,15 @@ class _DivisibilityDashScreenState extends ConsumerState<DivisibilityDashScreen>
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                children: [
-                  Row(
+              child: ScrollSpread(children: [
+Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildStat(l10n.timeLeft.toUpperCase(), '${state.timeLeft}s', DesignSystem.accentBerry),
                       _buildStat(l10n.score.toUpperCase(), '${state.score}', DesignSystem.accentEmerald),
                     ],
                   ),
-                  const Spacer(),
-                  TangibleContainer(
+TangibleContainer(
                     depth: 4.0,
                     color: colorScheme.onSurface,
                     padding: const EdgeInsets.all(40),
@@ -97,11 +96,9 @@ class _DivisibilityDashScreenState extends ConsumerState<DivisibilityDashScreen>
                       ),
                     ),
                   ),
-                  const Spacer(),
-                  _buildDivisorGrid(state, notifier),
-                  const SizedBox(height: 40),
-                ],
-              ),
+_buildDivisorGrid(state, notifier),
+const SizedBox(height: 40),
+]),
             ),
           );
         },
