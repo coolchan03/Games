@@ -147,9 +147,9 @@ class TemporalOrderScreen extends ConsumerWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildStatCard('LEVEL', '${state.currentLevel}/5', DesignSystem.accentAmber, context),
-        _buildStatCard('ROUND', '${state.currentRound}/3', DesignSystem.primary, context),
-        _buildStatCard('SEQUENCE', '${state.sequence.length} ICONS', DesignSystem.accentTeal, context),
+        Flexible(child: _buildStatCard('LEVEL', '${state.currentLevel}/5', DesignSystem.accentAmber, context)),
+        Flexible(child: _buildStatCard('ROUND', '${state.currentRound}/3', DesignSystem.primary, context)),
+        Flexible(child: _buildStatCard('SEQUENCE', '${state.sequence.length} ICONS', DesignSystem.accentTeal, context)),
       ],
     );
   }

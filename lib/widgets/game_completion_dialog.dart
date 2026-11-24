@@ -387,13 +387,13 @@ class _GameCompletionDialogState extends ConsumerState<GameCompletionDialog> {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      const Flexible(child: Icon(
                         Icons.local_cafe_rounded,
                         size: 14,
                         color: DesignSystem.accentAmber,
-                      ),
+                      )),
                       const SizedBox(width: 6),
-                      Text(
+                      Flexible(child: Text(
                         'BUY ME A COFFEE',
                         style: TextStyle(
                           fontSize: 12,
@@ -401,7 +401,7 @@ class _GameCompletionDialogState extends ConsumerState<GameCompletionDialog> {
                           color: colorScheme.onSurface.withValues(alpha: 0.7),
                           letterSpacing: 0.8,
                         ),
-                      ),
+                      )),
                     ],
                   ),
                 ),

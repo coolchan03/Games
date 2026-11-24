@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -168,16 +169,11 @@ class _TemporalOrderJudgmentScreenState extends ConsumerState<TemporalOrderJudgm
             horizontal: DesignSystem.spaceLG,
             vertical: DesignSystem.spaceMD,
           ),
-          child: Column(
-            children: [
-              _buildHeader(colorScheme),
-              const Spacer(flex: 1),
-              _buildFlashArena(colorScheme),
-              const Spacer(flex: 2),
-              _buildResponseButtons(colorScheme),
-              const Spacer(flex: 1),
-            ],
-          ),
+          child: ScrollSpread(children: [
+_buildHeader(colorScheme),
+_buildFlashArena(colorScheme),
+_buildResponseButtons(colorScheme),
+]),
         ),
       ),
     );

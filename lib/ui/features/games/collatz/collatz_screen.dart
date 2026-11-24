@@ -1,4 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
 
 import 'package:flutter/material.dart';
@@ -73,10 +74,8 @@ class _CollatzScreenState extends ConsumerState<CollatzScreen> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(DesignSystem.spaceXL),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
+          child: ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
+Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(child: Text(
@@ -89,8 +88,8 @@ class _CollatzScreenState extends ConsumerState<CollatzScreen> {
                   )),
                 ],
               ),
-              const SizedBox(height: DesignSystem.spaceLG),
-              TangibleContainer(
+const SizedBox(height: DesignSystem.spaceLG),
+TangibleContainer(
                 depth: 8.0,
                 color: colorScheme.surface,
                 padding: const EdgeInsets.all(DesignSystem.spaceXL),
@@ -99,8 +98,8 @@ class _CollatzScreenState extends ConsumerState<CollatzScreen> {
                   style: TextStyle(fontSize: 64, fontWeight: FontWeight.w900, color: colorScheme.primary),
                 ),
               ),
-              const SizedBox(height: DesignSystem.spaceXL * 2),
-              Column(
+const SizedBox(height: DesignSystem.spaceXL * 2),
+Column(
                 children: [
                   Row(
                     children: [
@@ -138,8 +137,7 @@ class _CollatzScreenState extends ConsumerState<CollatzScreen> {
                   ),
                 ],
               ),
-            ],
-          ),
+]),
         ),
       ),
     );

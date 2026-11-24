@@ -1,4 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
 
 import 'package:flutter/material.dart';
@@ -132,19 +133,16 @@ class _RunningMemorySpanScreenState extends ConsumerState<RunningMemorySpanScree
 
   Widget _buildMainLayout(RunningMemorySpanState state, double maxWidth, RunningMemorySpanNotifier notifier, AppLocalizations l10n) {
     if (state.phase == RunningSpanPhase.instruction) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.timer_rounded, size: 72, color: DesignSystem.accentAmber),
-          const SizedBox(height: 16),
-          Text(
+      return ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
+const Icon(Icons.timer_rounded, size: 72, color: DesignSystem.accentAmber),
+const SizedBox(height: 16),
+Text(
             l10n.runningSpanRecallLast(state.recallCount),
             style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
-          Text(l10n.runningSpanStopsRandomly, style: const TextStyle(fontSize: 16, color: Colors.grey)),
-        ],
-      );
+const SizedBox(height: 8),
+Text(l10n.runningSpanStopsRandomly, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+]);
     } else if (state.phase == RunningSpanPhase.showingStream) {
       return Center(
         child: state.currentCharacter.isNotEmpty

@@ -78,15 +78,29 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
   @override
   Widget build(BuildContext context) {
     final moves = board.moves;
+    // Proven unwinnable (even though moves may remain): offer Undo or Shuffle.
+    final lost = !board.won && moves.isNotEmpty && board.monitor.trapped;
     final status = board.won
         ? 'Cleared! ${board.shuffles == 0 ? 'No shuffles needed.' : 'Shuffles used: ${board.shuffles}'}'
         : moves.isEmpty
             ? 'No matching free pairs — shuffle to continue'
-            : '${board.remaining} tiles · ${moves.length} possible match${moves.length == 1 ? '' : 'es'}';
+            : lost
+                ? 'This board can no longer be cleared — undo or shuffle'
+                : '${board.remaining} tiles · ${moves.length} possible match${moves.length == 1 ? '' : 'es'}';
     return GameScaffold(
       gameId: 'mahjong_solitaire',
       confirmNewGame: board.tiles.contains(null),
       completed: board.won,
+      deadEnd: lost || (!board.won && moves.isEmpty),
+      deadEndMessage: 'No sequence of matches can clear the tiles that are left. '
+          'Undo to take back some moves, or Shuffle to re-deal the remaining '
+          'tiles into a solvable arrangement.',
+      onUndo: board.history.isEmpty
+          ? null
+          : () => setState(() {
+                board.undo();
+                selected = null;
+              }),
       title: 'Mahjong Solitaire',
       maxWidth: 900,
       onNewGame: () => _newGame(),
@@ -213,7 +227,9 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
                 onPressed: moves.isEmpty
                     ? null
                     : () => setState(() {
-                          hint = moves.first;
+                          // A pair that keeps the board winnable; any pair only
+                          // if the search could not decide (huge boards).
+                          hint = board.monitor.safeHint() ?? moves.first;
                           hints++;
                         }),
                 icon: const Icon(Icons.lightbulb_outline),

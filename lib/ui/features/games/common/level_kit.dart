@@ -76,22 +76,60 @@ SolveResult<S> solvePuzzle<S>(SearchPuzzle<S> puzzle, S start,
   return SolveResult(Solvability.unsolvable, const [], parent.length);
 }
 
+/// Depth-first search for *a* solution (not the shortest), bounded by
+/// [maxNodes]. Suited to puzzles with a huge state space where winning lines
+/// are plentiful and a good move order finds one fast (Mahjong, solitaires).
+/// `unsolvable` is only reported when the whole reachable space was explored.
+SolveResult<S> solveDepthFirst<S>(SearchPuzzle<S> puzzle, S start,
+    {int maxNodes = 50000}) {
+  final seen = <String>{puzzle.key(start)};
+  final path = <S>[start];
+  final iterators = <Iterator<S>>[puzzle.successors(start).iterator];
+  if (puzzle.isGoal(start)) return SolveResult(Solvability.solvable, [start], 1);
+  while (iterators.isNotEmpty) {
+    if (seen.length > maxNodes) {
+      return SolveResult(Solvability.unknown, const [], seen.length);
+    }
+    final it = iterators.last;
+    if (!it.moveNext()) {
+      iterators.removeLast();
+      path.removeLast();
+      continue;
+    }
+    final next = it.current;
+    if (!seen.add(puzzle.key(next))) continue;
+    path.add(next);
+    if (puzzle.isGoal(next)) {
+      return SolveResult(Solvability.solvable, List.of(path), seen.length);
+    }
+    iterators.add(puzzle.successors(next).iterator);
+  }
+  return SolveResult(Solvability.unsolvable, const [], seen.length);
+}
+
 /// Answers "can the player still win from here?" and "what is a safe next
 /// move?" while a game is in progress. Results are cached by position, and an
 /// exhaustive failure marks every position it visited as a dead end, so
 /// follow-up checks are instant.
 class TrapMonitor<S> {
-  TrapMonitor(this.puzzle, {this.maxNodes = 200000});
+  TrapMonitor(this.puzzle, {this.maxNodes = 200000, this.depthFirst = false});
 
   final SearchPuzzle<S> puzzle;
   final int maxNodes;
+
+  /// Use [solveDepthFirst] (any solution, big spaces) instead of shortest-path BFS.
+  final bool depthFirst;
+
+  SolveResult<S> _solve(S state) => depthFirst
+      ? solveDepthFirst(puzzle, state, maxNodes: maxNodes)
+      : solvePuzzle(puzzle, state, maxNodes: maxNodes);
   final Map<String, Solvability> _known = {};
 
   Solvability analyze(S state) {
     final k = puzzle.key(state);
     final cached = _known[k];
     if (cached != null && cached != Solvability.unknown) return cached;
-    final result = solvePuzzle(puzzle, state, maxNodes: maxNodes);
+    final result = _solve(state);
     switch (result.status) {
       case Solvability.solvable:
         for (final s in result.path) {
@@ -113,7 +151,7 @@ class TrapMonitor<S> {
   /// already won, proven lost or too large to search. A hint is therefore
   /// never offered from a position that cannot be won.
   S? hint(S state) {
-    final result = solvePuzzle(puzzle, state, maxNodes: maxNodes);
+    final result = _solve(state);
     if (result.status != Solvability.solvable || result.path.length < 2) return null;
     return result.path[1];
   }

@@ -251,7 +251,7 @@ class _MathMazeScreenState extends ConsumerState<MathMazeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Column(
+                Flexible(child: Column(
                   children: [
                     Text(AppLocalizations.of(context)!.target, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
                     const SizedBox(height: 4),
@@ -263,8 +263,8 @@ class _MathMazeScreenState extends ConsumerState<MathMazeScreen> {
                           ),
                     ),
                   ],
-                ),
-                Column(
+                )),
+                Flexible(child: Column(
                   children: [
                     Text(AppLocalizations.of(context)!.target, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey)),
                     const SizedBox(height: 4),
@@ -276,8 +276,8 @@ class _MathMazeScreenState extends ConsumerState<MathMazeScreen> {
                           ),
                     ),
                   ],
-                ),
-                Container(
+                )),
+                Flexible(child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: DesignSystem.primary.withValues(alpha: 0.1),
@@ -287,7 +287,7 @@ class _MathMazeScreenState extends ConsumerState<MathMazeScreen> {
                     '$_score / $_targetScore',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                ),
+                )),
               ],
             ),
           ),

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import '../../common/level_kit.dart';
+
 import 'mahjong_layouts.dart';
 import 'mahjong_tile.dart';
 
@@ -88,6 +90,8 @@ class LayeredBoard {
     return pairs.take(n ~/ 2).toList();
   }
 
+  bool freeIn(int i, Set<int> present) => _freeIn(i, present);
+
   bool _freeIn(int i, Set<int> present) {
     if (_above[i].any(present.contains)) return false;
     return !_left[i].any(present.contains) || !_right[i].any(present.contains);
@@ -132,8 +136,10 @@ class LayeredBoard {
 
   bool isFree(int i) => tiles[i] != null && _freeIn(i, _present);
 
-  List<(int, int)> get moves {
-    final present = _present;
+  List<(int, int)> get moves => movesIn(_present);
+
+  /// Matching free pairs when exactly the slots in [present] hold tiles.
+  List<(int, int)> movesIn(Set<int> present) {
     final free = [for (final i in present) if (_freeIn(i, present)) i];
     final res = <(int, int)>[];
     for (var a = 0; a < free.length; a++) {
@@ -143,6 +149,24 @@ class LayeredBoard {
     }
     return res;
   }
+
+  /// A last pair that can never meet: both tiles are the only two left of
+  /// their kind and one lies (directly) on top of the other. This is a
+  /// *proof* the board cannot be cleared; no search is needed.
+  bool get hasStackedLastPair {
+    final present = _present;
+    for (final i in present) {
+      for (final j in _above[i]) {
+        if (present.contains(j) && doMatch(tiles[i]!, tiles[j]!)) {
+          final matches = present.where((k) => doMatch(tiles[i]!, tiles[k]!)).length;
+          if (matches == 2) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  late final MahjongTrapMonitor monitor = MahjongTrapMonitor(this);
 
   bool remove(int a, int b) {
     if (a == b || !isFree(a) || !isFree(b) || !doMatch(tiles[a]!, tiles[b]!)) return false;
@@ -204,5 +228,84 @@ class MahjongLevels {
   static LayeredBoard build(int level) {
     final (index, deal) = specs[level - 1];
     return LayeredBoard(_layouts[index], random: Random(9100 + index * 97 + deal * 13));
+  }
+}
+
+/// Position graph for the solver: which slots still hold a tile.
+class MahjongPuzzle extends SearchPuzzle<List<bool>> {
+  MahjongPuzzle(this.board);
+  final LayeredBoard board;
+
+  Set<int> _set(List<bool> s) => {for (var i = 0; i < s.length; i++) if (s[i]) i};
+
+  @override
+  String key(List<bool> s) => s.map((b) => b ? '1' : '0').join();
+
+  @override
+  bool isGoal(List<bool> s) => !s.contains(true);
+
+  @override
+  Iterable<List<bool>> successors(List<bool> s) {
+    final present = _set(s);
+    final moves = board.movesIn(present);
+    // Try the moves that open up the most tiles first: winning lines are
+    // plentiful, so this order finds one quickly.
+    int opened((int, int) m) {
+      final after = {...present}..remove(m.$1)..remove(m.$2);
+      return after.where((i) => board.freeIn(i, after)).length;
+    }
+
+    // The dealing order is a known winning line: while the player's own
+    // pairs agree with it, following it finds a solution almost instantly.
+    final known = {
+      for (final (a, b) in board.solution) (a < b ? a : b) * 1000 + (a < b ? b : a)
+    };
+    int score((int, int) m) =>
+        (known.contains((m.$1 < m.$2 ? m.$1 : m.$2) * 1000 + (m.$1 < m.$2 ? m.$2 : m.$1))
+            ? 1000
+            : 0) +
+        opened(m);
+
+    final scored = [for (final m in moves) (score(m), m)]
+      ..sort((a, b) => b.$1.compareTo(a.$1));
+    return [
+      for (final (_, m) in scored)
+        [...s]
+          ..[m.$1] = false
+          ..[m.$2] = false
+    ];
+  }
+}
+
+/// Proven-winnable / proven-lost / unknown for the current board, plus a hint
+/// that never walks into a dead end.
+class MahjongTrapMonitor {
+  MahjongTrapMonitor(this.board)
+      : _monitor = TrapMonitor<List<bool>>(MahjongPuzzle(board),
+            maxNodes: 12000, depthFirst: true);
+
+  final LayeredBoard board;
+  final TrapMonitor<List<bool>> _monitor;
+
+  List<bool> get _state => [for (final t in board.tiles) t != null];
+
+  Solvability analyze() {
+    if (board.won) return Solvability.solvable;
+    if (board.hasStackedLastPair) return Solvability.unsolvable;
+    return _monitor.analyze(_state);
+  }
+
+  /// True only when the board is *proven* unwinnable without a shuffle.
+  bool get trapped => analyze() == Solvability.unsolvable;
+
+  /// A pair whose removal keeps the board winnable, or null if none is known.
+  (int, int)? safeHint() {
+    final next = _monitor.hint(_state);
+    if (next == null) return null;
+    final gone = [
+      for (var i = 0; i < next.length; i++)
+        if (board.tiles[i] != null && !next[i]) i
+    ];
+    return gone.length == 2 ? (gone[0], gone[1]) : null;
   }
 }

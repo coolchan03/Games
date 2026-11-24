@@ -126,7 +126,7 @@ class _AreaPerimeterMatchScreenState extends ConsumerState<AreaPerimeterMatchScr
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Column(
+                Flexible(child: Column(
                   children: [
                     Text(AppLocalizations.of(context)!.target, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
                     const SizedBox(height: 4),
@@ -138,8 +138,8 @@ class _AreaPerimeterMatchScreenState extends ConsumerState<AreaPerimeterMatchScr
                           ),
                     ),
                   ],
-                ),
-                Column(
+                )),
+                Flexible(child: Column(
                   children: [
                     Text(AppLocalizations.of(context)!.target, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey)),
                     const SizedBox(height: 4),
@@ -151,8 +151,8 @@ class _AreaPerimeterMatchScreenState extends ConsumerState<AreaPerimeterMatchScr
                           ),
                     ),
                   ],
-                ),
-                Container(
+                )),
+                Flexible(child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: DesignSystem.primary.withValues(alpha: 0.1),
@@ -162,7 +162,7 @@ class _AreaPerimeterMatchScreenState extends ConsumerState<AreaPerimeterMatchScr
                     '$_score / $_targetScore',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
-                ),
+                )),
               ],
             ),
           ),
