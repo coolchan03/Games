@@ -310,3 +310,36 @@ used by Lights Out, and keep the same `Solvability` vocabulary.
 on a 360x640 phone at a chosen text scale (`SWEEP_SCALE`, default 1.5) and
 fails on any overflow. Shard it with `SWEEP_SHARD=i/4`. The current list of
 games that still overflow is in `docs/PHONE_LAYOUT_AUDIT.md`.
+
+## Proving levels can be finished (level audit)
+
+`lib/ui/features/games/common/level_audit.dart` is a registry of per-game
+audits and `test/games/level_audit_test.dart` runs them all (about 40 s). Each
+audit builds every numbered level plus many random ones and checks them with
+the game's own solver. Results are `proven` (a winning line was found or the
+dealing order replayed), `unverified` (budget too small, still winnable by
+construction) or `impossible` (fails the test: a generator bug). To cover a new
+game add an entry to `levelAudits`.
+
+Currently audited: Water Sort, Lights Out, Mahjong Solitaire (all layouts and
+random deals) and Sokoban (easy/medium/hard).
+
+"Trapped" detection (tell the player the position can no longer be won) exists
+for Water Sort (solver), Mahjong (proven stacked last pair plus bounded search;
+hints only suggest pairs that keep the board winnable), Sokoban (dead squares
+and frozen crates) and the card/board games that already had `deadEnd`.
+The rule is the same everywhere: report a trap only when it is *proven*.
+
+## Layout helpers for phone screens
+
+* `ScrollSpread` - spreads children over the height like `Spacer`s did, but
+  scrolls when they do not fit. Prefer it over `Column` + `Spacer` for screen bodies.
+* `MinHeightScroll` - gives a `Column` with `Expanded` children a minimum height
+  and scrolls on shorter screens.
+* Header rows of stat chips should wrap their children in `Flexible`.
+
+## File backup
+
+Settings > Backup saves/loads progress as a `.json` file (share sheet on phones
+and macOS, a save dialog on Windows/Linux, a download on the web) in addition to
+copy/paste. See `lib/utils/backup_file.dart`.

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/services.dart';
 import '../common/game_kit.dart';
 import '../common/campaign_progress.dart';
 import '../common/grid_board_touch_area.dart';
+import 'sokoban_analysis.dart';
 import 'sokoban_engine.dart';
 
 /// A swipe changes exactly one step, avoiding accidental multi-crate pushes.
@@ -30,6 +32,21 @@ class _SokobanScreenState extends State<SokobanScreen> {
   int difficulty = 1;
   late SokobanGame game = _load();
   final focus = FocusNode();
+
+  SokobanAnalysis? _analysis;
+  SokobanLevel? _analysisLevel;
+
+  /// Deadlock analysis for the current level (rebuilt when the level changes).
+  SokobanAnalysis get analysis {
+    if (!identical(_analysisLevel, game.level)) {
+      _analysisLevel = game.level;
+      _analysis = SokobanAnalysis(game.level);
+    }
+    return _analysis!;
+  }
+
+  /// A crate can provably never reach a target any more.
+  bool get trapped => !game.solved && analysis.trapped(game.boxes);
 
   SokobanGame _load() {
     final (size, boxes) = [(6, 2), (7, 3), (8, 4)][difficulty];
@@ -110,6 +127,11 @@ class _SokobanScreenState extends State<SokobanScreen> {
     return GameScaffold(
       gameId: 'sokoban',
       completed: game.solved,
+      deadEnd: trapped,
+      deadEndMessage: 'A crate is stuck where it can never reach a target '
+          '(in a corner, against a wall with no target, or blocked by other '
+          'crates). Undo some moves, or restart the level.',
+      onUndo: game.canUndo ? () => setState(game.undo) : null,
       title: 'Sokoban',
       onNewGame: () => setState(() => game = _load()),
       rules: 'Push every crate onto a target square. You can push one crate '
@@ -168,9 +190,16 @@ class _SokobanScreenState extends State<SokobanScreen> {
             child: StatusBanner(
               game.solved
                   ? 'Level $levelNumber solved in ${game.moves} moves, ${game.pushes} pushes!'
-                  : 'Level $levelNumber · moves ${game.moves} · pushes ${game.pushes}',
+                  : trapped
+                      ? 'Level $levelNumber · stuck! Undo or restart'
+                      : 'Level $levelNumber · moves ${game.moves} · pushes ${game.pushes}',
               highlight: game.solved,
             ),
+          ),
+          IconButton(
+            tooltip: 'Random level',
+            onPressed: () => _setLevel(21 + Random().nextInt(9000)),
+            icon: const Icon(Icons.casino_outlined),
           ),
           IconButton(
             onPressed: () => _setLevel(levelNumber + 1),

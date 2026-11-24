@@ -235,6 +235,19 @@ class _MahjongSolitaireState extends State<MahjongSolitaireScreen> {
                 icon: const Icon(Icons.lightbulb_outline),
                 label: const Text('Hint'),
               ),
+              OutlinedButton.icon(
+                key: const ValueKey('mahjong_random_deal'),
+                // A brand-new random deal of this level's layout; every deal is
+                // built from a full removal order, so it is always winnable.
+                onPressed: () => setState(() {
+                  board = LayeredBoard(layout);
+                  hints = 0;
+                  selected = null;
+                  hint = null;
+                }),
+                icon: const Icon(Icons.casino_outlined),
+                label: const Text('Random deal'),
+              ),
               FilledButton.tonalIcon(
                 onPressed: board.won
                     ? null
