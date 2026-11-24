@@ -80,7 +80,7 @@ class _GrammarSortScreenState extends ConsumerState<GrammarSortScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TangibleContainer(
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Center(
                     child: FittedBox(
@@ -90,8 +90,8 @@ class _GrammarSortScreenState extends ConsumerState<GrammarSortScreen> {
                       ),
                     ),
                   ),
-                ),
-                TangibleContainer(
+                )),
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Center(
                     child: FittedBox(
@@ -105,7 +105,7 @@ class _GrammarSortScreenState extends ConsumerState<GrammarSortScreen> {
                       ),
                     ),
                   ),
-                ),
+                )),
               ],
             ),
           ),

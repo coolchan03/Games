@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 import '../../../../utils/design_system.dart';
@@ -80,7 +81,7 @@ class _AngleFinderScreenState extends ConsumerState<AngleFinderScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(DesignSystem.spaceLG),
-              child: Column(
+              child: ScrollIfTall(child: Column(
                 children: [
                   _buildScoreBoard(state),
                   const Spacer(),
@@ -89,7 +90,7 @@ class _AngleFinderScreenState extends ConsumerState<AngleFinderScreen> {
                   _buildOptions(state, notifier),
                   const SizedBox(height: DesignSystem.space2XL),
                 ],
-              ),
+              )),
             ),
     );
   }

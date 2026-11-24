@@ -191,7 +191,7 @@ class _WordSnakeTrailScreenState extends ConsumerState<WordSnakeTrailScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
+                Flexible(child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: DesignSystem.primary.withValues(alpha: 0.15),
@@ -201,7 +201,7 @@ class _WordSnakeTrailScreenState extends ConsumerState<WordSnakeTrailScreen> {
                     'TARGET WORD: $_secretWord',
                     style: TextStyle(fontWeight: FontWeight.bold, color: DesignSystem.primary, fontSize: 16),
                   ),
-                ),
+                )),
                 Flexible(child: Text(
                   '${AppLocalizations.of(context)!.statScore}: $_score / $_targetScore',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),

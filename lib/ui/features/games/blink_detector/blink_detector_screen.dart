@@ -222,23 +222,23 @@ class _BlinkDetectorScreenState extends ConsumerState<BlinkDetectorScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Container(
+                                  Flexible(child: Container(
                                     width: 12,
                                     height: isBlinking ? 2 : 12,
                                     decoration: BoxDecoration(
                                       color: isDark ? Colors.white : Colors.black87,
                                       borderRadius: isBlinking ? null : BorderRadius.circular(6),
                                     ),
-                                  ),
+                                  )),
                                   const SizedBox(width: 14),
-                                  Container(
+                                  Flexible(child: Container(
                                     width: 12,
                                     height: isBlinking ? 2 : 12,
                                     decoration: BoxDecoration(
                                       color: isDark ? Colors.white : Colors.black87,
                                       borderRadius: isBlinking ? null : BorderRadius.circular(6),
                                     ),
-                                  ),
+                                  )),
                                 ],
                               ),
                               const SizedBox(height: 12),

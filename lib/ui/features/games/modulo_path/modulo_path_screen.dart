@@ -233,7 +233,7 @@ class _ModuloPathScreenState extends ConsumerState<ModuloPathScreen> {
                     ),
                   ],
                 ),
-                Container(
+                Flexible(child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: DesignSystem.primary.withValues(alpha: 0.1),
@@ -243,7 +243,7 @@ class _ModuloPathScreenState extends ConsumerState<ModuloPathScreen> {
                     '$_score / $_targetScore',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                ),
+                )),
               ],
             ),
           ),

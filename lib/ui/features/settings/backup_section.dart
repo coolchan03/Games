@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/domain/progress_engine.dart' as engine;
 import 'package:puzzle/providers/progress_providers.dart';
+import 'package:puzzle/utils/backup_file.dart';
 import 'package:puzzle/utils/design_system.dart';
 import 'package:puzzle/widgets/tangible.dart';
 
@@ -22,20 +23,80 @@ class BackupSection extends ConsumerWidget {
         const SizedBox(height: DesignSystem.spaceMD),
         Wrap(spacing: DesignSystem.spaceSM, runSpacing: DesignSystem.spaceSM, children: [
           FilledButton.icon(
+            key: const ValueKey('backup_save_file'),
+            onPressed: () => _saveFile(context, ref),
+            icon: const Icon(Icons.save_alt_rounded),
+            label: const Text('Save to file'),
+          ),
+          OutlinedButton.icon(
+            key: const ValueKey('backup_load_file'),
+            onPressed: () => _loadFile(context, ref),
+            icon: const Icon(Icons.folder_open_rounded),
+            label: const Text('Load from file'),
+          ),
+          TextButton.icon(
             key: const ValueKey('backup_export'),
             onPressed: () => _export(context, ref),
             icon: const Icon(Icons.copy_rounded),
-            label: const Text('Copy backup'),
+            label: const Text('Copy as text'),
           ),
-          OutlinedButton.icon(
+          TextButton.icon(
             key: const ValueKey('backup_import'),
             onPressed: () => _import(context, ref),
-            icon: const Icon(Icons.restore_rounded),
-            label: const Text('Restore backup'),
+            icon: const Icon(Icons.paste_rounded),
+            label: const Text('Paste text'),
           ),
         ]),
       ]),
     );
+  }
+
+  Future<void> _saveFile(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final saved = await BackupFile.export(ref.read(backupServiceProvider).export());
+      if (saved) {
+        messenger
+          ..clearSnackBars()
+          ..showSnackBar(const SnackBar(content: Text('Backup file ready.')));
+      }
+    } catch (_) {
+      messenger.showSnackBar(const SnackBar(
+          content: Text('Could not save a file. Try Copy as text instead.')));
+    }
+  }
+
+  Future<void> _loadFile(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final text = await BackupFile.pick();
+      if (text == null) return;
+      if (context.mounted) {
+        final ok = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Replace progress?'),
+            content: const Text('Restoring replaces the XP, streaks and levels on this device.'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancel')),
+              FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Restore')),
+            ],
+          ),
+        );
+        if (ok != true) return;
+      }
+      await ref.read(backupServiceProvider).import(text);
+      messenger
+        ..clearSnackBars()
+        ..showSnackBar(const SnackBar(content: Text('Progress restored.')));
+    } on engine.BackupException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    } on FormatException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (_) {
+      messenger.showSnackBar(const SnackBar(
+          content: Text('Could not read that file. Check it and try again.')));
+    }
   }
 
   Future<void> _export(BuildContext context, WidgetRef ref) async {

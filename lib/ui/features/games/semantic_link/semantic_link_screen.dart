@@ -81,7 +81,7 @@ class _SemanticLinkScreenState extends ConsumerState<SemanticLinkScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TangibleContainer(
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Score: ${state.score}',
@@ -90,8 +90,8 @@ class _SemanticLinkScreenState extends ConsumerState<SemanticLinkScreen> {
                       color: state.score < 0 ? DesignSystem.error : colorScheme.onSurface,
                     ),
                   ),
-                ),
-                TangibleContainer(
+                )),
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Time: ${state.timeLeft}s',
@@ -100,7 +100,7 @@ class _SemanticLinkScreenState extends ConsumerState<SemanticLinkScreen> {
                       color: state.timeLeft < 10 ? DesignSystem.error : colorScheme.onSurface,
                     ),
                   ),
-                ),
+                )),
               ],
             ),
           ),

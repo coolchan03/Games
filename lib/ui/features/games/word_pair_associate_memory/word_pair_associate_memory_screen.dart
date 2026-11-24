@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -236,7 +237,7 @@ class _WordPairAssociateMemoryScreenState extends ConsumerState<WordPairAssociat
         borderRadius: BorderRadius.circular(DesignSystem.radiusLG),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5), width: 2),
       ),
-      child: Column(
+      child: ScrollIfTall(child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const Text(
@@ -290,7 +291,7 @@ class _WordPairAssociateMemoryScreenState extends ConsumerState<WordPairAssociat
             );
           }),
         ],
-      ),
+      )),
     );
   }
 

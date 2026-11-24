@@ -1,4 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
 
 import 'dart:math' as math;
@@ -169,7 +170,7 @@ class _RotatingMazeScreenState extends ConsumerState<RotatingMazeScreen> {
                 final boardSize = math.min(constraints.maxWidth - 40, constraints.maxHeight * 0.55);
                 final cellSize = boardSize / state.size;
 
-                return Column(
+                return ScrollIfTall(child: Column(
                   children: [
                     const SizedBox(height: DesignSystem.spaceMD),
                     
@@ -400,7 +401,7 @@ class _RotatingMazeScreenState extends ConsumerState<RotatingMazeScreen> {
                       ),
                     ),
                   ],
-                );
+                ));
               },
             ),
     );

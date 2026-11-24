@@ -200,9 +200,7 @@ class _PrimeGapHuntScreenState extends ConsumerState<PrimeGapHuntScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+          Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
               _buildPrimeBadge(_currentQuestion.p1, colorScheme),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -222,8 +220,7 @@ class _PrimeGapHuntScreenState extends ConsumerState<PrimeGapHuntScreen> {
                 ),
               ),
               _buildPrimeBadge(_currentQuestion.p2, colorScheme),
-            ],
-          ),
+            ]),
         ],
       ),
     );

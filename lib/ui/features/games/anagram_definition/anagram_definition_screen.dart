@@ -1,4 +1,5 @@
 import 'package:puzzle/utils/l10n_game_helpers.dart';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import "package:puzzle/l10n/app_localizations.dart";
 
 import 'package:flutter/material.dart';
@@ -75,7 +76,7 @@ class _AnagramDefinitionScreenState extends ConsumerState<AnagramDefinitionScree
           ? const Center(child: CircularProgressIndicator(color: DesignSystem.gameGreen))
           : Padding(
               padding: const EdgeInsets.all(DesignSystem.spaceLG),
-              child: Column(
+              child: ScrollIfTall(child: Column(
                 children: [
                   const SizedBox(height: DesignSystem.spaceLG),
                   TangibleContainer(
@@ -179,7 +180,7 @@ class _AnagramDefinitionScreenState extends ConsumerState<AnagramDefinitionScree
                   ),
                   const SizedBox(height: DesignSystem.spaceLG),
                 ],
-              ),
+              )),
             ),
     );
   }

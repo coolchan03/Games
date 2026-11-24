@@ -130,7 +130,7 @@ class _ArithmeticChainScreenState extends ConsumerState<ArithmeticChainScreen> {
       },
       child: KeyedSubtree(
         key: ValueKey(text),
-        child: Column(
+        child: SingleChildScrollView(child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (state.phase == GamePhase.sequence)
@@ -152,7 +152,7 @@ class _ArithmeticChainScreenState extends ConsumerState<ArithmeticChainScreen> {
               ),
             ),
           ],
-        ),
+        )),
       ),
     );
   }

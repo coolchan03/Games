@@ -1,4 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../utils/design_system.dart';
@@ -74,7 +75,7 @@ class _DivisibilityDashScreenState extends ConsumerState<DivisibilityDashScreen>
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
+              child: ScrollIfTall(child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -101,7 +102,7 @@ class _DivisibilityDashScreenState extends ConsumerState<DivisibilityDashScreen>
                   _buildDivisorGrid(state, notifier),
                   const SizedBox(height: 40),
                 ],
-              ),
+              )),
             ),
           );
         },

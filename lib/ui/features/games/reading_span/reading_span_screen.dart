@@ -1,4 +1,5 @@
 import 'package:puzzle/utils/l10n_game_helpers.dart';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 
 import 'package:flutter/material.dart';
@@ -137,7 +138,7 @@ class _ReadingSpanScreenState extends ConsumerState<ReadingSpanScreen> {
     if (state.phase == ReadingSpanPhase.showingSentence && state.currentSentence != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
+        child: ScrollIfTall(child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TangibleContainer(
@@ -190,7 +191,7 @@ class _ReadingSpanScreenState extends ConsumerState<ReadingSpanScreen> {
               ],
             ),
           ],
-        ),
+        )),
       );
     } else if (state.phase == ReadingSpanPhase.showingLetter && state.highlightedLetter.isNotEmpty) {
       return Text(

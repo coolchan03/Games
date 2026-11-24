@@ -183,7 +183,7 @@ class _PolyominoTilingScreenState extends ConsumerState<PolyominoTilingScreen> {
                       Icon(Icons.rotate_right_rounded,
                           color: _selectedPieceId != null ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.3)),
                       const SizedBox(width: 8),
-                      Text(
+                      Flexible(child: Text(
                         'ROTATE SELECTED PIECE',
                         style: TextStyle(
                           fontFamily: 'Bebas Neue',
@@ -192,7 +192,7 @@ class _PolyominoTilingScreenState extends ConsumerState<PolyominoTilingScreen> {
                           color: _selectedPieceId != null ? Colors.white : colorScheme.onSurface.withValues(alpha: 0.3),
                           letterSpacing: 1.5,
                         ),
-                      ),
+                      )),
                     ],
                   ),
                 ),
@@ -208,7 +208,7 @@ class _PolyominoTilingScreenState extends ConsumerState<PolyominoTilingScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TangibleContainer(
+        Flexible(child: TangibleContainer(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           color: colorScheme.surface,
           child: Row(
@@ -227,7 +227,7 @@ class _PolyominoTilingScreenState extends ConsumerState<PolyominoTilingScreen> {
               ),
             ],
           ),
-        ),
+        )),
         TangibleButton(
           color: colorScheme.surface,
           onTap: _startNewGame,

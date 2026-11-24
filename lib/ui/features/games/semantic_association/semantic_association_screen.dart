@@ -206,9 +206,7 @@ class _SemanticAssociationScreenState extends ConsumerState<SemanticAssociationS
                   ),
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+                Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
                     TextButton(
                       onPressed: () {
                         HapticFeedbackUtil.lightImpact();
@@ -231,8 +229,7 @@ class _SemanticAssociationScreenState extends ConsumerState<SemanticAssociationS
                       ),
                       child: Text(AppLocalizations.of(context)!.btnSubmit),
                     ),
-                  ],
-                ),
+                  ]),
               ],
             ),
           ),

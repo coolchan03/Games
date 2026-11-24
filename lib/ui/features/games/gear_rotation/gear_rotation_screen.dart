@@ -187,7 +187,7 @@ class _GearRotationScreenState extends ConsumerState<GearRotationScreen>
                     ),
                   ],
                 ),
-                Container(
+                Flexible(child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: DesignSystem.primary.withValues(alpha: 0.1),
@@ -200,7 +200,7 @@ class _GearRotationScreenState extends ConsumerState<GearRotationScreen>
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                ),
+                )),
               ],
             ),
           ),

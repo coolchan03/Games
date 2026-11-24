@@ -79,7 +79,7 @@ class D2AttentionScreen extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TangibleContainer(
+                    Flexible(child: TangibleContainer(
                       depth: 2.0,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       radius: DesignSystem.radiusSM,
@@ -87,8 +87,8 @@ class D2AttentionScreen extends ConsumerWidget {
                         'BOARD: ${state.currentBoardIndex}/${state.totalBoards}',
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                       ),
-                    ),
-                    TangibleContainer(
+                    )),
+                    Flexible(child: TangibleContainer(
                       depth: 2.0,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       radius: DesignSystem.radiusSM,
@@ -96,7 +96,7 @@ class D2AttentionScreen extends ConsumerWidget {
                         'SCORE: ${state.score}',
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: DesignSystem.primary),
                       ),
-                    ),
+                    )),
                   ],
                 ),
               ),

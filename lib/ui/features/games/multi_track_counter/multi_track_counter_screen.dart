@@ -164,27 +164,27 @@ class _MultiTrackCounterScreenState extends ConsumerState<MultiTrackCounterScree
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  Flexible(child: Text(
                     'TARGET RULE:',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white70 : Colors.black87,
                         ),
-                  ),
-                  Text(
+                  )),
+                  Flexible(child: Text(
                     'Multiple of $_targetMultiplier',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: DesignSystem.gameOrange,
                         ),
-                  ),
-                  Text(
+                  )),
+                  Flexible(child: Text(
                     '$_score / $_targetScore',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: DesignSystem.primary,
                         ),
-                  ),
+                  )),
                 ],
               ),
             ),

@@ -79,14 +79,14 @@ class _MatrixReasoningScreenState extends ConsumerState<MatrixReasoningScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TangibleContainer(
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Score: ${state.score}',
                     style: const TextStyle(fontWeight: FontWeight.w900),
                   ),
-                ),
-                TangibleContainer(
+                )),
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     state.isTrialMode ? 'Trials: ${state.totalTrials}/${state.targetTrials}' : 'Time: ${state.timeLeft}s',
@@ -95,7 +95,7 @@ class _MatrixReasoningScreenState extends ConsumerState<MatrixReasoningScreen> {
                       color: (!state.isTrialMode && state.timeLeft < 10) ? DesignSystem.error : colorScheme.onSurface,
                     ),
                   ),
-                ),
+                )),
               ],
             ),
           ),

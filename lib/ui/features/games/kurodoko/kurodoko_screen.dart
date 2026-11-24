@@ -134,16 +134,13 @@ class _KurodokoScreenState extends ConsumerState<KurodokoScreen> {
   }
 
   Widget _buildLegend(ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
+    return Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
         _buildLegendItem(colorScheme.surface, "EMPTY", colorScheme.onSurface.withValues(alpha: 0.5), true),
         const SizedBox(width: 16),
         _buildLegendItem(DesignSystem.accentEmerald.withValues(alpha: 0.2), "WHITE (TAP 1)", DesignSystem.accentEmerald, false),
         const SizedBox(width: 16),
         _buildLegendItem(colorScheme.onSurface, "BLACK (TAP 2)", colorScheme.surface, false),
-      ],
-    );
+      ]);
   }
 
   Widget _buildLegendItem(Color bg, String label, Color textColor, bool isBorder) {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -232,7 +233,7 @@ class _NarrativeRecallScreenState extends ConsumerState<NarrativeRecallScreen> {
   }
 
   Widget _buildStoryView() {
-    return Column(
+    return ScrollIfTall(child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Text(
@@ -263,7 +264,7 @@ class _NarrativeRecallScreenState extends ConsumerState<NarrativeRecallScreen> {
           child: Text(AppLocalizations.of(context)!.btnImReadyToAnswer, style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ],
-    );
+    ));
   }
 
   Widget _buildQuizView() {

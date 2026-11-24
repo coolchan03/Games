@@ -186,7 +186,7 @@ class _BinaryCodeScreenState extends ConsumerState<BinaryCodeScreen> {
                   color: colorScheme.surface,
                   shadowColor: DesignSystem.primary.withValues(alpha: 0.15),
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 48),
-                  child: Column(
+                  child: SingleChildScrollView(child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -210,7 +210,7 @@ class _BinaryCodeScreenState extends ConsumerState<BinaryCodeScreen> {
                         ),
                       ),
                     ],
-                  ),
+                  )),
                 ),
               ),
             ),

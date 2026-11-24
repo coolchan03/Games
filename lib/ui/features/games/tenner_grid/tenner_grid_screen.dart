@@ -255,7 +255,7 @@ class _TennerGridScreenState extends ConsumerState<TennerGridScreen> {
                   borderRadius: BorderRadius.circular(DesignSystem.radiusLG),
                   border: Border.all(color: isDark ? DesignSystem.darkOutline : DesignSystem.outline, width: 2),
                 ),
-                child: Column(
+                child: SingleChildScrollView(child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Grid Rows
@@ -325,7 +325,7 @@ class _TennerGridScreenState extends ConsumerState<TennerGridScreen> {
                       }),
                     ),
                   ],
-                ),
+                )),
               ),
             ),
           ),

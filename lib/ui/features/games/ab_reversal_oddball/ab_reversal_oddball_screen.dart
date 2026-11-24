@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 import 'package:puzzle/providers/user_providers.dart';
@@ -118,7 +119,7 @@ class _ABReversalOddballScreenState extends ConsumerState<ABReversalOddballScree
             horizontal: DesignSystem.spaceLG,
             vertical: DesignSystem.spaceMD,
           ),
-          child: Column(
+          child: ScrollIfTall(child: Column(
             children: [
               _buildHeader(colorScheme),
               const Spacer(flex: 1),
@@ -129,7 +130,7 @@ class _ABReversalOddballScreenState extends ConsumerState<ABReversalOddballScree
               _buildResponseButtons(colorScheme),
               const Spacer(flex: 1),
             ],
-          ),
+          )),
         ),
       ),
     );

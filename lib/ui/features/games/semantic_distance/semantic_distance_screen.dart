@@ -124,14 +124,14 @@ class _SemanticDistanceScreenState extends ConsumerState<SemanticDistanceScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TangibleContainer(
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Guesses: ${state.guesses.length}',
                     style: const TextStyle(fontWeight: FontWeight.w900),
                   ),
-                ),
-                TangibleContainer(
+                )),
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Time: ${state.timeLeft}s',
@@ -140,7 +140,7 @@ class _SemanticDistanceScreenState extends ConsumerState<SemanticDistanceScreen>
                       color: state.timeLeft < 20 ? DesignSystem.error : colorScheme.onSurface,
                     ),
                   ),
-                ),
+                )),
               ],
             ),
           ),
@@ -158,14 +158,14 @@ class _SemanticDistanceScreenState extends ConsumerState<SemanticDistanceScreen>
                       children: [
                         const Icon(Icons.lightbulb_outline_rounded, size: 16, color: DesignSystem.gameAmber),
                         const SizedBox(width: 6),
-                        Text(
+                        Flexible(child: Text(
                           state.hintsUsed == 0 ? 'Hint (-15s)' : 'Hint (${state.hintsUsed}) -15s',
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: isDark ? Colors.amber.shade300 : Colors.amber.shade900,
                           ),
-                        ),
+                        )),
                       ],
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
 
 import 'package:flutter/material.dart';
@@ -53,7 +54,7 @@ class MentalCalendarScreen extends ConsumerWidget {
       return DateFormat('EEEE').format(DateTime(2024, 1, index + 1));
     });
 
-    return Column(
+    return ScrollIfTall(child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
@@ -137,7 +138,7 @@ class MentalCalendarScreen extends ConsumerWidget {
             ),
           ),
       ],
-    );
+    ));
   }
 
   Widget _buildResult(BuildContext context, WidgetRef ref, MentalCalendarState state) {

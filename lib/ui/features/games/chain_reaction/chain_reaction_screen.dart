@@ -92,14 +92,14 @@ class _ChainReactionScreenState extends ConsumerState<ChainReactionScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TangibleContainer(
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Score: ${state.score}',
                     style: const TextStyle(fontWeight: FontWeight.w900),
                   ),
-                ),
-                TangibleContainer(
+                )),
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Time: ${state.timeLeft}s',
@@ -108,7 +108,7 @@ class _ChainReactionScreenState extends ConsumerState<ChainReactionScreen> {
                       color: state.timeLeft < 15 ? DesignSystem.error : colorScheme.onSurface,
                     ),
                   ),
-                ),
+                )),
               ],
             ),
           ),

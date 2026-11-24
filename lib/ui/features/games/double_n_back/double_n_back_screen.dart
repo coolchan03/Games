@@ -88,7 +88,7 @@ class _DoubleNBackScreenState extends ConsumerState<DoubleNBackScreen> {
             const SizedBox(height: DesignSystem.spaceLG),
             Expanded(
               child: Center(
-                child: Column(
+                child: SingleChildScrollView(child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildGrid(currentStim?.position),
@@ -98,7 +98,7 @@ class _DoubleNBackScreenState extends ConsumerState<DoubleNBackScreen> {
                       style: const TextStyle(fontSize: 64, fontWeight: FontWeight.w900, color: DesignSystem.accentBerry),
                     ),
                   ],
-                ),
+                )),
               ),
             ),
             Row(

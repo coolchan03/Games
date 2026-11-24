@@ -175,14 +175,11 @@ class _YajilinScreenState extends ConsumerState<YajilinScreen> {
   }
 
   Widget _buildLegend(ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
+    return Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: [
         _buildLegendItem(colorScheme.primary, "TAP: DRAW LOOP", Colors.white),
         const SizedBox(width: 16),
         _buildLegendItem(colorScheme.onSurface, "DBL-TAP: BLACK", colorScheme.surface),
-      ],
-    );
+      ]);
   }
 
   Widget _buildLegendItem(Color bg, String label, Color textColor) {

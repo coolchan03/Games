@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -237,7 +238,7 @@ class _ColorWordMatchUpScreenState extends ConsumerState<ColorWordMatchUpScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Container(
+                      Flexible(child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           color: isDark ? DesignSystem.darkSurface : DesignSystem.surface,
@@ -252,8 +253,8 @@ class _ColorWordMatchUpScreenState extends ConsumerState<ColorWordMatchUpScreen>
                             color: _word1Color,
                           ),
                         ),
-                      ),
-                      Container(
+                      )),
+                      Flexible(child: Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           color: isDark ? DesignSystem.darkSurface : DesignSystem.surface,
@@ -268,7 +269,7 @@ class _ColorWordMatchUpScreenState extends ConsumerState<ColorWordMatchUpScreen>
                             color: _word2Color,
                           ),
                         ),
-                      ),
+                      )),
                     ],
                   ),
                 ],

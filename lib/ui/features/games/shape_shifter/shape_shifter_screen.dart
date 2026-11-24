@@ -265,7 +265,7 @@ class _ShapeShifterScreenState extends ConsumerState<ShapeShifterScreen> {
                     ),
                   ],
                 ),
-                Container(
+                Flexible(child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: DesignSystem.spaceMD,
                     vertical: DesignSystem.spaceSM,
@@ -280,7 +280,7 @@ class _ShapeShifterScreenState extends ConsumerState<ShapeShifterScreen> {
                           color: DesignSystem.primary,
                         ),
                   ),
-                ),
+                )),
               ],
             ),
           ),

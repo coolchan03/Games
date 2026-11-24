@@ -76,14 +76,14 @@ class _PortmanteauSplitScreenState extends ConsumerState<PortmanteauSplitScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TangibleContainer(
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Score: ${state.score}',
                     style: const TextStyle(fontWeight: FontWeight.w900),
                   ),
-                ),
-                TangibleContainer(
+                )),
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     'Time: ${state.timeLeft}s',
@@ -92,7 +92,7 @@ class _PortmanteauSplitScreenState extends ConsumerState<PortmanteauSplitScreen>
                       color: state.timeLeft < 10 ? DesignSystem.error : colorScheme.onSurface,
                     ),
                   ),
-                ),
+                )),
               ],
             ),
           ),

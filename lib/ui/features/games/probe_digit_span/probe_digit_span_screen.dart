@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -154,7 +155,7 @@ class _ProbeDigitSpanScreenState extends ConsumerState<ProbeDigitSpanScreen> {
             horizontal: DesignSystem.spaceLG,
             vertical: DesignSystem.spaceMD,
           ),
-          child: Column(
+          child: ScrollIfTall(child: Column(
             children: [
               _buildHeader(colorScheme),
               const Spacer(flex: 1),
@@ -163,7 +164,7 @@ class _ProbeDigitSpanScreenState extends ConsumerState<ProbeDigitSpanScreen> {
               _buildNumpad(colorScheme),
               const Spacer(flex: 1),
             ],
-          ),
+          )),
         ),
       ),
     );

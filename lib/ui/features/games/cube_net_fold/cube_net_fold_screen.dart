@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'cube_net_fold_provider.dart';
@@ -131,7 +132,7 @@ class _CubeNetFoldScreenState extends ConsumerState<CubeNetFoldScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceLG),
-              child: Column(
+              child: ScrollIfTall(child: Column(
                 children: [
                   const SizedBox(height: DesignSystem.spaceMD),
                   
@@ -285,7 +286,7 @@ class _CubeNetFoldScreenState extends ConsumerState<CubeNetFoldScreen> {
                   ),
                   const SizedBox(height: DesignSystem.spaceLG),
                 ],
-              ),
+              )),
             ),
     );
   }

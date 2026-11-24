@@ -265,11 +265,11 @@ class _GameScaffoldState extends State<GameScaffold> {
     } else {
       content = Padding(
         padding: padding,
-        child: Column(
+        child: SingleChildScrollView(child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: keyed,
-        ),
+        )),
       );
     }
     final scaffold = Scaffold(

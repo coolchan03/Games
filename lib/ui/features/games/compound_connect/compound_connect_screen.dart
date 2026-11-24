@@ -82,7 +82,7 @@ class _CompoundConnectScreenState extends ConsumerState<CompoundConnectScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      TangibleContainer(
+                      Flexible(child: TangibleContainer(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                         color: DesignSystem.gameIndigo,
                         shadowColor: const Color(0xFF4F46E5),
@@ -96,12 +96,12 @@ class _CompoundConnectScreenState extends ConsumerState<CompoundConnectScreen> {
                             letterSpacing: 2,
                           ),
                         ),
-                      ),
+                      )),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: DesignSystem.spaceMD),
                         child: Icon(Icons.add_rounded, size: 32, color: DesignSystem.gameIndigo),
                       ),
-                      TangibleContainer(
+                      Flexible(child: TangibleContainer(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                         color: colorScheme.surface,
                         shadowColor: colorScheme.outline,
@@ -114,7 +114,7 @@ class _CompoundConnectScreenState extends ConsumerState<CompoundConnectScreen> {
                             color: colorScheme.onSurface.withValues(alpha: 0.3),
                           ),
                         ),
-                      ),
+                      )),
                     ],
                   ),
                   const Spacer(),

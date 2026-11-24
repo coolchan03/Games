@@ -79,7 +79,7 @@ class _SentenceUnscrambleScreenState extends ConsumerState<SentenceUnscrambleScr
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TangibleContainer(
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Center(
                     child: FittedBox(
@@ -89,8 +89,8 @@ class _SentenceUnscrambleScreenState extends ConsumerState<SentenceUnscrambleScr
                       ),
                     ),
                   ),
-                ),
-                TangibleContainer(
+                )),
+                Flexible(child: TangibleContainer(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Center(
                     child: FittedBox(
@@ -104,7 +104,7 @@ class _SentenceUnscrambleScreenState extends ConsumerState<SentenceUnscrambleScr
                       ),
                     ),
                   ),
-                ),
+                )),
               ],
             ),
           ),

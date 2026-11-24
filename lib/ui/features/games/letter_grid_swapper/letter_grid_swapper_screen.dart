@@ -208,7 +208,7 @@ class _LetterGridSwapperScreenState extends ConsumerState<LetterGridSwapperScree
                       ),
                     ],
                   ),
-                  Container(
+                  Flexible(child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: DesignSystem.primary.withValues(alpha: 0.15),
@@ -221,7 +221,7 @@ class _LetterGridSwapperScreenState extends ConsumerState<LetterGridSwapperScree
                         color: DesignSystem.primary,
                       ),
                     ),
-                  ),
+                  )),
                 ],
               ),
             ),

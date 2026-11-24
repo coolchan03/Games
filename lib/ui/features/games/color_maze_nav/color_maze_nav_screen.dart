@@ -205,7 +205,7 @@ class _ColorMazeNavScreenState extends ConsumerState<ColorMazeNavScreen> {
                     ],
                   ),
                 ),
-                Container(
+                Flexible(child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: DesignSystem.primary.withValues(alpha: 0.1),
@@ -215,7 +215,7 @@ class _ColorMazeNavScreenState extends ConsumerState<ColorMazeNavScreen> {
                     '${AppLocalizations.of(context)!.statScore}: $_score / $_targetScore',
                     style: TextStyle(fontWeight: FontWeight.bold, color: DesignSystem.primary),
                   ),
-                ),
+                )),
               ],
             ),
           ),

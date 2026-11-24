@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:puzzle/widgets/scroll_if_tall.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -139,7 +140,7 @@ class _FrequencyTapScreenState extends ConsumerState<FrequencyTapScreen> with Ti
           },
         ),
       ],
-      body: Column(
+      body: ScrollIfTall(child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(DesignSystem.spaceMD),
@@ -272,7 +273,7 @@ class _FrequencyTapScreenState extends ConsumerState<FrequencyTapScreen> with Ti
           ),
           const SizedBox(height: 30),
         ],
-      ),
+      )),
     );
   }
 }

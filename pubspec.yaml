@@ -47,6 +47,8 @@ dependencies:
   window_manager: ^0.4.3
   flutter_slidable: ^3.1.1
   wakelock_plus: ^1.2.8
+  share_plus: ^13.3.1
+  file_selector: ^1.1.0
 
 dev_dependencies:
   flutter_test:

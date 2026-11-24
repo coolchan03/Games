@@ -80,7 +80,7 @@ class SpotlightTrackScreen extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TangibleContainer(
+                Flexible(child: TangibleContainer(
                   depth: 2.0,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   radius: DesignSystem.radiusSM,
@@ -88,8 +88,8 @@ class SpotlightTrackScreen extends ConsumerWidget {
                     'ROUND: ${state.currentRound}/${state.totalRounds}',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   ),
-                ),
-                TangibleContainer(
+                )),
+                Flexible(child: TangibleContainer(
                   depth: 2.0,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   radius: DesignSystem.radiusSM,
@@ -97,7 +97,7 @@ class SpotlightTrackScreen extends ConsumerWidget {
                     'SCORE: ${state.score}',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: DesignSystem.primary),
                   ),
-                ),
+                )),
               ],
             ),
           ),

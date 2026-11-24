@@ -220,7 +220,7 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Container(
+                  Flexible(child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
                       color: DesignSystem.primary.withValues(alpha: 0.15),
@@ -233,8 +233,8 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
                             fontWeight: FontWeight.bold,
                           ),
                     ),
-                  ),
-                  Container(
+                  )),
+                  Flexible(child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.grey.withValues(alpha: 0.15),
@@ -244,7 +244,7 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
                       _phase == 'study' ? 'Study: $_countdown s' : 'Recall Phase',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  ),
+                  )),
                 ],
               ),
               const SizedBox(height: 24),
