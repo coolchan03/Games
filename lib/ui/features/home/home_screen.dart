@@ -35,7 +35,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   String _searchQuery = "";
   String _selectedCategory = "ALL";
-  bool _isSearchVisible = true;
+  bool _isSearchVisible = false;
   bool _alphabetically = false;
   GameBrowseSubset _browseSubset = GameBrowseSubset.all;
   late final TextEditingController _searchController;
@@ -423,11 +423,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         builder: (context, constraints) {
           if (constraints.crossAxisExtent > 600) {
             return SliverGrid(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              // Fixed row height that grows with the text size, so scaled-up
+              // labels never overflow the tile (an aspect ratio would not).
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 400,
                 mainAxisSpacing: DesignSystem.spaceMD,
                 crossAxisSpacing: DesignSystem.spaceMD,
-                childAspectRatio: 2.2,
+                mainAxisExtent: 190 *
+                    MediaQuery.textScalerOf(context).scale(1.0).clamp(1.0, 1.8),
               ),
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -811,7 +814,7 @@ class _HiddenGameTile extends StatelessWidget {
                     game.category,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurface.withValues(alpha: 0.5),
-                      fontSize: 11.0,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -837,7 +840,7 @@ class _HiddenGameTile extends StatelessWidget {
                     l10n.unhideGame.toUpperCase(),
                     style: const TextStyle(
                       fontFamily: 'Geist',
-                      fontSize: 11.0,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: DesignSystem.gameRose,
                     ),

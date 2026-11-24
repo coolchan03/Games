@@ -53,7 +53,7 @@ class ActivityHeatmapCard extends ConsumerWidget {
         ]),
         const SizedBox(height: DesignSystem.spaceSM),
         LayoutBuilder(builder: (context, c) {
-          const labelWidth = 16.0, gap = 3.0;
+          const labelWidth = 18.0, gap = 3.0;
           final cell = ((c.maxWidth - labelWidth - gap * weeks) / weeks).clamp(8.0, 22.0);
           return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             SizedBox(
@@ -62,7 +62,7 @@ class ActivityHeatmapCard extends ConsumerWidget {
                 for (final l in labels)
                   SizedBox(
                     height: cell + gap,
-                    child: Text(l, style: theme.textTheme.labelSmall?.copyWith(fontSize: 9)),
+                    child: Text(l, style: theme.textTheme.labelSmall?.copyWith(fontSize: 11)),
                   ),
               ]),
             ),

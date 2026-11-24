@@ -9,6 +9,7 @@ import '../../../utils/design_system.dart';
 import '../../../widgets/tangible.dart';
 import '../../../widgets/library_style_selector.dart';
 import 'backup_section.dart';
+import '../../../widgets/ui_size_selector.dart';
 
 
 class SettingsScreen extends ConsumerWidget {
@@ -107,6 +108,8 @@ class SettingsScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           _buildThemeSelector(context, ref, themeMode, l10n),
+                          const SizedBox(height: DesignSystem.spaceSM),
+                          const UiSizeSelector(),
                           const LibraryStyleSelector(),
                         ],
                       ),

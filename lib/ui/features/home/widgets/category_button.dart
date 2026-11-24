@@ -125,7 +125,7 @@ class CategoryButton extends StatelessWidget {
           Text(
             label.toUpperCase(),
             style: theme.textTheme.labelMedium?.copyWith(
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
               color: isSelected
                   ? categoryStyle.color

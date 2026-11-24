@@ -165,7 +165,7 @@ class GameTile extends ConsumerWidget {
           child: Text(
             game.category.toUpperCase(),
             style: theme.textTheme.labelSmall?.copyWith(
-              fontSize: 10.0,
+              fontSize: 12,
               fontWeight: FontWeight.w900,
               color: Colors.white,
               letterSpacing: 1.2,
@@ -189,7 +189,7 @@ class GameTile extends ConsumerWidget {
                   l10n.newGameLabel.toUpperCase(),
                   style: const TextStyle(
                     fontFamily: 'Geist',
-                    fontSize: 9.0,
+                    fontSize: 12,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF4A2A00),
                     letterSpacing: 1.0,
@@ -214,7 +214,7 @@ class GameTile extends ConsumerWidget {
                       '$streakCount',
                       style: const TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 10.0,
+                        fontSize: 12,
                         fontWeight: FontWeight.w900,
                         color: DesignSystem.accentAmber,
                       ),

@@ -60,7 +60,7 @@ class GameGuideScreen extends StatelessWidget {
                           child: Text(
                             guide.category.toUpperCase(),
                             style: TextStyle(
-                              fontSize: 10.0,
+                              fontSize: 12,
                               fontWeight: FontWeight.w900,
                               color: gameColor,
                               letterSpacing: 1.0,

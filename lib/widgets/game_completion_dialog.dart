@@ -141,7 +141,7 @@ class _GameCompletionDialogState extends ConsumerState<GameCompletionDialog> {
                             Text(
                               l10n.leaveReview.toUpperCase(),
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w800,
                                 color: colorScheme.onSurface.withValues(alpha: 0.6),
                                 letterSpacing: 0.5,
@@ -173,7 +173,7 @@ class _GameCompletionDialogState extends ConsumerState<GameCompletionDialog> {
                             Text(
                               l10n.reportError.toUpperCase(),
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w800,
                                 color: colorScheme.onSurface.withValues(alpha: 0.6),
                                 letterSpacing: 0.5,
@@ -396,7 +396,7 @@ class _GameCompletionDialogState extends ConsumerState<GameCompletionDialog> {
                       Text(
                         'BUY ME A COFFEE',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.w800,
                           color: colorScheme.onSurface.withValues(alpha: 0.7),
                           letterSpacing: 0.8,

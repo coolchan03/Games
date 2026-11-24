@@ -10,9 +10,11 @@ import 'package:puzzle/data/models/user_data.dart';
 import 'package:puzzle/data/repositories/user_repository.dart';
 import 'package:puzzle/main.dart';
 import 'package:puzzle/providers/progress_providers.dart';
+import 'package:puzzle/providers/ui_scale_provider.dart';
 import 'package:puzzle/providers/user_providers.dart';
 
 void main() {
+
   late Directory dir;
   late UserRepository repo;
 
@@ -39,6 +41,21 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
     }
   }
+
+  testWidgets('largest interface size on a small phone does not overflow',
+      (tester) async {
+    await open(tester, const Size(360, 640));
+    final container =
+        ProviderScope.containerOf(tester.element(find.byType(MaterialApp)));
+    await tester.runAsync(() =>
+        container.read(uiSizeProvider.notifier).choose(UiSize.extraLarge));
+    await tester.pump(const Duration(milliseconds: 300));
+    for (final tab in ['Stats', 'Settings', 'Games']) {
+      await tester.tap(find.text(tab));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(tester.takeException(), isNull, reason: tab);
+    }
+  });
 
   testWidgets('phone: bottom navigation, daily challenge, stats and settings',
       (tester) async {

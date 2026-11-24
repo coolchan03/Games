@@ -286,14 +286,17 @@ class _UserStatsCard extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  Flexible(
+                   child: Text(
                     lp.isMax ? 'MAX LEVEL' : l10n.statsPercentToLevel((progress * 100).toInt(), level + 1),
+                    textAlign: TextAlign.center,
                     style: theme.textTheme.labelLarge?.copyWith(
                       fontFamily: 'Bebas Neue',
                       fontSize: DesignSystem.fontSizeSM,
                       color: Colors.white.withValues(alpha: 0.9),
                       letterSpacing: 1.0,
                     ),
+                  ),
                   ),
                 ],
               ),
@@ -362,7 +365,10 @@ class _StreakTracker extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: DesignSystem.spaceSM),
-              Row(
+              Flexible(
+               child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.local_fire_department_rounded,
@@ -377,6 +383,8 @@ class _StreakTracker extends ConsumerWidget {
                     ),
                   ),
                 ],
+              ),
+               ),
               ),
             ],
           ),
@@ -707,7 +715,7 @@ class _AchievementCard extends ConsumerWidget {
                 style: TextStyle(
                   fontFamily: 'Geist',
                   fontWeight: FontWeight.w900,
-                  fontSize: 9,
+                  fontSize: 12,
                   letterSpacing: 1.5,
                   color: DesignSystem.mutedInk(context),
                 ),

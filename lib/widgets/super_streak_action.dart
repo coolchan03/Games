@@ -12,8 +12,12 @@ class SuperStreakAction extends ConsumerWidget {
 
     if (streak == 0) return const SizedBox.shrink();
 
+    // The app bar gives this a fixed 72px slot, so shrink rather than overflow
+    // when the interface size is large.
     return Center(
-      child: Container(
+      child: FittedBox(
+       fit: BoxFit.scaleDown,
+       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: theme.colorScheme.primary.withValues(alpha: 0.1),
@@ -36,7 +40,7 @@ class SuperStreakAction extends ConsumerWidget {
               streak.toString(),
               style: theme.textTheme.labelMedium?.copyWith(
                 fontFamily: 'Bebas Neue',
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w400,
                 color: theme.colorScheme.primary,
                 letterSpacing: 1.0,
                 fontSize: 14,
@@ -44,6 +48,7 @@ class SuperStreakAction extends ConsumerWidget {
             ),
           ],
         ),
+       ),
       ),
     );
   }

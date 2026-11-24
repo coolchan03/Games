@@ -13,6 +13,7 @@ import 'providers/user_providers.dart';
 import 'providers/theme_provider.dart';
 import 'providers/library_style_provider.dart';
 import 'providers/locale_provider.dart';
+import 'providers/ui_scale_provider.dart';
 import 'ui/features/main_shell/main_shell.dart';
 import 'utils/design_system.dart';
 import 'utils/library_theme.dart';
@@ -56,6 +57,7 @@ void main() async {
   final userRepository = UserRepository();
   await userRepository.init();
   await ThemeNotifier.preload();
+  await UiSizeNotifier.preload();
 
 
 
@@ -83,6 +85,7 @@ class MyApp extends ConsumerWidget {
     final appThemeMode = ref.watch(themeNotifierProvider);
     final appLocale = ref.watch(localeNotifierProvider);
     final visualStyle = ref.watch(libraryStyleProvider).style;
+    final uiSize = ref.watch(uiSizeProvider);
 
     ThemeMode themeMode;
     switch (appThemeMode) {
@@ -103,6 +106,17 @@ class MyApp extends ConsumerWidget {
       theme: applyLibraryStyle(DesignSystem.lightTheme, visualStyle),
       darkTheme: applyLibraryStyle(DesignSystem.darkTheme, visualStyle),
       themeMode: themeMode,
+      builder: (context, child) {
+        // Combine the player's choice with the OS text size, but keep the
+        // result in a range the layouts can absorb.
+        final media = MediaQuery.of(context);
+        final system = media.textScaler.scale(1.0);
+        final scale = (system * uiSize.factor).clamp(0.9, 1.8);
+        return MediaQuery(
+          data: media.copyWith(textScaler: TextScaler.linear(scale)),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
       localizationsDelegates: [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

@@ -63,7 +63,7 @@ class ContinueCard extends ConsumerWidget {
                       'CONTINUE PLAYING',
                       style: TextStyle(
                         fontFamily: 'Geist',
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.4,
                         color: DesignSystem.gold,
