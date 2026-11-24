@@ -151,8 +151,13 @@ class _BackgammonScreenState extends State<BackgammonScreen> {
                       : null,
                   child: p.pieceCount == 0
                       ? null
-                      : _checkers(p.pieceCount, p.player == Player.white ? _white : _black,
-                          top: top, size: w * .9),
+                      // Tall stacks scale down to the point instead of overflowing.
+                      : FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: top ? Alignment.topCenter : Alignment.bottomCenter,
+                          child: _checkers(p.pieceCount, p.player == Player.white ? _white : _black,
+                              top: top, size: w * .9),
+                        ),
                 ),
               ),
               if (top) Text('${index + 1}', style: const TextStyle(fontSize: 9, color: Colors.white70)),

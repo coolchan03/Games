@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -112,16 +112,11 @@ class _VisualCrowdingAcuityScreenState extends ConsumerState<VisualCrowdingAcuit
             horizontal: DesignSystem.spaceLG,
             vertical: DesignSystem.spaceMD,
           ),
-          child: ScrollIfTall(child: Column(
-            children: [
+          child: ScrollSpread(children: [
               _buildHeader(colorScheme),
-              const Spacer(flex: 1),
               _buildCrowdingStage(colorScheme),
-              const Spacer(flex: 2),
               _buildDirectionPad(colorScheme),
-              const Spacer(flex: 1),
-            ],
-          )),
+            ]),
         ),
       ),
     );

@@ -1,5 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../providers/user_providers.dart';
@@ -91,8 +91,7 @@ class _PerspectiveTakingScreenState extends ConsumerState<PerspectiveTakingScree
       subtitle: l10n.perspectiveTakingSubtitle(targetDirName),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceLG),
-        child: ScrollIfTall(child: Column(
-          children: [
+        child: ScrollSpread(children: [
             const SizedBox(height: DesignSystem.spaceMD),
             Text(
               l10n.perspectiveTakingSubtitle(targetDirName),
@@ -118,7 +117,6 @@ class _PerspectiveTakingScreenState extends ConsumerState<PerspectiveTakingScree
               fit: BoxFit.scaleDown,
               child: _buildTopDownView(state.topView, colorScheme, l10n),
             ),
-            const Spacer(),
             Text(
               l10n.perspectiveTakingChoosePerspective,
               style: TextStyle(
@@ -145,7 +143,7 @@ class _PerspectiveTakingScreenState extends ConsumerState<PerspectiveTakingScree
             ),
             const SizedBox(height: DesignSystem.space2XL),
           ],
-        )),
+        ),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:puzzle/utils/l10n_game_helpers.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import "package:puzzle/l10n/app_localizations.dart";
 
 import 'package:flutter/material.dart';
@@ -76,8 +76,7 @@ class _AnagramDefinitionScreenState extends ConsumerState<AnagramDefinitionScree
           ? const Center(child: CircularProgressIndicator(color: DesignSystem.gameGreen))
           : Padding(
               padding: const EdgeInsets.all(DesignSystem.spaceLG),
-              child: ScrollIfTall(child: Column(
-                children: [
+              child: ScrollSpread(children: [
                   const SizedBox(height: DesignSystem.spaceLG),
                   TangibleContainer(
                     padding: const EdgeInsets.all(DesignSystem.spaceLG),
@@ -101,7 +100,6 @@ class _AnagramDefinitionScreenState extends ConsumerState<AnagramDefinitionScree
                       ],
                     ),
                   ),
-                  const Spacer(),
                   Text(
                     'Anagram of:',
                     style: TextStyle(
@@ -121,10 +119,7 @@ class _AnagramDefinitionScreenState extends ConsumerState<AnagramDefinitionScree
                       letterSpacing: 4,
                     ),
                   ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: List.generate(targetLength, (index) {
+                  Wrap(alignment: WrapAlignment.center, spacing: 8, runSpacing: 8, children: List.generate(targetLength, (index) {
                       final char = index < state.currentGuess.length ? state.currentGuess[index] : '';
                       return Container(
                         width: 36,
@@ -148,9 +143,7 @@ class _AnagramDefinitionScreenState extends ConsumerState<AnagramDefinitionScree
                           ),
                         ),
                       );
-                    }),
-                  ),
-                  const Spacer(),
+                    })),
                   _buildKeyboard(context, state, notifier),
                   const SizedBox(height: DesignSystem.spaceLG),
                   Row(
@@ -179,8 +172,7 @@ class _AnagramDefinitionScreenState extends ConsumerState<AnagramDefinitionScree
                     ],
                   ),
                   const SizedBox(height: DesignSystem.spaceLG),
-                ],
-              )),
+                ]),
             ),
     );
   }

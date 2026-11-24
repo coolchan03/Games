@@ -239,14 +239,14 @@ class _SetTheoryVennScreenState extends ConsumerState<SetTheoryVennScreen> {
         children: [
           // Outside region button
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: Align(
               alignment: Alignment.topRight,
               child: TangibleButton(
                 color: _selectedRegions.contains(VennRegion.outside)
                     ? DesignSystem.gameTeal.withValues(alpha: 0.2)
                     : colorScheme.surface,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                 onTap: () => _toggleRegion(VennRegion.outside),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -309,7 +309,7 @@ class _SetTheoryVennScreenState extends ConsumerState<SetTheoryVennScreen> {
           ),
         ),
         child: Center(
-          child: Column(
+          child: FittedBox(fit: BoxFit.scaleDown, child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
@@ -328,7 +328,7 @@ class _SetTheoryVennScreenState extends ConsumerState<SetTheoryVennScreen> {
                 ),
               ),
             ],
-          ),
+          )),
         ),
       ),
     );

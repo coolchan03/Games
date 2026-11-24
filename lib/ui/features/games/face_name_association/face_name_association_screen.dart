@@ -170,7 +170,7 @@ class _FaceNameAssociationScreenState extends ConsumerState<FaceNameAssociationS
         border: Border.all(color: Theme.of(context).colorScheme.outline, width: 2),
       ),
       padding: const EdgeInsets.all(DesignSystem.spaceMD),
-      child: Column(
+      child: FittedBox(fit: BoxFit.scaleDown, child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
@@ -193,7 +193,7 @@ class _FaceNameAssociationScreenState extends ConsumerState<FaceNameAssociationS
             ),
           ],
         ],
-      ),
+      )),
     );
   }
 }

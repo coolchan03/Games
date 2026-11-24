@@ -191,7 +191,9 @@ class _PasseTrappeScreenState extends State<PasseTrappeScreen>
             _reset();
           },
         ),
-        if (computer)
+        // The board must not scroll (dragging pucks), so on short screens the
+        // optional difficulty blurb gives way to the board.
+        if (computer && MediaQuery.sizeOf(context).height >= 700)
           Text(
             switch (difficulty) {
               AiLevel.easy => 'Easy: relaxed, gentle and less accurate shots',

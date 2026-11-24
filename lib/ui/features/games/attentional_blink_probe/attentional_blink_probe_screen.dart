@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -147,14 +148,11 @@ class _AttentionalBlinkProbeScreenState extends ConsumerState<AttentionalBlinkPr
             horizontal: DesignSystem.spaceLG,
             vertical: DesignSystem.spaceMD,
           ),
-          child: Column(
+          child: ScrollSpread(
             children: [
               _buildHeader(colorScheme),
-              const Spacer(flex: 1),
               _buildRSVPStage(colorScheme),
-              const Spacer(flex: 2),
               _buildResponseButtons(colorScheme),
-              const Spacer(flex: 1),
             ],
           ),
         ),

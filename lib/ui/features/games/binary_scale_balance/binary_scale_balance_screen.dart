@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -130,9 +130,7 @@ class _BinaryScaleBalanceScreenState extends ConsumerState<BinaryScaleBalanceScr
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(DesignSystem.spaceMD),
-          child: ScrollIfTall(child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+          child: ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
@@ -264,8 +262,7 @@ class _BinaryScaleBalanceScreenState extends ConsumerState<BinaryScaleBalanceScr
                   ),
                 ),
               ),
-            ],
-          )),
+            ]),
         ),
       ),
     );

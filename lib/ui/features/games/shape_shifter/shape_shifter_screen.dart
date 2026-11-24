@@ -248,19 +248,19 @@ class _ShapeShifterScreenState extends ConsumerState<ShapeShifterScreen> {
                     const SizedBox(height: DesignSystem.spaceXS),
                     Row(
                       children: [
-                        Icon(
+                        Flexible(child: Icon(
                           _getShapeIcon(_targetShape),
                           color: _targetColor,
                           size: 36,
-                        ),
+                        )),
                         const SizedBox(width: DesignSystem.spaceSM),
-                        Text(
+                        Flexible(child: Text(
                           '$_targetColorName ${_targetShape.name.toUpperCase()}',
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 color: _targetColor,
                                 fontWeight: FontWeight.bold,
                               ),
-                        ),
+                        )),
                       ],
                     ),
                   ],

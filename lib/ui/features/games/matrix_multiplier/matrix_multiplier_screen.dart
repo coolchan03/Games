@@ -243,8 +243,7 @@ class _MatrixMultiplierScreenState extends ConsumerState<MatrixMultiplierScreen>
                                     width: 1.5,
                                   ),
                                 ),
-                                child: Row(
-                                  children: List.generate(3, (c) {
+                                child: Wrap(spacing: 8, runSpacing: 8, children: List.generate(3, (c) {
                                     return Container(
                                       width: 32,
                                       alignment: Alignment.center,
@@ -257,8 +256,7 @@ class _MatrixMultiplierScreenState extends ConsumerState<MatrixMultiplierScreen>
                                         ),
                                       ),
                                     );
-                                  }),
-                                ),
+                                  })),
                               ),
                             );
                           }),
@@ -279,8 +277,7 @@ class _MatrixMultiplierScreenState extends ConsumerState<MatrixMultiplierScreen>
                             vertical: BorderSide(color: isDark ? Colors.white70 : Colors.black87, width: 3),
                           ),
                         ),
-                        child: Row(
-                          children: List.generate(2, (c) {
+                        child: Wrap(spacing: 8, runSpacing: 8, children: List.generate(2, (c) {
                             final isColSelected = _selectedCol == c;
                             return GestureDetector(
                               onTap: () => _onColSelected(c),
@@ -315,8 +312,7 @@ class _MatrixMultiplierScreenState extends ConsumerState<MatrixMultiplierScreen>
                                 ),
                               ),
                             );
-                          }),
-                        ),
+                          })),
                       ),
                     ],
                   )),

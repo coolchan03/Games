@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -214,9 +214,7 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(DesignSystem.spaceMD),
-          child: ScrollIfTall(child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+          child: ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
               // Score / Timer Banner
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -296,13 +294,13 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
                           ),
                           alignment: Alignment.center,
                           child: isStart
-                              ? Column(
+                              ? FittedBox(fit: BoxFit.scaleDown, child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     const Icon(Icons.play_circle_filled_rounded, size: 24, color: Colors.green),
                                     Text(AppLocalizations.of(context)!.btnStartGame, style: TextStyle(fontSize: 8, color: Colors.green, fontWeight: FontWeight.bold)),
                                   ],
-                                )
+                                ))
                               : (isSelected
                                   ? const Icon(Icons.location_on_rounded, size: 28, color: DesignSystem.primary)
                                   : null),
@@ -358,8 +356,7 @@ class _DirectionsRecallScreenState extends ConsumerState<DirectionsRecallScreen>
                   ),
                 ),
               ],
-            ],
-          )),
+            ]),
         ),
       ),
     );

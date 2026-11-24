@@ -1,5 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/juice/game_scaffold.dart';
@@ -76,8 +76,7 @@ class _VennNumbersScreenState extends ConsumerState<VennNumbersScreen> {
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ScrollIfTall(child: Column(
-                children: [
+              child: ScrollSpread(children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -99,9 +98,7 @@ class _VennNumbersScreenState extends ConsumerState<VennNumbersScreen> {
                       ),
                     ),
                   ),
-                  const Spacer(),
                   _buildVennDiagram(problem, notifier, constraints),
-                  const Spacer(),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Wrap(
@@ -115,8 +112,7 @@ class _VennNumbersScreenState extends ConsumerState<VennNumbersScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                ],
-              )),
+                ]),
             ),
           );
         },

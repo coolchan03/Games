@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/min_height_scroll.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
@@ -137,7 +137,7 @@ class _VektorVectorScreenState extends ConsumerState<VektorVectorScreen> {
           },
         ),
       ],
-      body: ScrollIfTall(child: Column(
+      body: MinHeightScroll(minHeight: 720, child: Column(
         children: [
           // Info and Target board
           Padding(

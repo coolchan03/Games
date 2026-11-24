@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -206,9 +206,7 @@ class _ColorWordMatchUpScreenState extends ConsumerState<ColorWordMatchUpScreen>
           ),
           Expanded(
             child: Center(
-              child: ScrollIfTall(child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+              child: ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
                   // Active Rule Display
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
@@ -272,8 +270,7 @@ class _ColorWordMatchUpScreenState extends ConsumerState<ColorWordMatchUpScreen>
                       )),
                     ],
                   ),
-                ],
-              )),
+                ]),
             ),
           ),
           // Action Buttons

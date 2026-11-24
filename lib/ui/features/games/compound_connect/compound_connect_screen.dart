@@ -1,4 +1,5 @@
 import 'package:puzzle/utils/l10n_game_helpers.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import "package:puzzle/l10n/app_localizations.dart";
 
 import 'package:flutter/material.dart';
@@ -76,10 +77,8 @@ class _CompoundConnectScreenState extends ConsumerState<CompoundConnectScreen> {
           ? const Center(child: CircularProgressIndicator(color: DesignSystem.gameIndigo))
           : Padding(
               padding: const EdgeInsets.all(DesignSystem.spaceLG),
-              child: Column(
-                children: [
-                  const Spacer(),
-                  Row(
+              child: ScrollSpread(children: [
+Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Flexible(child: TangibleContainer(
@@ -117,8 +116,7 @@ class _CompoundConnectScreenState extends ConsumerState<CompoundConnectScreen> {
                       )),
                     ],
                   ),
-                  const Spacer(),
-                  Text(
+Text(
                     'Select the correct suffix:',
                     style: TextStyle(
                       fontSize: DesignSystem.fontSizeLG,
@@ -126,8 +124,8 @@ class _CompoundConnectScreenState extends ConsumerState<CompoundConnectScreen> {
                       color: colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
-                  const SizedBox(height: DesignSystem.spaceXL),
-                  GridView.count(
+const SizedBox(height: DesignSystem.spaceXL),
+GridView.count(
                     shrinkWrap: true,
                     crossAxisCount: 2,
                     mainAxisSpacing: DesignSystem.spaceMD,
@@ -152,9 +150,7 @@ class _CompoundConnectScreenState extends ConsumerState<CompoundConnectScreen> {
                       );
                     }).toList(),
                   ),
-                  const Spacer(),
-                ],
-              ),
+]),
             ),
     );
   }

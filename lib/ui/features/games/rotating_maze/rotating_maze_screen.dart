@@ -1,5 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
 
 import 'dart:math' as math;
@@ -170,8 +170,7 @@ class _RotatingMazeScreenState extends ConsumerState<RotatingMazeScreen> {
                 final boardSize = math.min(constraints.maxWidth - 40, constraints.maxHeight * 0.55);
                 final cellSize = boardSize / state.size;
 
-                return ScrollIfTall(child: Column(
-                  children: [
+                return ScrollSpread(children: [
                     const SizedBox(height: DesignSystem.spaceMD),
                     
                     // Moves countdown panel
@@ -326,8 +325,6 @@ class _RotatingMazeScreenState extends ConsumerState<RotatingMazeScreen> {
                         ),
                       ),
                     ),
-                    
-                    const Spacer(),
 
                     // Tactile D-Pad navigation at the bottom
                     Padding(
@@ -400,8 +397,7 @@ class _RotatingMazeScreenState extends ConsumerState<RotatingMazeScreen> {
                         ],
                       ),
                     ),
-                  ],
-                ));
+                  ]);
               },
             ),
     );

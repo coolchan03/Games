@@ -108,7 +108,7 @@ class _FractionMatchScreenState extends ConsumerState<FractionMatchScreen> {
             flex: 3,
             child: Padding(
               padding: const EdgeInsets.all(DesignSystem.spaceLG),
-              child: Column(
+              child: SingleChildScrollView(child: Column(
                 children: [
                   Row(
                     children: [
@@ -126,7 +126,7 @@ class _FractionMatchScreenState extends ConsumerState<FractionMatchScreen> {
                     ],
                   ),
                 ],
-              ),
+              )),
             ),
           ),
         ],

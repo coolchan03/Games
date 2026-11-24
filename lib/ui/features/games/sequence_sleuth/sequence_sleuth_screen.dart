@@ -1,5 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../utils/design_system.dart';
@@ -75,8 +75,7 @@ class _SequenceSleuthScreenState extends ConsumerState<SequenceSleuthScreen> {
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ScrollIfTall(child: Column(
-                children: [
+              child: ScrollSpread(children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -84,7 +83,6 @@ class _SequenceSleuthScreenState extends ConsumerState<SequenceSleuthScreen> {
                       _buildStat(l10n.score.toUpperCase(), '${state.score}', DesignSystem.accentEmerald),
                     ],
                   ),
-                  const Spacer(),
                   _buildSequenceDisplay(state),
                   const SizedBox(height: 32),
                   TangibleContainer(
@@ -100,11 +98,9 @@ class _SequenceSleuthScreenState extends ConsumerState<SequenceSleuthScreen> {
                       ),
                     ),
                   ),
-                  const Spacer(),
                   _buildNumberPad(notifier, constraints),
                   const SizedBox(height: 20),
-                ],
-              )),
+                ]),
             ),
           );
         },

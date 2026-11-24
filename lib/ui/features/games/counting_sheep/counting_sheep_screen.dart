@@ -1,5 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/juice/game_scaffold.dart';
@@ -82,9 +82,7 @@ class _CountingSheepScreenState extends ConsumerState<CountingSheepScreen> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: ScrollIfTall(child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+        child: ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
             Text(
               l10n.countingSheepSubtitle,
               textAlign: TextAlign.center,
@@ -111,8 +109,7 @@ class _CountingSheepScreenState extends ConsumerState<CountingSheepScreen> {
                 ),
               ),
             )),
-          ],
-        )),
+          ]),
       ),
     );
   }

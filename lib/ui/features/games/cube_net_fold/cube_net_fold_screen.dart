@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'cube_net_fold_provider.dart';
@@ -132,8 +132,7 @@ class _CubeNetFoldScreenState extends ConsumerState<CubeNetFoldScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.symmetric(horizontal: DesignSystem.spaceLG),
-              child: ScrollIfTall(child: Column(
-                children: [
+              child: ScrollSpread(children: [
                   const SizedBox(height: DesignSystem.spaceMD),
                   
                   // Section 1: The 2D net card
@@ -160,8 +159,6 @@ class _CubeNetFoldScreenState extends ConsumerState<CubeNetFoldScreen> {
                       }),
                     ),
                   ),
-                  
-                  const Spacer(),
                   
                   // Section 2: The folded 3D cube options
                   Text(
@@ -245,8 +242,6 @@ class _CubeNetFoldScreenState extends ConsumerState<CubeNetFoldScreen> {
                     }),
                   ),
                   
-                  const Spacer(),
-                  
                   // Submit Button
                   SizedBox(
                     width: double.infinity,
@@ -285,8 +280,7 @@ class _CubeNetFoldScreenState extends ConsumerState<CubeNetFoldScreen> {
                     ),
                   ),
                   const SizedBox(height: DesignSystem.spaceLG),
-                ],
-              )),
+                ]),
             ),
     );
   }

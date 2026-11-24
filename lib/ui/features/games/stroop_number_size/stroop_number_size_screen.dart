@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 import 'package:puzzle/providers/user_providers.dart';
@@ -115,18 +115,13 @@ class _StroopNumberSizeScreenState extends ConsumerState<StroopNumberSizeScreen>
             horizontal: DesignSystem.spaceLG,
             vertical: DesignSystem.spaceMD,
           ),
-          child: ScrollIfTall(child: Column(
-            children: [
+          child: ScrollSpread(children: [
               _buildHeader(colorScheme),
-              const Spacer(flex: 1),
               _buildInstructionBanner(instructionText, colorScheme),
               const SizedBox(height: DesignSystem.spaceMD),
               _buildComparisonStage(colorScheme),
-              const Spacer(flex: 2),
               _buildResponseButtons(colorScheme),
-              const Spacer(flex: 1),
-            ],
-          )),
+            ]),
         ),
       ),
     );

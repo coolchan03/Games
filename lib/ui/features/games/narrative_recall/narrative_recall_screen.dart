@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -233,9 +233,7 @@ class _NarrativeRecallScreenState extends ConsumerState<NarrativeRecallScreen> {
   }
 
   Widget _buildStoryView() {
-    return ScrollIfTall(child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
+    return ScrollSpread(mainAxisAlignment: MainAxisAlignment.center, children: [
         const Text(
           'Read and Memorize Details:',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -263,8 +261,7 @@ class _NarrativeRecallScreenState extends ConsumerState<NarrativeRecallScreen> {
           ),
           child: Text(AppLocalizations.of(context)!.btnImReadyToAnswer, style: TextStyle(fontWeight: FontWeight.bold)),
         ),
-      ],
-    ));
+      ]);
   }
 
   Widget _buildQuizView() {

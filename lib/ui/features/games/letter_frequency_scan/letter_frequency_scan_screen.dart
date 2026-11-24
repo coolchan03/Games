@@ -1,5 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
 
 import 'package:flutter/material.dart';
@@ -58,9 +58,7 @@ class LetterFrequencyScanScreen extends ConsumerWidget {
       ],
       body: Padding(
         padding: const EdgeInsets.all(DesignSystem.spaceLG),
-        child: ScrollIfTall(child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
+        child: ScrollSpread(crossAxisAlignment: CrossAxisAlignment.center, children: [
             TangibleContainer(
               padding: const EdgeInsets.all(24),
               color: Theme.of(context).colorScheme.surface,
@@ -109,7 +107,6 @@ class LetterFrequencyScanScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            const Spacer(),
             Text(
               'COUNT: ${state.userCount}',
               style: TextStyle(
@@ -150,8 +147,7 @@ class LetterFrequencyScanScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-          ],
-        )),
+          ]),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/juice/game_scaffold.dart';
@@ -73,8 +73,7 @@ class _PercentagePeakScreenState extends ConsumerState<PercentagePeakScreen> {
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ScrollIfTall(child: Column(
-                children: [
+              child: ScrollSpread(children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -82,7 +81,6 @@ class _PercentagePeakScreenState extends ConsumerState<PercentagePeakScreen> {
                       _buildStat(l10n.score.toUpperCase(), '${state.score}', DesignSystem.accentEmerald),
                     ],
                   ),
-                  const Spacer(),
                   TangibleContainer(
                     depth: 4.0,
                     color: colorScheme.onSurface,
@@ -116,11 +114,9 @@ class _PercentagePeakScreenState extends ConsumerState<PercentagePeakScreen> {
                       ],
                     ),
                   ),
-                  const Spacer(),
                   _buildNumberPad(notifier, constraints),
                   const SizedBox(height: 20),
-                ],
-              )),
+                ]),
             ),
           );
         },

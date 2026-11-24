@@ -1,5 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/min_height_scroll.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../providers/user_providers.dart';
@@ -72,7 +72,7 @@ class _LogicalSyllogismsScreenState extends ConsumerState<LogicalSyllogismsScree
     return GameScaffold(
       title: l10n.logicalSyllogismsTitle.toUpperCase(),
       subtitle: l10n.logicalSyllogismsSubtitle,
-      body: ScrollIfTall(child: Column(
+      body: MinHeightScroll(minHeight: 720, child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(DesignSystem.spaceMD),

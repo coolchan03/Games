@@ -1,5 +1,5 @@
 import 'package:puzzle/l10n/app_localizations.dart';
-import 'package:puzzle/widgets/scroll_if_tall.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:puzzle/utils/l10n_game_helpers.dart';
 
 import 'package:flutter/material.dart';
@@ -82,15 +82,11 @@ class _MagicSquaresScreenState extends ConsumerState<MagicSquaresScreen> {
       subtitle: l10n.magicSquaresSubtitle(state.targetSum),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          return ScrollIfTall(child: Column(
-            children: [
-              const Spacer(),
+          return ScrollSpread(children: [
               _buildGrid(state, notifier, constraints.maxHeight * 0.5),
-              const Spacer(),
               _buildNumpad(notifier),
               const SizedBox(height: DesignSystem.spaceLG),
-            ],
-          ));
+            ]);
         },
       ),
     );

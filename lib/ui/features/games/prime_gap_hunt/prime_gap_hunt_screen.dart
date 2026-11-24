@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:puzzle/widgets/scroll_spread.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:puzzle/l10n/app_localizations.dart';
 import 'package:puzzle/providers/user_providers.dart';
@@ -118,16 +119,11 @@ class _PrimeGapHuntScreenState extends ConsumerState<PrimeGapHuntScreen> {
             horizontal: DesignSystem.spaceLG,
             vertical: DesignSystem.spaceMD,
           ),
-          child: Column(
-            children: [
+          child: ScrollSpread(children: [
               _buildHeader(colorScheme),
-              const Spacer(flex: 1),
               _buildPrimePairCard(colorScheme),
-              const Spacer(flex: 2),
               _buildChoicesGrid(colorScheme),
-              const Spacer(flex: 1),
-            ],
-          ),
+            ]),
         ),
       ),
     );
